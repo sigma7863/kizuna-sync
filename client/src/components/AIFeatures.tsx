@@ -31,6 +31,10 @@ export function AIFeatures({ familyGroupId, familyMembers }: AIFeaturesProps) {
   } | null>(null);
   const [generatedProposal, setGeneratedProposal] = useState<string | null>(null);
 
+  // Hooksは必ずコンポーネント本体で呼び出す
+  const generatePhotoJournalMutation = trpc.ai.generatePhotoJournal.useMutation();
+  const generateFamilyProposalMutation = trpc.ai.generateFamilyProposal.useMutation();
+
   const generatePhotoJournal = async () => {
     if (!photoJournalTitle || photoJournalCount <= 0) {
       toast.error("タイトルと写真枚数を入力してください");
@@ -39,7 +43,7 @@ export function AIFeatures({ familyGroupId, familyMembers }: AIFeaturesProps) {
 
     setIsGeneratingJournal(true);
     try {
-      const result = await trpc.ai.generatePhotoJournal.useMutation().mutateAsync({
+      const result = await generatePhotoJournalMutation.mutateAsync({
         title: photoJournalTitle,
         description: "家族の思い出の写真",
         photoCount: photoJournalCount,
@@ -66,7 +70,7 @@ export function AIFeatures({ familyGroupId, familyMembers }: AIFeaturesProps) {
 
     setIsGeneratingProposal(true);
     try {
-      const result = await trpc.ai.generateFamilyProposal.useMutation().mutateAsync({
+      const result = await generateFamilyProposalMutation.mutateAsync({
         familyName: "我が家",
         preferences: familyPreferences,
         memberCount: familyMembers.length,
