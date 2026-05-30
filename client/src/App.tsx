@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { OfflineIndicator } from "./components/OfflineIndicator";
 import Home from "./pages/Home";
 import FamilyDetail from "./pages/FamilyDetail";
 import InviteMembers from "./pages/InviteMembers";
@@ -35,10 +36,11 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider
         defaultTheme="light"
-        // switchable
+        switchable
       >
         <TooltipProvider>
           <Toaster />
+          <OfflineIndicator />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

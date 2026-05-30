@@ -24,7 +24,12 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
       const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
+      if (stored) return (stored as Theme);
+      
+      // システムの設定を確認
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark";
+      }
     }
     return defaultTheme;
   });
@@ -42,9 +47,30 @@ export function ThemeProvider({
     }
   }, [theme, switchable]);
 
+  // システムのダークモード設定変更を監視
+  useEffect(() => {
+    if (!switchable || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      // ユーザーが手動で設定していない場合のみ自動切り替え
+      const stored = localStorage.getItem("theme");
+      if (!stored) {
+        setTheme(e.matches ? "dark" : "light");
+      }
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [switchable]);
+
   const toggleTheme = switchable
     ? () => {
-        setTheme(prev => (prev === "light" ? "dark" : "light"));
+        setTheme(prev => {
+          const newTheme = prev === "light" ? "dark" : "light";
+          localStorage.setItem("theme", newTheme);
+          return newTheme;
+        });
       }
     : undefined;
 
