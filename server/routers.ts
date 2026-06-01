@@ -19,11 +19,8 @@ import {
   createGeofence,
   getFamilyGeofences,
 } from "./db";
-import {
-  generatePhotoJournalStory,
-  generateFamilyProposal,
-  summarizeFamilyDay,
-} from "./ai";
+import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
+import { getFamilyStats } from "./statistics";
 
 export const appRouter = router({
   system: systemRouter,
@@ -252,6 +249,13 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const summary = await summarizeFamilyDay(input.activities);
         return { summary };
+      }),
+  }),
+  statistics: router({
+    getFamilyStats: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ input }) => {
+        return await getFamilyStats(input.familyGroupId);
       }),
   }),
 });
