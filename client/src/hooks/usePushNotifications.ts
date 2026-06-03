@@ -21,6 +21,7 @@ export function usePushNotifications() {
 
   const checkSubscription = async () => {
     try {
+      await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.getSubscription();
       setSubscription(sub);
@@ -28,7 +29,6 @@ export function usePushNotifications() {
     } catch (error) {
       console.error('[Push Notifications] Error checking subscription:', error);
     }
-  };
 
   const subscribe = async () => {
     try {
