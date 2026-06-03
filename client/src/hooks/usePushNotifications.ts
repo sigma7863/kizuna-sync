@@ -10,10 +10,9 @@ export function usePushNotifications() {
   // const subscribeMutation = trpc.notifications.subscribeToPush.useMutation();
 
   useEffect(() => {
-    // Check if Push Notifications are supported
-    const supported = 'serviceWorker' in navigator && 'PushManager' in window;
+    const supported =
+      'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
     setIsSupported(supported);
-
     if (supported) {
       checkSubscription();
     }
