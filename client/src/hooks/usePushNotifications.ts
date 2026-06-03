@@ -1,0 +1,83 @@
+import { useEffect, useState } from 'react';
+import { trpc } from '@/lib/trpc';
+
+export function usePushNotifications() {
+  const [isSupported, setIsSupported] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscription, setSubscription] = useState<PushSubscription | null>(null);
+
+  // Push subscription will be handled via Service Worker
+  // const subscribeMutation = trpc.notifications.subscribeToPush.useMutation();
+
+  useEffect(() => {
+    // Check if Push Notifications are supported
+    const supported = 'serviceWorker' in navigator && 'PushManager' in window;
+    setIsSupported(supported);
+
+    if (supported) {
+      checkSubscription();
+    }
+  }, []);
+
+  const checkSubscription = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const sub = await registration.pushManager.getSubscription();
+      setSubscription(sub);
+      setIsSubscribed(!!sub);
+    } catch (error) {
+      console.error('[Push Notifications] Error checking subscription:', error);
+    }
+  };
+
+  const subscribe = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+
+      // Request notification permission
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        throw new Error('Notification permission denied');
+      }
+
+      // Subscribe to push notifications
+      const sub = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: process.env.VITE_VAPID_PUBLIC_KEY,
+      });
+
+      // Send subscription to server (would be implemented with tRPC)
+      // await subscribeMutation.mutateAsync({
+      //   subscription: sub.toJSON() as any,
+      // });
+
+      setSubscription(sub);
+      setIsSubscribed(true);
+    } catch (error) {
+      console.error('[Push Notifications] Error subscribing:', error);
+      throw error;
+    }
+  };
+
+  const unsubscribe = async () => {
+    try {
+      if (subscription) {
+        await subscription.unsubscribe();
+        setSubscription(null);
+        setIsSubscribed(false);
+      }
+    } catch (error) {
+      console.error('[Push Notifications] Error unsubscribing:', error);
+      throw error;
+    }
+  };
+
+  return {
+    isSupported,
+    isSubscribed,
+    subscription,
+    subscribe,
+    unsubscribe,
+    isLoading: false,
+  };
+}
