@@ -119,11 +119,13 @@ export async function sendWeeklyReportEmail(
     // Format email content
     const emailContent = formatWeeklyReportEmail(report);
 
-    // Send email using Manus built-in email service
-    // This would integrate with the Manus API
-    console.log(`[Email Report] Sending weekly report for ${report.familyGroupName} to ${recipientEmail}`);
+    // TODO: integrate with an actual email delivery provider/service.
+    console.warn(
+      `[Email Report] Email delivery not implemented; would send weekly report for ${report.familyGroupName} to ${recipientEmail}`
+    );
+    void emailContent;
 
-    return true;
+    return false;
   } catch (error) {
     console.error('[Email Report] Error sending email:', error);
     return false;
