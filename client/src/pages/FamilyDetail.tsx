@@ -12,6 +12,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
 import { SafetyGuardian } from "@/components/SafetyGuardian";
 import { AIFeatures } from "@/components/AIFeatures";
+import { FamilyStatsDashboard } from "@/components/FamilyStatsDashboard";
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
@@ -21,7 +22,7 @@ export default function FamilyDetail() {
 
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "ai">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "ai" | "stats">("timeline");
 
   // Queries
   const { data: familyGroup } = trpc.family.getById.useQuery(
@@ -275,6 +276,17 @@ export default function FamilyDetail() {
             <Sparkles className="w-4 h-4 inline mr-2" />
             AI提案
           </button>
+          <button
+            onClick={() => setActiveTab("stats")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "stats"
+                ? "border-purple-500 text-purple-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Share2 className="w-4 h-4 inline mr-2" />
+            統計
+          </button>
         </div>
 
         {/* Timeline Section */}
@@ -355,6 +367,11 @@ export default function FamilyDetail() {
               name: m.users.name || "Unknown",
             })) || []}
           />
+        )}
+
+        {/* Statistics Dashboard Section */}
+        {activeTab === "stats" && (
+          <FamilyStatsDashboard familyGroupId={familyGroupId} />
         )}
       </main>
 
