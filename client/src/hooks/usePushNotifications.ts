@@ -28,6 +28,7 @@ export function usePushNotifications() {
     } catch (error) {
       console.error('[Push Notifications] Error checking subscription:', error);
     }
+  };
 
   const subscribe = async () => {
     try {
@@ -49,7 +50,11 @@ export function usePushNotifications() {
         const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
         const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
         const raw = atob(base64);
-        return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+        const bytes = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; i++) {
+          bytes[i] = raw.charCodeAt(i);
+        }
+        return bytes;
       };
 
       // Subscribe to push notifications
