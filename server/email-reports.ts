@@ -55,14 +55,15 @@ export async function generateWeeklyReport(familyGroupId: number): Promise<Weekl
     .innerJoin(users, eq(familyMembers.userId, users.id))
     .where(eq(familyMembers.familyGroupId, familyGroupId));
 
-  // Get activities for the week (simplified query without complex date filtering)
+  // Get activities for the week
   const allActivities = await db
     .select()
-    .from(userActivities);
+    .from(userActivities)
+    .where(eq(userActivities.familyGroupId, familyGroupId));
 
   const activities = allActivities.filter((activity) => {
     const actDate = activity.createdAt instanceof Date ? activity.createdAt : new Date(activity.createdAt);
-    return actDate >= weekStartDate && actDate <= weekEndDate;
+    return actDate >= weekStartDate && actDate < weekEndDate;
   });
 
   // Calculate statistics
