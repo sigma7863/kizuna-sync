@@ -32,6 +32,7 @@ export function usePushNotifications() {
 
   const subscribe = async () => {
     try {
+      await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       const registration = await navigator.serviceWorker.ready;
 
       // Request notification permission
@@ -40,12 +41,23 @@ export function usePushNotifications() {
         throw new Error('Notification permission denied');
       }
 
+      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!vapidPublicKey) {
+        throw new Error('Missing VITE_VAPID_PUBLIC_KEY');
+      }
+
+      const urlBase64ToUint8Array = (base64String: string) => {
+        const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const raw = atob(base64);
+        return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+      };
+
       // Subscribe to push notifications
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.VITE_VAPID_PUBLIC_KEY,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
       });
-
       // Send subscription to server (would be implemented with tRPC)
       // await subscribeMutation.mutateAsync({
       //   subscription: sub.toJSON() as any,
