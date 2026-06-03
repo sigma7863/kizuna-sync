@@ -1,16 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from './db';
-import { mysqlTable, varchar, text, int, timestamp } from 'drizzle-orm/mysql-core';
-
-// Push subscription table schema
-export const pushSubscriptions = mysqlTable('push_subscriptions', {
-  id: int('id').autoincrement().primaryKey(),
-  userId: int('userId').notNull(),
-  endpoint: text('endpoint').notNull(),
-  auth: varchar('auth', { length: 255 }).notNull(),
-  p256dh: varchar('p256dh', { length: 255 }).notNull(),
-  createdAt: timestamp('createdAt').defaultNow().notNull(),
-});
+import { pushSubscriptions } from '../drizzle/schema';
 
 export async function savePushSubscription(
   userId: number,

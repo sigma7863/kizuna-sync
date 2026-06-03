@@ -167,3 +167,18 @@ export const familyPreferences = mysqlTable("family_preferences", {
 
 export type FamilyPreferences = typeof familyPreferences.$inferSelect;
 export type InsertFamilyPreferences = typeof familyPreferences.$inferInsert;
+
+/**
+ * Push subscriptions - web push endpoint data by user
+ */
+export const pushSubscriptions = mysqlTable("push_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  endpoint: text("endpoint").notNull(),
+  auth: varchar("auth", { length: 255 }).notNull(),
+  p256dh: varchar("p256dh", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
