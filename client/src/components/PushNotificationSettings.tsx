@@ -37,7 +37,16 @@ export function PushNotificationSettings() {
     <Card className="p-4 bg-white border-0 shadow-md">
       <div
         className="flex items-center justify-between cursor-pointer"
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
         onClick={() => setIsExpanded(!isExpanded)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
       >
         <div className="flex items-center gap-3">
           {isSubscribed ? (
