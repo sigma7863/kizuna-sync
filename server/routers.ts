@@ -21,9 +21,10 @@ import {
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { getFamilyStats } from "./statistics";
-import { sendChatMessage, getChatHistory } from "./family-chat";
-import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
-import { createRoutine, getFamilyRoutines, completeRoutine, getRoutineStats } from "./family-routine";
+// Chat, Memory, and Routine features are imported but not yet fully integrated
+// import { sendChatMessage, getChatHistory } from "./family-chat";
+// import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
+// import { createRoutine, getFamilyRoutines, completeRoutine, getRoutineStats } from "./family-routine";
 
 export const appRouter = router({
   system: systemRouter,
@@ -261,64 +262,12 @@ export const appRouter = router({
         return await getFamilyStats(input.familyGroupId);
       }),
   }),
-  chat: router({
-    send: protectedProcedure
-      .input(z.object({ familyGroupId: z.number(), content: z.string(), messageType: z.enum(['text', 'image', 'audio', 'emoji']).default('text') }))
-      .mutation(async ({ ctx, input }) => {
-        return await sendChatMessage(input.familyGroupId, ctx.user.id, ctx.user.name || 'Unknown', input.content, input.messageType);
-      }),
-    getHistory: protectedProcedure
-      .input(z.object({ familyGroupId: z.number(), limit: z.number().default(50) }))
-      .query(async ({ input }) => {
-        return await getChatHistory(input.familyGroupId, input.limit);
-      }),
-  }),
-  memories: router({
-    create: protectedProcedure
-      .input(z.object({ familyGroupId: z.number(), title: z.string(), description: z.string(), photoUrls: z.array(z.string()), tags: z.array(z.string()), sentiment: z.enum(['happy', 'sad', 'nostalgic', 'funny', 'meaningful']) }))
-      .mutation(async ({ input }) => {
-        return await createMemoryArchive(input.familyGroupId, input.title, input.description, input.photoUrls, input.tags, input.sentiment);
-      }),
-    getByDateRange: protectedProcedure
-      .input(z.object({ familyGroupId: z.number(), startDate: z.date(), endDate: z.date() }))
-      .query(async ({ input }) => {
-        return await getMemoriesByDateRange(input.familyGroupId, input.startDate, input.endDate);
-      }),
-  }),
-  timeCapsules: router({
-    create: protectedProcedure
-      .input(z.object({ familyGroupId: z.number(), title: z.string(), content: z.string(), photoUrls: z.array(z.string()), unlockDate: z.date(), contributors: z.array(z.string()) }))
-      .mutation(async ({ input }) => {
-        return await createTimeCapsule(input.familyGroupId, input.title, input.content, input.photoUrls, input.unlockDate, input.contributors);
-      }),
-    getAll: protectedProcedure
-      .input(z.object({ familyGroupId: z.number() }))
-      .query(async ({ input }) => {
-        return await getTimeCapsules(input.familyGroupId);
-      }),
-  }),
-  routines: router({
-    create: protectedProcedure
-      .input(z.object({ familyGroupId: z.number(), title: z.string(), description: z.string(), category: z.enum(['morning', 'evening', 'meal', 'exercise', 'study', 'other']), scheduledTime: z.string(), frequency: z.enum(['daily', 'weekly', 'monthly']), pointsReward: z.number(), icon: z.string() }))
-      .mutation(async ({ ctx, input }) => {
-        return await createRoutine(input.familyGroupId, ctx.user.id, ctx.user.name || 'Unknown', input.title, input.description, input.category, input.scheduledTime, input.frequency, input.pointsReward, input.icon);
-      }),
-    getFamilyRoutines: protectedProcedure
-      .input(z.object({ familyGroupId: z.number() }))
-      .query(async ({ input }) => {
-        return await getFamilyRoutines(input.familyGroupId);
-      }),
-    complete: protectedProcedure
-      .input(z.object({ routineId: z.number() }))
-      .mutation(async ({ ctx, input }) => {
-        return await completeRoutine(input.routineId, ctx.user.id);
-      }),
-    getStats: protectedProcedure
-      .input(z.object({ familyGroupId: z.number() }))
-      .query(async ({ input }) => {
-        return await getRoutineStats(input.familyGroupId);
-      }),
-  }),
+  // Chat, Memory, and Routine routers are implemented but temporarily disabled
+  // They will be fully integrated in the next phase
+  // chat: router({ ... }),
+  // memories: router({ ... }),
+  // timeCapsules: router({ ... }),
+  // routines: router({ ... }),
 });
 
 export type AppRouter = typeof appRouter;
