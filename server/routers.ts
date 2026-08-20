@@ -69,6 +69,14 @@ import {
   getFamilyOutingsWithChecklist,
   createFamilyOutingChecklistItem,
   toggleFamilyOutingChecklistItem,
+  createFamilyMealIdea,
+  getFamilyMealIdeas,
+  selectFamilyMealIdea,
+  createFamilyCareDuty,
+  getFamilyCareDuties,
+  completeFamilyCareDuty,
+  createFamilyFunPrompt,
+  getFamilyFunPrompts,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -499,6 +507,20 @@ export const appRouter = router({
     createOuting: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), meetingAt: z.string().datetime(), meetingPlace: z.string().trim().max(180).optional(), notes: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => createFamilyOuting({ familyGroupId: input.familyGroupId, createdByUserId: ctx.user.id, title: input.title, meetingAt: new Date(input.meetingAt), meetingPlace: input.meetingPlace || undefined, notes: input.notes || undefined })),
     addItem: protectedProcedure.input(z.object({ outingId: z.number(), label: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyOutingChecklistItem({ ...input, createdByUserId: ctx.user.id })),
     toggleItem: protectedProcedure.input(z.object({ outingId: z.number(), itemId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => toggleFamilyOutingChecklistItem(input)),
+  }),
+  mealRelay: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMealIdeas(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), ideaType: z.enum(["want", "can_make"]), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyMealIdea({ ...input, note: input.note || undefined, createdByUserId: ctx.user.id })),
+    select: protectedProcedure.input(z.object({ familyGroupId: z.number(), mealIdeaId: z.number() })).mutation(({ input }) => selectFamilyMealIdea(input)),
+  }),
+  careBoard: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyCareDuties(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), assignedUserId: z.number().optional(), careTarget: z.string().trim().min(1).max(80), title: z.string().trim().min(1).max(180), dueOn: z.string().datetime().optional() })).mutation(({ ctx, input }) => createFamilyCareDuty({ ...input, createdByUserId: ctx.user.id, dueOn: input.dueOn ? new Date(input.dueOn) : undefined })),
+    complete: protectedProcedure.input(z.object({ familyGroupId: z.number(), dutyId: z.number(), isDone: z.boolean() })).mutation(({ input }) => completeFamilyCareDuty(input)),
+  }),
+  funLottery: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyFunPrompts(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), content: z.string().trim().min(1).max(240), theme: z.string().trim().min(1).max(80) })).mutation(({ ctx, input }) => createFamilyFunPrompt({ ...input, createdByUserId: ctx.user.id })),
   }),
 
   activity: router({
