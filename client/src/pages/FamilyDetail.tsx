@@ -71,7 +71,11 @@ import { FamilyThankYouBookmarks } from "@/components/FamilyThankYouBookmarks";
 import { FamilyMealRequest } from "@/components/FamilyMealRequest";
 import { FamilyFunCountdown } from "@/components/FamilyFunCountdown";
 import { FamilyMemoryQuiz } from "@/components/FamilyMemoryQuiz";
+import { FamilyRoleQuickHub } from "@/components/FamilyRoleQuickHub";
+import { FamilyDisplaySettings } from "@/components/FamilyDisplaySettings";
+import { FamilyImportantShortcuts } from "@/components/FamilyImportantShortcuts";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
+import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
@@ -162,6 +166,16 @@ export default function FamilyDetail() {
         timestamp: new Date(),
       },
     ]);
+  };
+
+  const currentMemberRole: FamilyMemberRole = members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian";
+  const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const handleQuickHubAction = (action: QuickHubAction) => {
+    if (action === "safety") setActiveTab("safety");
+    if (action === "assistant") setActiveTab("assistant");
+    if (action === "album") setActiveTab("album");
+    if (action === "stats") setActiveTab("stats");
+    if (action === "shareMood") scrollToElement("share-feeling");
   };
 
   const getActivityIcon = (type: string) => {
@@ -280,7 +294,7 @@ export default function FamilyDetail() {
         </div>
 
         {/* Post Section */}
-        <Card className="p-6 mb-8 bg-white border-0 shadow-md">
+        <Card id="share-feeling" className="p-6 mb-8 bg-white border-0 shadow-md">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">{t("family.shareFeeling")}</h2>
           <div className="space-y-4">
             <div>
@@ -338,6 +352,12 @@ export default function FamilyDetail() {
           />
         </div>
 
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <FamilyRoleQuickHub role={currentMemberRole} onAction={handleQuickHubAction}/>
+          <FamilyDisplaySettings />
+          <FamilyImportantShortcuts onSafety={() => setActiveTab("safety")} onMood={() => scrollToElement("share-feeling")} onDaily={() => scrollToElement("family-daily-cards")}/>
+        </div>
+
         <div className="mb-6 grid gap-4 md:grid-cols-2">
           <FamilyCheckIn familyGroupId={familyGroupId} />
           <TodayKizunaHighlights familyGroupId={familyGroupId} />
@@ -375,7 +395,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMoodSign familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWalkRoutes familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyLearningCards familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyMoment familyGroupId={familyGroupId}/><FamilyMovementBingo familyGroupId={familyGroupId}/><FamilyTakeHomeNotes familyGroupId={familyGroupId}/></div>
+        <div id="family-daily-cards" className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyMoment familyGroupId={familyGroupId}/><FamilyMovementBingo familyGroupId={familyGroupId}/><FamilyTakeHomeNotes familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyEncouragementPost familyGroupId={familyGroupId}/><FamilyEnergyMeter familyGroupId={familyGroupId}/><FamilyWishList familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMorningBoard familyGroupId={familyGroupId}/><FamilyVoiceMemoExchange familyGroupId={familyGroupId}/><FamilyAchievementAlbum familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHomecomingNote familyGroupId={familyGroupId}/><FamilyReadingRelay familyGroupId={familyGroupId}/><FamilyWeatherMemo familyGroupId={familyGroupId}/></div>
