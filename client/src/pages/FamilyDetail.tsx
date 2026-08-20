@@ -29,6 +29,9 @@ import { TodayKizunaHighlights } from "@/components/TodayKizunaHighlights";
 import { FamilyHelpBoard } from "@/components/FamilyHelpBoard";
 import { FamilyGratitudeRelay } from "@/components/FamilyGratitudeRelay";
 import { FamilyWeeklyPulse } from "@/components/FamilyWeeklyPulse";
+import { FamilyShoppingList } from "@/components/FamilyShoppingList";
+import { FamilyTimeCapsulePanel } from "@/components/FamilyTimeCapsulePanel";
+import { FamilyPollPanel } from "@/components/FamilyPollPanel";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -305,6 +308,12 @@ export default function FamilyDetail() {
           <FamilyHelpBoard familyGroupId={familyGroupId} />
           <FamilyGratitudeRelay familyGroupId={familyGroupId} />
           <FamilyWeeklyPulse familyGroupId={familyGroupId} />
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <FamilyShoppingList familyGroupId={familyGroupId} />
+          <FamilyTimeCapsulePanel familyGroupId={familyGroupId} />
+          <FamilyPollPanel familyGroupId={familyGroupId} />
         </div>
 
         {/* Tabs */}

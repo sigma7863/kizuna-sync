@@ -38,6 +38,15 @@ import {
   getFamilyHelpRequests,
   acceptFamilyHelpRequest,
   completeFamilyHelpRequest,
+  createFamilyShoppingItem,
+  getFamilyShoppingItems,
+  toggleFamilyShoppingItem,
+  createFamilyTimeCapsule,
+  getFamilyTimeCapsules,
+  setFamilyTimeCapsuleTaskUid,
+  createFamilyPoll,
+  getFamilyPollsWithResults,
+  answerFamilyPoll,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -72,6 +81,7 @@ import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
 import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
 import { formatGratitudeContent } from "../shared/gratitude";
 import { buildWeeklyPulse } from "../shared/weeklyPulse";
+import { buildTimeCapsuleCron } from "./time-capsule-scheduler";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -351,6 +361,55 @@ export const appRouter = router({
         ]);
         return buildWeeklyPulse({ timeline, albumPhotos, health });
       }),
+  }),
+
+  shopping: router({
+    list: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(({ input }) => getFamilyShoppingItems(input.familyGroupId)),
+    create: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), itemName: z.string().min(1).max(160), quantity: z.string().max(80).optional() }))
+      .mutation(({ ctx, input }) => createFamilyShoppingItem({ ...input, createdByUserId: ctx.user.id })),
+    toggle: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), itemId: z.number(), isPurchased: z.boolean() }))
+      .mutation(({ ctx, input }) => toggleFamilyShoppingItem({ ...input, userId: ctx.user.id })),
+  }),
+
+  timeCapsule: router({
+    list: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(({ input }) => getFamilyTimeCapsules(input.familyGroupId)),
+    create: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), title: z.string().min(1).max(160), message: z.string().min(1).max(2000), opensAt: z.string().datetime() }))
+      .mutation(async ({ ctx, input }) => {
+        const opensAt = new Date(input.opensAt);
+        if (opensAt <= new Date()) throw new TRPCError({ code: "BAD_REQUEST", message: "公開日時は未来に設定してください" });
+        const capsule = await createFamilyTimeCapsule({ ...input, opensAt, creatorUserId: ctx.user.id });
+        const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        if (!sessionToken) throw new TRPCError({ code: "UNAUTHORIZED", message: "スケジュール登録には再ログインが必要です" });
+        const cron = buildTimeCapsuleCron(opensAt);
+        const job = await createHeartbeatJob({
+          name: `kizuna-capsule-${capsule.id}`,
+          cron,
+          path: "/api/scheduled/releaseTimeCapsule",
+          payload: {},
+          description: `Release family time capsule ${capsule.id}`,
+        }, sessionToken);
+        await setFamilyTimeCapsuleTaskUid(capsule.id, job.taskUid);
+        return { ...capsule, scheduleCronTaskUid: job.taskUid, cron };
+      }),
+  }),
+
+  familyPoll: router({
+    list: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(({ ctx, input }) => getFamilyPollsWithResults(input.familyGroupId, ctx.user.id)),
+    create: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), question: z.string().min(1).max(240), options: z.array(z.string().min(1).max(80)).min(2).max(4), endsAt: z.string().datetime() }))
+      .mutation(({ ctx, input }) => createFamilyPoll({ ...input, endsAt: new Date(input.endsAt), creatorUserId: ctx.user.id })),
+    answer: protectedProcedure
+      .input(z.object({ pollId: z.number(), optionIndex: z.number().int().min(0).max(3) }))
+      .mutation(({ ctx, input }) => answerFamilyPoll({ ...input, userId: ctx.user.id })),
   }),
 
   activity: router({

@@ -12,6 +12,7 @@ import { setupRealtimeEndpoints } from "../realtime";
 import { initializeWebSocketServer } from "../websocket-integration";
 import { sdk } from "./sdk";
 import { generateWeeklyPhotoJournalForTask } from "../photo-journal-scheduler";
+import { releaseFamilyTimeCapsuleForTask } from "../time-capsule-scheduler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -53,6 +54,22 @@ async function startServer() {
       return res.json(result);
     } catch (error) {
       console.error("[Heartbeat] Weekly photo journal failed", error);
+      return res.status(500).json({
+        error: String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        context: { url: req.originalUrl, taskUid: req.headers["x-manus-task-uid"] ?? null },
+        timestamp: new Date().toISOString(),
+      });
+    }
+  });
+
+  app.post("/api/scheduled/releaseTimeCapsule", async (req: Request, res: Response) => {
+    try {
+      const user = await sdk.authenticateRequest(req);
+      if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+      return res.json(await releaseFamilyTimeCapsuleForTask(user.taskUid));
+    } catch (error) {
+      console.error("[Heartbeat] Time capsule release failed", error);
       return res.status(500).json({
         error: String(error),
         stack: error instanceof Error ? error.stack : undefined,

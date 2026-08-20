@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -16,9 +16,14 @@ import {
   photoJournals,
   familyAlbumPhotos,
   familyHelpRequests,
+  familyShoppingItems,
+  familyTimeCapsules,
+  familyPolls,
+  familyPollResponses,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
+import { summarizeFamilyPoll } from "../shared/familyPolls";
 
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -319,6 +324,93 @@ export async function completeFamilyHelpRequest(input: { familyGroupId: number; 
       eq(familyHelpRequests.helperUserId, input.userId),
       eq(familyHelpRequests.status, "accepted"),
     ));
+}
+
+export async function createFamilyShoppingItem(input: { familyGroupId: number; createdByUserId: number; itemName: string; quantity?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyShoppingItems).values({ ...input, quantity: input.quantity ?? null });
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, isPurchased: false };
+}
+
+export async function getFamilyShoppingItems(familyGroupId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(familyShoppingItems)
+    .where(eq(familyShoppingItems.familyGroupId, familyGroupId))
+    .orderBy(familyShoppingItems.isPurchased, desc(familyShoppingItems.updatedAt));
+}
+
+export async function toggleFamilyShoppingItem(input: { familyGroupId: number; itemId: number; isPurchased: boolean; userId: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(familyShoppingItems)
+    .set({ isPurchased: input.isPurchased, purchasedByUserId: input.isPurchased ? input.userId : null })
+    .where(and(eq(familyShoppingItems.id, input.itemId), eq(familyShoppingItems.familyGroupId, input.familyGroupId)));
+}
+
+export async function createFamilyTimeCapsule(input: { familyGroupId: number; creatorUserId: number; title: string; message: string; opensAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyTimeCapsules).values(input);
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input };
+}
+
+export async function getFamilyTimeCapsules(familyGroupId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(familyTimeCapsules)
+    .where(eq(familyTimeCapsules.familyGroupId, familyGroupId))
+    .orderBy(desc(familyTimeCapsules.opensAt));
+}
+
+export async function setFamilyTimeCapsuleTaskUid(id: number, taskUid: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(familyTimeCapsules).set({ scheduleCronTaskUid: taskUid }).where(eq(familyTimeCapsules.id, id));
+}
+
+export async function getFamilyTimeCapsuleByTaskUid(taskUid: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(familyTimeCapsules).where(eq(familyTimeCapsules.scheduleCronTaskUid, taskUid)).limit(1);
+  return rows[0];
+}
+
+export async function markFamilyTimeCapsuleOpened(id: number, openedAt: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(familyTimeCapsules).set({ openedAt }).where(and(eq(familyTimeCapsules.id, id), isNull(familyTimeCapsules.openedAt)));
+}
+
+export async function createFamilyPoll(input: { familyGroupId: number; creatorUserId: number; question: string; options: string[]; endsAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyPolls).values(input);
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input };
+}
+
+export async function getFamilyPollsWithResults(familyGroupId: number, currentUserId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const polls = await db.select().from(familyPolls).where(eq(familyPolls.familyGroupId, familyGroupId)).orderBy(desc(familyPolls.createdAt));
+  const responses = await db.select().from(familyPollResponses);
+  return polls.map((poll) => {
+    const pollResponses = responses.filter((response) => response.pollId === poll.id);
+    const options = Array.isArray(poll.options) ? poll.options.filter((option): option is string => typeof option === "string") : [];
+    return { ...poll, options, ...summarizeFamilyPoll(options, pollResponses, currentUserId) };
+  });
+}
+
+export async function answerFamilyPoll(input: { pollId: number; userId: number; optionIndex: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await db.select().from(familyPollResponses)
+    .where(and(eq(familyPollResponses.pollId, input.pollId), eq(familyPollResponses.respondentUserId, input.userId)))
+    .limit(1);
+  if (existing[0]) return { alreadyAnswered: true as const };
+  const result = await db.insert(familyPollResponses).values({ pollId: input.pollId, respondentUserId: input.userId, optionIndex: input.optionIndex });
+  return { alreadyAnswered: false as const, id: Number((result as { insertId?: number }).insertId ?? 0) };
 }
 
 // Activity queries
