@@ -210,6 +210,15 @@ import {
   createFamilyMeetingMarker,
   getFamilyMeetingMarkers,
   updateFamilyMeetingMarker,
+  createFamilyMoodResetIdea,
+  getFamilyMoodResetIdeas,
+  updateFamilyMoodResetIdea,
+  createFamilyThanksRelay,
+  getFamilyThanksRelays,
+  updateFamilyThanksRelay,
+  createFamilyOutingCharmMemo,
+  getFamilyOutingCharmMemos,
+  updateFamilyOutingCharmMemo,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -903,6 +912,21 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMeetingMarkers(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), locationHint: z.string().trim().min(1).max(160), appearanceHint: z.string().trim().max(160).optional(), note: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyMeetingMarker({ ...input, appearanceHint: input.appearanceHint || undefined, note: input.note || undefined, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), markerId: z.number(), isActive: z.boolean() })).mutation(({ input }) => updateFamilyMeetingMarker(input)),
+  }),
+  moodResetIdeas: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMoodResetIdeas(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), kind: z.enum(["breath", "music", "move", "rest"]), title: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyMoodResetIdea({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), ideaId: z.number(), isTried: z.boolean() })).mutation(({ input }) => updateFamilyMoodResetIdea(input)),
+  }),
+  thanksRelays: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyThanksRelays(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), recipientHint: z.string().trim().max(80).optional(), message: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyThanksRelay({ ...input, recipientHint: input.recipientHint || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), relayId: z.number(), isReceived: z.boolean() })).mutation(({ input }) => updateFamilyThanksRelay(input)),
+  }),
+  outingCharmMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyOutingCharmMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), kind: z.enum(["item", "caution", "cheer"]), memo: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyOutingCharmMemo({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isChecked: z.boolean() })).mutation(({ input }) => updateFamilyOutingCharmMemo(input)),
   }),
 
   activity: router({

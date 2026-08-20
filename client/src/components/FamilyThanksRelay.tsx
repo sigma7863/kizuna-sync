@@ -1,0 +1,15 @@
+import { useState } from "react";
+import { CheckCircle2, Heart, Loader2, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { countUnreceivedThanks } from "@shared/familyTinySupports";
+
+export function FamilyThanksRelay({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [recipientHint, setRecipientHint] = useState(""); const [message, setMessage] = useState("");
+  const { data: relays = [], isLoading } = trpc.thanksRelays.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.thanksRelays.create.useMutation({ onSuccess: async () => { setRecipientHint(""); setMessage(""); await utils.thanksRelays.list.invalidate({ familyGroupId }); } });
+  const update = trpc.thanksRelays.update.useMutation({ onSuccess: () => utils.thanksRelays.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-pink-50 via-white to-rose-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Heart className="h-5 w-5 fill-rose-500 text-rose-500"/>家族の今日のありがとう回覧</CardTitle><p className="text-xs text-slate-500">一日の中で感謝したいことを、短くやさしく回そう。</p></CardHeader><CardContent className="space-y-3"><p className="text-xs font-medium text-rose-700">届いていないありがとう：{countUnreceivedThanks(relays)}件</p><div className="grid gap-2 rounded-xl bg-white/80 p-3"><Input value={recipientHint} onChange={(event) => setRecipientHint(event.target.value)} placeholder="誰へ（任意）" maxLength={80}/><div className="flex gap-2"><Input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="例：朝、声をかけてくれてありがとう" maxLength={180}/><Button size="icon" aria-label="ありがとうを回す" disabled={!message.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, recipientHint, message })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4"/>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-rose-700">ありがとうを読み込み中です…</p> : <div className="grid gap-2">{relays.map((relay) => <article key={relay.id} className={`rounded-xl p-3 shadow-sm ${relay.isReceived ? "bg-rose-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div>{relay.recipientHint && <p className="text-[11px] font-medium text-rose-700">{relay.recipientHint}へ</p>}<p className={`mt-1 text-sm ${relay.isReceived ? "text-rose-700 line-through" : "text-slate-800"}`}>{relay.message}</p></div><button type="button" aria-label={relay.isReceived ? "未受領に戻す" : "受け取った"} onClick={() => update.mutate({ familyGroupId, relayId: relay.id, isReceived: !relay.isReceived })} className={relay.isReceived ? "text-emerald-600" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{relays.length === 0 && <p className="rounded-xl border border-dashed border-rose-200 p-3 text-center text-xs text-slate-500">今日、うれしかったことを最初のありがとうにしてみましょう。</p>}</div>}</CardContent></Card>;
+}
