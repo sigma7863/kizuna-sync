@@ -1279,6 +1279,42 @@ export const familyHomecomingBreathers = mysqlTable("family_homecoming_breathers
 }, (table) => [index("family_homecoming_breathers_group_taken_idx").on(table.familyGroupId, table.isTaken)]);
 export type FamilyHomecomingBreather = typeof familyHomecomingBreathers.$inferSelect;
 
+/** One-line daily notes that let family members build a shared journal relay. */
+export const familyJournalRelayEntries = mysqlTable("family_journal_relay_entries", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  dailyKey: varchar("daily_key", { length: 10 }).notNull(),
+  entry: varchar("entry", { length: 220 }).notNull(),
+  isPassed: boolean("is_passed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_journal_relay_entries_group_day_idx").on(table.familyGroupId, table.dailyKey)]);
+export type FamilyJournalRelayEntry = typeof familyJournalRelayEntries.$inferSelect;
+
+/** Conversation-starting topics that family members want to share and revisit. */
+export const familyConversationTopics = mysqlTable("family_conversation_topics", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  topic: varchar("topic", { length: 180 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  isDiscussed: boolean("is_discussed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_conversation_topics_group_discussed_idx").on(table.familyGroupId, table.isDiscussed)]);
+export type FamilyConversationTopic = typeof familyConversationTopics.$inferSelect;
+
+/** A short, private-in-family acknowledgement for a member's effort. */
+export const familyAppreciationCards = mysqlTable("family_appreciation_cards", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  recipientName: varchar("recipient_name", { length: 80 }).notNull(),
+  message: varchar("message", { length: 220 }).notNull(),
+  isSeen: boolean("is_seen").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_appreciation_cards_group_seen_idx").on(table.familyGroupId, table.isSeen)]);
+export type FamilyAppreciationCard = typeof familyAppreciationCards.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
