@@ -57,10 +57,15 @@ import {
   createFamilyGentleRule,
   getFamilyGentleRules,
   toggleFamilyGentleRule,
+  createFamilyWeekendPlan,
+  getFamilyWeekendPlans,
+  getFamilyWeekendPlan,
+  setFamilyWeekendPlanShared,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
 import { getFamilyStats } from "./statistics";
+import { buildWeekendPlanPoll, normalizeWeekendPlanDraft } from "../shared/familyWeekendPlans";
 import {
   createFamilyNotification,
   getUserNotifications,
@@ -455,11 +460,17 @@ export const appRouter = router({
     toggle: protectedProcedure.input(z.object({ familyGroupId: z.number(), ruleId: z.number(), isAgreed: z.boolean() })).mutation(({ input }) => toggleFamilyGentleRule(input)),
   }),
   weekendPlanner: router({
-    suggestions: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(() => ([
-      { id: "indoor-craft", title: "おうちで工作", type: "室内", description: "雨の日でも楽しめる、みんなで作る時間" },
-      { id: "park-walk", title: "近所をお散歩", type: "屋外", description: "気分転換に、ゆっくり歩いて季節を感じる" },
-      { id: "movie-night", title: "家族映画ナイト", type: "室内", description: "好きな飲み物と一緒に思い出を増やす" },
-    ])),
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWeekendPlans(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().min(1).max(160), description: z.string().max(500).optional(), activityType: z.enum(["indoor", "outdoor", "hybrid"]) })).mutation(({ ctx, input }) => createFamilyWeekendPlan({ ...normalizeWeekendPlanDraft(input), familyGroupId: input.familyGroupId, createdByUserId: ctx.user.id })),
+    share: protectedProcedure.input(z.object({ familyGroupId: z.number(), planId: z.number() })).mutation(async ({ ctx, input }) => {
+      const plan = await getFamilyWeekendPlan(input.familyGroupId, input.planId);
+      if (!plan) throw new TRPCError({ code: "NOT_FOUND", message: "週末プランが見つかりません" });
+      if (plan.sharedPollId) return { pollId: plan.sharedPollId, alreadyShared: true as const };
+      const poll = buildWeekendPlanPoll(plan.title);
+      const createdPoll = await createFamilyPoll({ familyGroupId: input.familyGroupId, creatorUserId: ctx.user.id, ...poll });
+      await setFamilyWeekendPlanShared({ familyGroupId: input.familyGroupId, planId: plan.id, sharedPollId: createdPoll.id });
+      return { pollId: createdPoll.id, alreadyShared: false as const };
+    }),
   }),
 
   activity: router({

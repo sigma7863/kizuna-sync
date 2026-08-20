@@ -267,6 +267,24 @@ export const familyGentleRules = mysqlTable("family_gentle_rules", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 }, (table) => [index("family_gentle_rules_group_idx").on(table.familyGroupId)]);
 
+/** Shared weekend activity ideas, created and refined by family members. */
+export const familyWeekendPlans = mysqlTable("family_weekend_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  description: text("description"),
+  activityType: mysqlEnum("activity_type", ["indoor", "outdoor", "hybrid"]).notNull(),
+  sharedPollId: int("shared_poll_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+  index("family_weekend_plans_group_created_idx").on(table.familyGroupId, table.createdAt),
+  index("family_weekend_plans_group_shared_idx").on(table.familyGroupId, table.sharedPollId),
+]);
+
+export type FamilyWeekendPlan = typeof familyWeekendPlans.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
