@@ -24,6 +24,7 @@ import {
   familyCelebrationDates,
   familyContactCards,
   familyGentleRules,
+  familyWeekendPlans,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -458,6 +459,14 @@ export async function getFamilyContactCards(familyGroupId: number) { const db = 
 export async function createFamilyGentleRule(input: { familyGroupId: number; createdByUserId: number; title: string; detail?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyGentleRules).values({ ...input, detail: input.detail ?? null }); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, isAgreed: false }; }
 export async function getFamilyGentleRules(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyGentleRules).where(eq(familyGentleRules.familyGroupId, familyGroupId)) : []; }
 export async function toggleFamilyGentleRule(input: { familyGroupId: number; ruleId: number; isAgreed: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyGentleRules).set({ isAgreed: input.isAgreed }).where(and(eq(familyGentleRules.id, input.ruleId), eq(familyGentleRules.familyGroupId, input.familyGroupId))); }
+export async function createFamilyWeekendPlan(input: { familyGroupId: number; createdByUserId: number; title: string; description?: string; activityType: "indoor" | "outdoor" | "hybrid" }) {
+  const db = await getDb(); if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyWeekendPlans).values({ ...input, description: input.description ?? null });
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, description: input.description ?? null, sharedPollId: null };
+}
+export async function getFamilyWeekendPlans(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyWeekendPlans).where(eq(familyWeekendPlans.familyGroupId, familyGroupId)).orderBy(desc(familyWeekendPlans.createdAt)) : []; }
+export async function getFamilyWeekendPlan(familyGroupId: number, planId: number) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(familyWeekendPlans).where(and(eq(familyWeekendPlans.familyGroupId, familyGroupId), eq(familyWeekendPlans.id, planId))).limit(1); return rows[0]; }
+export async function setFamilyWeekendPlanShared(input: { familyGroupId: number; planId: number; sharedPollId: number }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyWeekendPlans).set({ sharedPollId: input.sharedPollId }).where(and(eq(familyWeekendPlans.id, input.planId), eq(familyWeekendPlans.familyGroupId, input.familyGroupId))); }
 
 // Activity queries
 export async function logUserActivity(
