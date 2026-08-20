@@ -131,6 +131,13 @@ import {
   getFamilyFunCountdowns,
   createFamilyMemoryQuiz,
   getFamilyMemoryQuizzes,
+  createFamilyMonthlyGoal,
+  getFamilyMonthlyGoals,
+  updateFamilyMonthlyGoal,
+  createFamilyPhotoCaption,
+  getFamilyPhotoCaptions,
+  createFamilyQuietTimeSignal,
+  getFamilyQuietTimeSignals,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -686,6 +693,19 @@ export const appRouter = router({
   memoryQuizzes: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMemoryQuizzes(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), question: z.string().trim().min(1).max(300), optionA: z.string().trim().min(1).max(180), optionB: z.string().trim().min(1).max(180), optionC: z.string().trim().min(1).max(180), correctAnswer: z.enum(["a", "b", "c"]), hint: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyMemoryQuiz({ ...input, hint: input.hint || undefined, userId: ctx.user.id })),
+  }),
+  monthlyGoals: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), monthKey: z.string().regex(/^\d{4}-\d{2}$/) })).query(({ input }) => getFamilyMonthlyGoals(input.familyGroupId, input.monthKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), monthKey: z.string().regex(/^\d{4}-\d{2}$/), title: z.string().trim().min(1).max(160), encouragement: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyMonthlyGoal({ ...input, encouragement: input.encouragement || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), goalId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => updateFamilyMonthlyGoal(input)),
+  }),
+  photoCaptions: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyPhotoCaptions(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), photoId: z.number(), caption: z.string().trim().min(1).max(280) })).mutation(({ ctx, input }) => createFamilyPhotoCaption({ ...input, userId: ctx.user.id })),
+  }),
+  quietTime: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyQuietTimeSignals(input.familyGroupId)),
+    share: protectedProcedure.input(z.object({ familyGroupId: z.number(), state: z.enum(["focus", "rest", "sleeping"]), note: z.string().trim().max(180).optional(), untilAt: z.date().optional() })).mutation(({ ctx, input }) => createFamilyQuietTimeSignal({ ...input, note: input.note || undefined, userId: ctx.user.id })),
   }),
 
   activity: router({

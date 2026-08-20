@@ -1,0 +1,15 @@
+import { useState } from "react";
+import { ImageIcon, Loader2, MessageCircleHeart, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+
+export function FamilyPhotoCaption({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [photoId, setPhotoId] = useState(""); const [caption, setCaption] = useState("");
+  const { data: photos = [] } = trpc.album.list.useQuery({ familyGroupId, favoritesOnly: false }, { enabled: familyGroupId > 0 });
+  const { data: captions = [], isLoading } = trpc.photoCaptions.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.photoCaptions.create.useMutation({ onSuccess: async () => { setPhotoId(""); setCaption(""); await utils.photoCaptions.list.invalidate({ familyGroupId }); } });
+  const photosById = new Map(photos.map((photo) => [photo.id, photo]));
+  return <Card className="border-0 bg-gradient-to-br from-rose-50 via-white to-pink-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><MessageCircleHeart className="h-5 w-5 text-rose-600"/>家族の写真にひとこと</CardTitle><p className="text-xs text-slate-500">写真に短いキャプションを添えて、思い出の背景を残そう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><select value={photoId} onChange={(event) => setPhotoId(event.target.value)} className="h-9 rounded-md border bg-white px-3 text-sm"><option value="">写真を選ぶ</option>{photos.slice(0, 30).map((photo) => <option key={photo.id} value={photo.id}>{photo.description || photo.fileName}</option>)}</select><Input value={caption} onChange={(event) => setCaption(event.target.value)} placeholder="例：初めてみんなで行った公園" maxLength={280}/><Button size="sm" disabled={!photoId || !caption.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, photoId: Number(photoId), caption })}>{create.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>ひとことを添える</>}</Button></div>{isLoading ? <p className="py-3 text-center text-xs text-rose-700">キャプションを読み込み中です…</p> : <div className="grid gap-2">{captions.slice(0, 5).map((item) => { const photo = photosById.get(item.photoId); return <article key={item.id} className="flex gap-3 rounded-xl bg-white p-3 shadow-sm">{photo ? <img src={photo.imageUrl} alt={photo.description || photo.fileName} className="h-14 w-14 shrink-0 rounded-lg object-cover"/> : <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-rose-50"><ImageIcon className="h-5 w-5 text-rose-400"/></div>}<div><p className="text-xs leading-relaxed text-slate-700">{item.caption}</p><p className="mt-1 text-[11px] text-rose-700">{new Date(item.createdAt).toLocaleDateString()}</p></div></article>; })}{captions.length === 0 && <p className="rounded-xl border border-dashed border-rose-200 p-3 text-center text-xs text-slate-500">アルバムの写真に、最初のひとことを添えてみましょう。</p>}</div>}</CardContent></Card>;
+}
