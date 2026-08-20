@@ -124,6 +124,13 @@ import {
   resolveFamilyForgottenItemAlert,
   createFamilyThankYouBookmark,
   getFamilyThankYouBookmarks,
+  createFamilyMealRequest,
+  getFamilyMealRequests,
+  updateFamilyMealRequestStatus,
+  createFamilyFunCountdown,
+  getFamilyFunCountdowns,
+  createFamilyMemoryQuiz,
+  getFamilyMemoryQuizzes,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -666,6 +673,19 @@ export const appRouter = router({
   thankYouBookmarks: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyThankYouBookmarks(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), message: z.string().trim().min(1).max(240) })).mutation(({ ctx, input }) => createFamilyThankYouBookmark({ ...input, userId: ctx.user.id })),
+  }),
+  mealRequests: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMealRequests(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), dishName: z.string().trim().min(1).max(160), reason: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyMealRequest({ ...input, reason: input.reason || undefined, userId: ctx.user.id })),
+    updateStatus: protectedProcedure.input(z.object({ familyGroupId: z.number(), requestId: z.number(), status: z.enum(["open", "planned", "served"]) })).mutation(({ input }) => updateFamilyMealRequestStatus(input)),
+  }),
+  funCountdowns: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyFunCountdowns(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), eventAt: z.date(), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyFunCountdown({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+  }),
+  memoryQuizzes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMemoryQuizzes(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), question: z.string().trim().min(1).max(300), optionA: z.string().trim().min(1).max(180), optionB: z.string().trim().min(1).max(180), optionC: z.string().trim().min(1).max(180), correctAnswer: z.enum(["a", "b", "c"]), hint: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyMemoryQuiz({ ...input, hint: input.hint || undefined, userId: ctx.user.id })),
   }),
 
   activity: router({

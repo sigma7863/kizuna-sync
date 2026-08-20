@@ -1,0 +1,14 @@
+import { useState } from "react";
+import { CalendarHeart, Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { getCountdownText } from "@shared/familyConversationGames";
+
+export function FamilyFunCountdown({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [title, setTitle] = useState(""); const [eventDate, setEventDate] = useState(""); const [note, setNote] = useState("");
+  const { data: countdowns = [], isLoading } = trpc.funCountdowns.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.funCountdowns.create.useMutation({ onSuccess: async () => { setTitle(""); setEventDate(""); setNote(""); await utils.funCountdowns.list.invalidate({ familyGroupId }); } });
+  return <Card className="border-0 bg-gradient-to-br from-violet-50 via-white to-pink-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><CalendarHeart className="h-5 w-5 text-violet-600"/>家族の今週の楽しみカウントダウン</CardTitle><p className="text-xs text-slate-500">週末やイベントまでの小さな楽しみを、一緒に数えよう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：おばあちゃんと公園へ" maxLength={160}/><Input value={eventDate} onChange={(event) => setEventDate(event.target.value)} type="date"/><Input value={note} onChange={(event) => setNote(event.target.value)} placeholder="ひとこと（任意）" maxLength={240}/><Button size="sm" disabled={!title.trim() || !eventDate || create.isPending} onClick={() => create.mutate({ familyGroupId, title, eventAt: new Date(`${eventDate}T12:00:00`), note })}>{create.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>楽しみを追加</>}</Button></div>{isLoading ? <p className="py-3 text-center text-xs text-violet-700">楽しみを読み込み中です…</p> : <div className="grid gap-2">{countdowns.map((countdown) => <article key={countdown.id} className="rounded-xl bg-white p-3 shadow-sm"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold text-slate-800">{countdown.title}</p><span className="rounded-full bg-violet-100 px-2 py-1 text-xs font-bold text-violet-800">{getCountdownText(new Date(countdown.eventAt))}</span></div><p className="mt-1 text-[11px] text-violet-700">{new Date(countdown.eventAt).toLocaleDateString()}</p>{countdown.note && <p className="mt-1 text-xs text-slate-600">{countdown.note}</p>}</article>)}{countdowns.length === 0 && <p className="rounded-xl border border-dashed border-violet-200 p-3 text-center text-xs text-slate-500">今週楽しみにしていることを、一つ数えてみましょう。</p>}</div>}</CardContent></Card>;
+}
