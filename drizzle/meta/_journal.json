@@ -183,6 +183,13 @@
       "when": 1787227190243,
       "tag": "0025_pink_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1787227553467,
+      "tag": "0026_shocking_angel",
+      "breakpoints": true
     }
   ]
 }

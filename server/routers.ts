@@ -111,6 +111,12 @@ import {
   getFamilyVoiceMemos,
   createFamilyAchievementEntry,
   getFamilyAchievementEntries,
+  createFamilyHomecomingNote,
+  getFamilyHomecomingNotes,
+  createFamilyReadingRelayEntry,
+  getFamilyReadingRelayEntries,
+  createFamilyWeatherMemo,
+  getFamilyWeatherMemos,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -628,6 +634,18 @@ export const appRouter = router({
   achievements: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyAchievementEntries(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), category: z.enum(["help", "movement", "challenge", "other"]), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyAchievementEntry({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+  }),
+  homecomings: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyHomecomingNotes(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), moodSign: z.string().trim().max(32).optional(), note: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyHomecomingNote({ ...input, moodSign: input.moodSign || undefined, userId: ctx.user.id })),
+  }),
+  readingRelay: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyReadingRelayEntries(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), bookTitle: z.string().trim().min(1).max(180), pageCount: z.number().int().min(1).max(100000).optional(), quote: z.string().trim().max(300).optional(), reflection: z.string().trim().max(300).optional() })).mutation(({ ctx, input }) => createFamilyReadingRelayEntry({ ...input, pageCount: input.pageCount || undefined, quote: input.quote || undefined, reflection: input.reflection || undefined, userId: ctx.user.id })),
+  }),
+  weatherMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWeatherMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), weather: z.enum(["sunny", "cloudy", "rainy", "cold", "hot", "other"]), clothingNote: z.string().trim().max(180).optional(), carryingNote: z.string().trim().max(180).optional(), bodyNote: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyWeatherMemo({ ...input, clothingNote: input.clothingNote || undefined, carryingNote: input.carryingNote || undefined, bodyNote: input.bodyNote || undefined, userId: ctx.user.id })),
   }),
 
   activity: router({

@@ -570,6 +570,43 @@ export const familyAchievementEntries = mysqlTable("family_achievement_entries",
 }, (table) => [index("family_achievement_entries_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyAchievementEntry = typeof familyAchievementEntries.$inferSelect;
 
+/** Brief arrival notes that let a family share a safe homecoming and current mood. */
+export const familyHomecomingNotes = mysqlTable("family_homecoming_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  moodSign: varchar("mood_sign", { length: 32 }),
+  note: varchar("note", { length: 180 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_homecoming_notes_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyHomecomingNote = typeof familyHomecomingNotes.$inferSelect;
+
+/** Reading fragments and favorite passages exchanged between family members. */
+export const familyReadingRelayEntries = mysqlTable("family_reading_relay_entries", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  bookTitle: varchar("book_title", { length: 180 }).notNull(),
+  pageCount: int("page_count"),
+  quote: varchar("quote", { length: 300 }),
+  reflection: varchar("reflection", { length: 300 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_reading_relay_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyReadingRelayEntry = typeof familyReadingRelayEntries.$inferSelect;
+
+/** Self-authored weather-aware notes about clothing, carrying items, and body comfort. */
+export const familyWeatherMemos = mysqlTable("family_weather_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  weather: mysqlEnum("weather", ["sunny", "cloudy", "rainy", "cold", "hot", "other"]).default("other").notNull(),
+  clothingNote: varchar("clothing_note", { length: 180 }),
+  carryingNote: varchar("carrying_note", { length: 180 }),
+  bodyNote: varchar("body_note", { length: 180 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_weather_memos_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyWeatherMemo = typeof familyWeatherMemos.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
