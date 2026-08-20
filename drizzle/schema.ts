@@ -607,6 +607,43 @@ export const familyWeatherMemos = mysqlTable("family_weather_memos", {
 }, (table) => [index("family_weather_memos_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyWeatherMemo = typeof familyWeatherMemos.$inferSelect;
 
+/** Song references shared with a mood and small personal note, without hosting music files. */
+export const familyPlaylistItems = mysqlTable("family_playlist_items", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  artist: varchar("artist", { length: 160 }),
+  mood: mysqlEnum("mood", ["morning", "homecoming", "weekend", "other"]).default("other").notNull(),
+  message: varchar("message", { length: 240 }),
+  linkUrl: varchar("link_url", { length: 512 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_playlist_items_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyPlaylistItem = typeof familyPlaylistItems.$inferSelect;
+
+/** A kind, family-visible alert about something that may have been left behind. */
+export const familyForgottenItemAlerts = mysqlTable("family_forgotten_item_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  itemName: varchar("item_name", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  urgency: mysqlEnum("urgency", ["soon", "urgent"]).default("soon").notNull(),
+  isResolved: boolean("is_resolved").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_forgotten_item_alerts_group_resolved_idx").on(table.familyGroupId, table.isResolved)]);
+export type FamilyForgottenItemAlert = typeof familyForgottenItemAlerts.$inferSelect;
+
+/** Dated gratitude bookmarks for rereading a family's positive moments later. */
+export const familyThankYouBookmarks = mysqlTable("family_thank_you_bookmarks", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  message: varchar("message", { length: 240 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_thank_you_bookmarks_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyThankYouBookmark = typeof familyThankYouBookmarks.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

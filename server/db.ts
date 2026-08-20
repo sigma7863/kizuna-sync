@@ -49,6 +49,9 @@ import {
   familyHomecomingNotes,
   familyReadingRelayEntries,
   familyWeatherMemos,
+  familyPlaylistItems,
+  familyForgottenItemAlerts,
+  familyThankYouBookmarks,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -577,6 +580,16 @@ export async function getFamilyReadingRelayEntries(familyGroupId: number) { cons
 
 export async function createFamilyWeatherMemo(input: { familyGroupId: number; userId: number; weather: "sunny" | "cloudy" | "rainy" | "cold" | "hot" | "other"; clothingNote?: string; carryingNote?: string; bodyNote?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, clothingNote: input.clothingNote ?? null, carryingNote: input.carryingNote ?? null, bodyNote: input.bodyNote ?? null }; const result = await db.insert(familyWeatherMemos).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values }; }
 export async function getFamilyWeatherMemos(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyWeatherMemos).where(eq(familyWeatherMemos.familyGroupId, familyGroupId)).orderBy(desc(familyWeatherMemos.createdAt)).limit(24) : []; }
+
+export async function createFamilyPlaylistItem(input: { familyGroupId: number; userId: number; title: string; artist?: string; mood: "morning" | "homecoming" | "weekend" | "other"; message?: string; linkUrl?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, artist: input.artist ?? null, message: input.message ?? null, linkUrl: input.linkUrl ?? null }; const result = await db.insert(familyPlaylistItems).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values }; }
+export async function getFamilyPlaylistItems(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyPlaylistItems).where(eq(familyPlaylistItems.familyGroupId, familyGroupId)).orderBy(desc(familyPlaylistItems.createdAt)).limit(30) : []; }
+
+export async function createFamilyForgottenItemAlert(input: { familyGroupId: number; userId: number; itemName: string; note?: string; urgency: "soon" | "urgent" }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, note: input.note ?? null }; const result = await db.insert(familyForgottenItemAlerts).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isResolved: false }; }
+export async function getFamilyForgottenItemAlerts(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyForgottenItemAlerts).where(eq(familyForgottenItemAlerts.familyGroupId, familyGroupId)).orderBy(desc(familyForgottenItemAlerts.createdAt)).limit(30) : []; }
+export async function resolveFamilyForgottenItemAlert(input: { familyGroupId: number; alertId: number; isResolved: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyForgottenItemAlerts).set({ isResolved: input.isResolved }).where(and(eq(familyForgottenItemAlerts.id, input.alertId), eq(familyForgottenItemAlerts.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyThankYouBookmark(input: { familyGroupId: number; userId: number; message: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyThankYouBookmarks).values(input); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input }; }
+export async function getFamilyThankYouBookmarks(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyThankYouBookmarks).where(eq(familyThankYouBookmarks.familyGroupId, familyGroupId)).orderBy(desc(familyThankYouBookmarks.createdAt)).limit(60) : []; }
 export async function advanceFamilyMonthlyChallenge(input: { familyGroupId: number; challengeId: number; delta: number }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const [current] = await db.select().from(familyMonthlyChallenges).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))).limit(1); if (!current) throw new Error("Challenge not found"); const nextProgress = Math.max(0, current.progressCount + input.delta); return db.update(familyMonthlyChallenges).set({ progressCount: nextProgress, isCompleted: nextProgress >= current.targetCount }).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))); }
 
 // Activity queries

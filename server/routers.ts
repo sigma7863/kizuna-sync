@@ -117,6 +117,13 @@ import {
   getFamilyReadingRelayEntries,
   createFamilyWeatherMemo,
   getFamilyWeatherMemos,
+  createFamilyPlaylistItem,
+  getFamilyPlaylistItems,
+  createFamilyForgottenItemAlert,
+  getFamilyForgottenItemAlerts,
+  resolveFamilyForgottenItemAlert,
+  createFamilyThankYouBookmark,
+  getFamilyThankYouBookmarks,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -646,6 +653,19 @@ export const appRouter = router({
   weatherMemos: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWeatherMemos(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), weather: z.enum(["sunny", "cloudy", "rainy", "cold", "hot", "other"]), clothingNote: z.string().trim().max(180).optional(), carryingNote: z.string().trim().max(180).optional(), bodyNote: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyWeatherMemo({ ...input, clothingNote: input.clothingNote || undefined, carryingNote: input.carryingNote || undefined, bodyNote: input.bodyNote || undefined, userId: ctx.user.id })),
+  }),
+  playlist: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyPlaylistItems(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(180), artist: z.string().trim().max(160).optional(), mood: z.enum(["morning", "homecoming", "weekend", "other"]), message: z.string().trim().max(240).optional(), linkUrl: z.string().url().max(512).optional() })).mutation(({ ctx, input }) => createFamilyPlaylistItem({ ...input, artist: input.artist || undefined, message: input.message || undefined, linkUrl: input.linkUrl || undefined, userId: ctx.user.id })),
+  }),
+  forgottenItems: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyForgottenItemAlerts(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), itemName: z.string().trim().min(1).max(160), note: z.string().trim().max(240).optional(), urgency: z.enum(["soon", "urgent"]) })).mutation(({ ctx, input }) => createFamilyForgottenItemAlert({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+    resolve: protectedProcedure.input(z.object({ familyGroupId: z.number(), alertId: z.number(), isResolved: z.boolean() })).mutation(({ input }) => resolveFamilyForgottenItemAlert(input)),
+  }),
+  thankYouBookmarks: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyThankYouBookmarks(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), message: z.string().trim().min(1).max(240) })).mutation(({ ctx, input }) => createFamilyThankYouBookmark({ ...input, userId: ctx.user.id })),
   }),
 
   activity: router({
