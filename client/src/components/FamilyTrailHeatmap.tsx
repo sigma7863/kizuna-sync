@@ -103,15 +103,31 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
               {RANGE_OPTIONS.map((days) => <option key={days} value={days}>{t("family.trailDays").replace("{days}", String(days))}</option>)}
             </select>
           </label>
-          <label className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2">
-            <Clock className="h-4 w-4 text-gray-500" />
-            <select value={timeSlot} onChange={(event) => setTimeSlot(event.target.value as TimeSlot)} aria-label={t("family.trailTimeSlot")}>
-              <option value="all">{t("family.timeSlotAll")}</option>
-              <option value="morning">朝 (5:00-10:00)</option>
-              <option value="daytime">昼 (10:00-18:00)</option>
-              <option value="night">夜 (18:00-5:00)</option>
-            </select>
-          </label>
+          <div className="flex items-center gap-1 rounded-xl border bg-gray-50 p-1">
+            <Clock className="ml-2 h-4 w-4 text-gray-400" />
+            {(["all", "morning", "daytime", "night"] as TimeSlot[]).map((slot) => {
+              const labelMap: Record<TimeSlot, string> = {
+                all: t("family.timeSlotAll"),
+                morning: "朝 5-10時",
+                daytime: "昼 10-18時",
+                night: "夜 18-5時",
+              };
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setTimeSlot(slot)}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                    timeSlot === slot
+                      ? "bg-white text-pink-600 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  {labelMap[slot]}
+                </button>
+              );
+            })}
+          </div>
           <label className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2">
             <Users className="h-4 w-4 text-gray-500" />
             <select value={selectedUserId ?? "all"} onChange={(event) => setSelectedUserId(event.target.value === "all" ? undefined : Number(event.target.value))} aria-label={t("family.trailMember")}>

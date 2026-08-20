@@ -12,21 +12,15 @@ export function FamilyDigestAlbum({ familyGroupId }: { familyGroupId: number }) 
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   });
 
-  const { data: timeline = [], isLoading } = trpc.timeline.getFamilyTimeline.useQuery(
+  const { data: timeline = [] } = trpc.timeline.getFamilyTimeline.useQuery(
     { familyGroupId, limit: 150 },
     { enabled: familyGroupId > 0 }
   );
 
-  const digestItems = useMemo(() => {
-    return timeline.filter((entry) => {
-      const metadata = entry.metadata as any;
-      const isCelebration = metadata?.isCelebration === true || metadata?.occasion !== undefined;
-      if (!isCelebration) return false;
-      const date = new Date(entry.createdAt);
-      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-      return yearMonth === selectedMonth;
-    });
-  }, [timeline, selectedMonth]);
+  const { data: digestItems = [], isLoading } = trpc.timeline.getDigestAlbum.useQuery(
+    { familyGroupId, yearMonth: selectedMonth },
+    { enabled: familyGroupId > 0 }
+  );
 
   const months = useMemo(() => {
     const set = new Set<string>();

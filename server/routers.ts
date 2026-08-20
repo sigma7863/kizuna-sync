@@ -139,6 +139,20 @@ export const appRouter = router({
         return await getFamilyTimeline(input.familyGroupId, input.limit);
       }),
 
+    getDigestAlbum: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), yearMonth: z.string() }))
+      .query(async ({ input }) => {
+        const allEntries = await getFamilyTimeline(input.familyGroupId, 1000);
+        return allEntries.filter((entry) => {
+          const meta = entry.metadata as any;
+          const isCelebration = meta?.isCelebration === true || meta?.occasion !== undefined;
+          if (!isCelebration) return false;
+          const d = new Date(entry.createdAt);
+          const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          return ym === input.yearMonth;
+        });
+      }),
+
     createEntry: protectedProcedure
       .input(
         z.object({
