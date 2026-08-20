@@ -201,6 +201,15 @@ import {
   updateFamilyRainyDayIdea,
   createFamilyDailyJoy,
   getFamilyDailyJoys,
+  createFamilyLaterListenMemo,
+  getFamilyLaterListenMemos,
+  updateFamilyLaterListenMemo,
+  createFamilyTableTopic,
+  getFamilyTableTopics,
+  updateFamilyTableTopic,
+  createFamilyMeetingMarker,
+  getFamilyMeetingMarkers,
+  updateFamilyMeetingMarker,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -879,6 +888,21 @@ export const appRouter = router({
   dailyJoys: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number(), dayKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getFamilyDailyJoys(input.familyGroupId, input.dayKey)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), dayKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), joy: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyDailyJoy({ ...input, userId: ctx.user.id })),
+  }),
+  laterListenMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyLaterListenMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyLaterListenMemo({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isFollowedUp: z.boolean() })).mutation(({ input }) => updateFamilyLaterListenMemo(input)),
+  }),
+  tableTopics: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTableTopics(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), tone: z.enum(["laugh", "share", "think"]), topic: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyTableTopic({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), topicId: z.number(), isDiscussed: z.boolean() })).mutation(({ input }) => updateFamilyTableTopic(input)),
+  }),
+  meetingMarkers: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMeetingMarkers(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), locationHint: z.string().trim().min(1).max(160), appearanceHint: z.string().trim().max(160).optional(), note: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyMeetingMarker({ ...input, appearanceHint: input.appearanceHint || undefined, note: input.note || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), markerId: z.number(), isActive: z.boolean() })).mutation(({ input }) => updateFamilyMeetingMarker(input)),
   }),
 
   activity: router({

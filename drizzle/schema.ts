@@ -1027,6 +1027,43 @@ export const familyDailyJoys = mysqlTable("family_daily_joys", {
 }, (table) => [index("family_daily_joys_group_day_idx").on(table.familyGroupId, table.dayKey)]);
 export type FamilyDailyJoy = typeof familyDailyJoys.$inferSelect;
 
+/** A gentle request to hear a family member's story later, without demanding an immediate response. */
+export const familyLaterListenMemos = mysqlTable("family_later_listen_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  isFollowedUp: boolean("is_followed_up").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_later_listen_group_followed_idx").on(table.familyGroupId, table.isFollowedUp)]);
+export type FamilyLaterListenMemo = typeof familyLaterListenMemos.$inferSelect;
+
+/** A light topic that can be brought to a shared meal without pressure to perform. */
+export const familyTableTopics = mysqlTable("family_table_topics", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  tone: mysqlEnum("tone", ["laugh", "share", "think"]).notNull(),
+  topic: varchar("topic", { length: 180 }).notNull(),
+  isDiscussed: boolean("is_discussed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_table_topics_group_discussed_idx").on(table.familyGroupId, table.isDiscussed)]);
+export type FamilyTableTopic = typeof familyTableTopics.$inferSelect;
+
+/** An optional clue that helps a family find each other at a meeting point with less stress. */
+export const familyMeetingMarkers = mysqlTable("family_meeting_markers", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  locationHint: varchar("location_hint", { length: 160 }).notNull(),
+  appearanceHint: varchar("appearance_hint", { length: 160 }),
+  note: varchar("note", { length: 180 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_meeting_markers_group_active_idx").on(table.familyGroupId, table.isActive)]);
+export type FamilyMeetingMarker = typeof familyMeetingMarkers.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
