@@ -11,6 +11,7 @@ import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { useI18n } from "@/contexts/I18nContext";
 
 export default function Home() {
@@ -131,6 +132,16 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {familyGroups?.[0] && (
+          <div className="mb-6 md:hidden">
+            <FamilyQuickWidget
+              familyGroupId={familyGroups[0].id}
+              onOpenSafety={() => setLocation(`/family/${familyGroups[0].id}?tab=safety`)}
+              onOpenAssistant={() => setLocation(`/family/${familyGroups[0].id}?tab=assistant`)}
+              onOpenAlbum={() => setLocation(`/family/${familyGroups[0].id}?tab=album`)}
+            />
+          </div>
+        )}
         {/* Create Family Section */}
         <div className="mb-8">
           <Dialog>
