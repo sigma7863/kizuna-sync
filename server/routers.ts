@@ -138,6 +138,14 @@ import {
   getFamilyPhotoCaptions,
   createFamilyQuietTimeSignal,
   getFamilyQuietTimeSignals,
+  createFamilyConsultationCard,
+  getFamilyConsultationCards,
+  updateFamilyConsultationCard,
+  createFamilySeasonalIdea,
+  getFamilySeasonalIdeas,
+  updateFamilySeasonalIdea,
+  createFamilyCareReply,
+  getFamilyCareReplies,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -706,6 +714,20 @@ export const appRouter = router({
   quietTime: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyQuietTimeSignals(input.familyGroupId)),
     share: protectedProcedure.input(z.object({ familyGroupId: z.number(), state: z.enum(["focus", "rest", "sleeping"]), note: z.string().trim().max(180).optional(), untilAt: z.date().optional() })).mutation(({ ctx, input }) => createFamilyQuietTimeSignal({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+  }),
+  consultations: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyConsultationCards(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), kind: z.enum(["listen", "advice", "help"]), title: z.string().trim().min(1).max(160), detail: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => createFamilyConsultationCard({ ...input, detail: input.detail || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), cardId: z.number(), isResolved: z.boolean() })).mutation(({ input }) => updateFamilyConsultationCard(input)),
+  }),
+  seasonalIdeas: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilySeasonalIdeas(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), season: z.enum(["spring", "summer", "autumn", "winter", "anytime"]), title: z.string().trim().min(1).max(160), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilySeasonalIdea({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), ideaId: z.number(), isPlanned: z.boolean() })).mutation(({ input }) => updateFamilySeasonalIdea(input)),
+  }),
+  careReplies: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyCareReplies(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), reaction: z.string().trim().min(1).max(80), message: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyCareReply({ ...input, message: input.message || undefined, userId: ctx.user.id })),
   }),
 
   activity: router({

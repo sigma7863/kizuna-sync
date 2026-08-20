@@ -719,6 +719,43 @@ export const familyQuietTimeSignals = mysqlTable("family_quiet_time_signals", {
 }, (table) => [index("family_quiet_time_signals_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyQuietTimeSignal = typeof familyQuietTimeSignals.$inferSelect;
 
+/** A family-only space to ask to be heard, advised, or gently helped. */
+export const familyConsultationCards = mysqlTable("family_consultation_cards", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  kind: mysqlEnum("kind", ["listen", "advice", "help"]).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  detail: varchar("detail", { length: 500 }),
+  isResolved: boolean("is_resolved").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_consultation_cards_group_resolved_idx").on(table.familyGroupId, table.isResolved)]);
+export type FamilyConsultationCard = typeof familyConsultationCards.$inferSelect;
+
+/** Season-tagged, family-authored ideas that can become an upcoming plan. */
+export const familySeasonalIdeas = mysqlTable("family_seasonal_ideas", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  season: mysqlEnum("season", ["spring", "summer", "autumn", "winter", "anytime"]).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  isPlanned: boolean("is_planned").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_seasonal_ideas_group_season_idx").on(table.familyGroupId, table.season)]);
+export type FamilySeasonalIdea = typeof familySeasonalIdeas.$inferSelect;
+
+/** Brief positive replies to safety check-ins and everyday care. */
+export const familyCareReplies = mysqlTable("family_care_replies", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  reaction: varchar("reaction", { length: 80 }).notNull(),
+  message: varchar("message", { length: 180 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_care_replies_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyCareReply = typeof familyCareReplies.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
