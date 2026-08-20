@@ -1064,6 +1064,42 @@ export const familyMeetingMarkers = mysqlTable("family_meeting_markers", {
 }, (table) => [index("family_meeting_markers_group_active_idx").on(table.familyGroupId, table.isActive)]);
 export type FamilyMeetingMarker = typeof familyMeetingMarkers.$inferSelect;
 
+/** A small reset idea that a family member can share and mark when it helped. */
+export const familyMoodResetIdeas = mysqlTable("family_mood_reset_ideas", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  kind: mysqlEnum("kind", ["breath", "music", "move", "rest"]).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  isTried: boolean("is_tried").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_mood_reset_ideas_group_tried_idx").on(table.familyGroupId, table.isTried)]);
+export type FamilyMoodResetIdea = typeof familyMoodResetIdeas.$inferSelect;
+
+/** A short gratitude relay passed among family members and acknowledged by a gentle mark. */
+export const familyThanksRelays = mysqlTable("family_thanks_relays", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  recipientHint: varchar("recipient_hint", { length: 80 }),
+  message: varchar("message", { length: 180 }).notNull(),
+  isReceived: boolean("is_received").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_thanks_relays_group_received_idx").on(table.familyGroupId, table.isReceived)]);
+export type FamilyThanksRelay = typeof familyThanksRelays.$inferSelect;
+
+/** A concise item, caution, or cheer to check before a family member goes out. */
+export const familyOutingCharmMemos = mysqlTable("family_outing_charm_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  kind: mysqlEnum("kind", ["item", "caution", "cheer"]).notNull(),
+  memo: varchar("memo", { length: 180 }).notNull(),
+  isChecked: boolean("is_checked").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_outing_charm_memos_group_checked_idx").on(table.familyGroupId, table.isChecked)]);
+export type FamilyOutingCharmMemo = typeof familyOutingCharmMemos.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

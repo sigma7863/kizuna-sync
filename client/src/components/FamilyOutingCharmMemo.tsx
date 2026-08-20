@@ -1,0 +1,16 @@
+import { useState } from "react";
+import { CheckCircle2, Loader2, Plus, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { outingCharmKindLabels } from "@shared/familyTinySupports";
+
+type CharmKind = keyof typeof outingCharmKindLabels;
+export function FamilyOutingCharmMemo({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [kind, setKind] = useState<CharmKind>("item"); const [memo, setMemo] = useState("");
+  const { data: memos = [], isLoading } = trpc.outingCharmMemos.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.outingCharmMemos.create.useMutation({ onSuccess: async () => { setMemo(""); await utils.outingCharmMemos.list.invalidate({ familyGroupId }); } });
+  const update = trpc.outingCharmMemos.update.useMutation({ onSuccess: () => utils.outingCharmMemos.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-indigo-50 via-white to-sky-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><ShieldCheck className="h-5 w-5 text-indigo-700"/>家族の外出前お守りメモ</CardTitle><p className="text-xs text-slate-500">持ち物・注意・応援を一つにして、出発前に確認しよう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><select value={kind} onChange={(event) => setKind(event.target.value as CharmKind)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="item">持ち物</option><option value="caution">気をつけること</option><option value="cheer">応援</option></select><div className="flex gap-2"><Input value={memo} onChange={(event) => setMemo(event.target.value)} placeholder="例：帰りが遅くなったら連絡してね" maxLength={180}/><Button size="sm" disabled={!memo.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, kind, memo })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>入れる</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-indigo-700">お守りメモを読み込み中です…</p> : <div className="grid gap-2">{memos.map((entry) => <article key={entry.id} className={`rounded-xl p-3 shadow-sm ${entry.isChecked ? "bg-indigo-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className="text-[11px] font-medium text-indigo-800">{outingCharmKindLabels[entry.kind]}</p><p className={`mt-1 text-sm ${entry.isChecked ? "text-indigo-700 line-through" : "font-semibold text-slate-800"}`}>{entry.memo}</p></div><button type="button" aria-label={entry.isChecked ? "未確認に戻す" : "確認した"} onClick={() => update.mutate({ familyGroupId, memoId: entry.id, isChecked: !entry.isChecked })} className={entry.isChecked ? "text-emerald-600" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{memos.length === 0 && <p className="rounded-xl border border-dashed border-indigo-200 p-3 text-center text-xs text-slate-500">外出前の安心につながるひとことを、一つ入れてみましょう。</p>}</div>}</CardContent></Card>;
+}

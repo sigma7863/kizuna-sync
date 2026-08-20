@@ -281,6 +281,13 @@
       "when": 1787233688593,
       "tag": "0039_tearful_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1787234074099,
+      "tag": "0040_watery_blade",
+      "breakpoints": true
     }
   ]
 }

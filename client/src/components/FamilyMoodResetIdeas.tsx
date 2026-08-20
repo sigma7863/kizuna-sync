@@ -1,0 +1,16 @@
+import { useState } from "react";
+import { CheckCircle2, Loader2, Plus, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { moodResetKindLabels } from "@shared/familyTinySupports";
+
+type ResetKind = keyof typeof moodResetKindLabels;
+export function FamilyMoodResetIdeas({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [kind, setKind] = useState<ResetKind>("breath"); const [title, setTitle] = useState("");
+  const { data: ideas = [], isLoading } = trpc.moodResetIdeas.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.moodResetIdeas.create.useMutation({ onSuccess: async () => { setTitle(""); await utils.moodResetIdeas.list.invalidate({ familyGroupId }); } });
+  const update = trpc.moodResetIdeas.update.useMutation({ onSuccess: () => utils.moodResetIdeas.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-teal-50 via-white to-emerald-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Sparkles className="h-5 w-5 text-teal-700"/>家族の気分転換アイデア交換</CardTitle><p className="text-xs text-slate-500">短時間でできる気分転換を持ち寄り、試したら印をつけよう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><select value={kind} onChange={(event) => setKind(event.target.value as ResetKind)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="breath">深呼吸</option><option value="music">音楽</option><option value="move">少し動く</option><option value="rest">休む</option></select><div className="flex gap-2"><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：窓を開けて3回深呼吸" maxLength={180}/><Button size="sm" disabled={!title.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, kind, title })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>足す</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-teal-700">アイデアを読み込み中です…</p> : <div className="grid gap-2">{ideas.map((idea) => <article key={idea.id} className={`rounded-xl p-3 shadow-sm ${idea.isTried ? "bg-teal-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className="text-[11px] font-medium text-teal-800">{moodResetKindLabels[idea.kind]}</p><p className={`mt-1 text-sm ${idea.isTried ? "text-teal-700 line-through" : "font-semibold text-slate-800"}`}>{idea.title}</p></div><button type="button" aria-label={idea.isTried ? "未実施に戻す" : "試した"} onClick={() => update.mutate({ familyGroupId, ideaId: idea.id, isTried: !idea.isTried })} className={idea.isTried ? "text-emerald-600" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{ideas.length === 0 && <p className="rounded-xl border border-dashed border-teal-200 p-3 text-center text-xs text-slate-500">気持ちを少し切り替えられた方法を、一つ残してみましょう。</p>}</div>}</CardContent></Card>;
+}
