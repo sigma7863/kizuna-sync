@@ -111,6 +111,9 @@ import { FamilyOutingCharmMemo } from "@/components/FamilyOutingCharmMemo";
 import { FamilyWeeklyCheerTheme } from "@/components/FamilyWeeklyCheerTheme";
 import { FamilyTinyAchievementBadge } from "@/components/FamilyTinyAchievementBadge";
 import { FamilyBedtimePreparationMemo } from "@/components/FamilyBedtimePreparationMemo";
+import { FamilyWellbeingNote } from "@/components/FamilyWellbeingNote";
+import { FamilyMonthlyJoyBox } from "@/components/FamilyMonthlyJoyBox";
+import { FamilyGoodFindMemo } from "@/components/FamilyGoodFindMemo";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -450,6 +453,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyLaterListenMemo familyGroupId={familyGroupId}/><FamilyTableTopic familyGroupId={familyGroupId}/><FamilyMeetingMarker familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMoodResetIdeas familyGroupId={familyGroupId}/><FamilyThanksRelay familyGroupId={familyGroupId}/><FamilyOutingCharmMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyCheerTheme familyGroupId={familyGroupId}/><FamilyTinyAchievementBadge familyGroupId={familyGroupId}/><FamilyBedtimePreparationMemo familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWellbeingNote familyGroupId={familyGroupId}/><FamilyMonthlyJoyBox familyGroupId={familyGroupId}/><FamilyGoodFindMemo familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

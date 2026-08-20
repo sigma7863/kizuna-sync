@@ -1137,6 +1137,41 @@ export const familyBedtimePreparationMemos = mysqlTable("family_bedtime_preparat
 }, (table) => [index("family_bedtime_prep_group_prepared_idx").on(table.familyGroupId, table.isPrepared)]);
 export type FamilyBedtimePreparationMemo = typeof familyBedtimePreparationMemos.$inferSelect;
 
+/** A non-clinical wellbeing note that shares only the support a family member wants right now. */
+export const familyWellbeingNotes = mysqlTable("family_wellbeing_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  state: mysqlEnum("state", ["good", "slow", "tired", "need_space"]).notNull(),
+  supportNeed: varchar("support_need", { length: 180 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_wellbeing_notes_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyWellbeingNote = typeof familyWellbeingNotes.$inferSelect;
+
+/** A small joy that the family would like to try during a specific month. */
+export const familyMonthlyJoyBoxes = mysqlTable("family_monthly_joy_boxes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  monthKey: varchar("month_key", { length: 7 }).notNull(),
+  joy: varchar("joy", { length: 180 }).notNull(),
+  isRealized: boolean("is_realized").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_monthly_joy_group_month_idx").on(table.familyGroupId, table.monthKey)]);
+export type FamilyMonthlyJoyBox = typeof familyMonthlyJoyBoxes.$inferSelect;
+
+/** A memorable good thing from ordinary life that can be revisited together. */
+export const familyGoodFindMemos = mysqlTable("family_good_find_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  goodThing: varchar("good_thing", { length: 240 }).notNull(),
+  tag: varchar("tag", { length: 80 }),
+  isSaved: boolean("is_saved").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_good_find_group_saved_idx").on(table.familyGroupId, table.isSaved)]);
+export type FamilyGoodFindMemo = typeof familyGoodFindMemos.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
