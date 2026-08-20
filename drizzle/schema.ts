@@ -934,6 +934,41 @@ export const familyMemoryBookmarks = mysqlTable("family_memory_bookmarks", {
 }, (table) => [index("family_memory_bookmarks_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyMemoryBookmark = typeof familyMemoryBookmarks.$inferSelect;
 
+/** A family question box entry that can be shared with a softly anonymous sender identity. */
+export const familyQuestionBoxEntries = mysqlTable("family_question_box_entries", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  question: varchar("question", { length: 280 }).notNull(),
+  isAnonymous: boolean("is_anonymous").default(false).notNull(),
+  isOpened: boolean("is_opened").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_question_box_entries_group_opened_idx").on(table.familyGroupId, table.isOpened)]);
+export type FamilyQuestionBoxEntry = typeof familyQuestionBoxEntries.$inferSelect;
+
+/** A concise morning encouragement created before a family member starts their day. */
+export const familyMorningEncouragements = mysqlTable("family_morning_encouragements", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  message: varchar("message", { length: 180 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_morning_encouragements_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyMorningEncouragement = typeof familyMorningEncouragements.$inferSelect;
+
+/** A lightweight weekend reunion plan that shares a return or gathering time with optional context. */
+export const familyWeekendHomecomingPlans = mysqlTable("family_weekend_homecoming_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  plannedAt: timestamp("planned_at").notNull(),
+  meetingPlace: varchar("meeting_place", { length: 160 }),
+  note: varchar("note", { length: 240 }),
+  isConfirmed: boolean("is_confirmed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_weekend_homecoming_plans_group_planned_idx").on(table.familyGroupId, table.plannedAt)]);
+export type FamilyWeekendHomecomingPlan = typeof familyWeekendHomecomingPlans.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

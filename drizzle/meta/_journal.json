@@ -253,6 +253,13 @@
       "when": 1787231971712,
       "tag": "0035_common_mach_iv",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1787232384156,
+      "tag": "0036_rapid_nomad",
+      "breakpoints": true
     }
   ]
 }
