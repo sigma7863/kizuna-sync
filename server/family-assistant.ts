@@ -16,8 +16,10 @@ export interface ScheduleAction {
   location: string;
 }
 
+export type FamilyAssistantIntent = "search_timeline" | "schedule_summary" | "search_photos" | "list_tasks" | "create_schedule" | "update_schedule" | "delete_schedule" | "general";
+
 export interface FamilyAssistantResult {
-  intent: "search_timeline" | "create_schedule" | "update_schedule" | "delete_schedule" | "general";
+  intent: FamilyAssistantIntent;
   message: string;
   searchResults: Array<{ id: number; content: string; createdAt: Date }>;
   action: ScheduleAction | null;
@@ -46,6 +48,64 @@ function getSearchResults(timeline: Awaited<ReturnType<typeof getFamilyTimeline>
       content: entry.content ?? "",
       createdAt: entry.createdAt,
     }));
+}
+
+function getVoiceCommandResult(
+  language: AssistantLanguage,
+  message: string,
+  timeline: Awaited<ReturnType<typeof getFamilyTimeline>>,
+  existingEvents: Array<{ title: string; startTime: Date; endTime: Date; location: string | null }>,
+): FamilyAssistantResult | null {
+  const normalized = message.toLowerCase();
+  const isScheduleRequest = /(今日|きょう|明日|予定|スケジュール|日程|schedule|calendar|일정|日程)/i.test(normalized);
+  const isScheduleMutation = /(作って|作成|追加|変更|削除|create|add|update|delete|생성|추가|삭제|创建|添加|删除)/i.test(normalized);
+  const isScheduleCommand = isScheduleRequest && !isScheduleMutation;
+  const isPhotoCommand = /(写真|フォト|photo|照片|사진)/i.test(normalized);
+  const isTaskCommand = /(タスク|やること|todo|to-do|task|任务|할 일)/i.test(normalized);
+  const noResults: FamilyAssistantResult["searchResults"] = [];
+
+  if (isScheduleCommand) {
+    const now = new Date();
+    const upcoming = existingEvents.filter((event) => event.endTime >= now).slice(0, 6);
+    const scheduleLines = upcoming.map((event) => `${event.title} (${new Date(event.startTime).toLocaleString()})${event.location ? ` · ${event.location}` : ""}`);
+    const messages: Record<AssistantLanguage, string> = {
+      ja: upcoming.length ? `これからの予定は${upcoming.length}件です。\n${scheduleLines.join("\n")}` : "これからの家族予定はありません。",
+      en: upcoming.length ? `There are ${upcoming.length} upcoming family events.\n${scheduleLines.join("\n")}` : "There are no upcoming family events.",
+      zh: upcoming.length ? `接下来有${upcoming.length}个家庭日程。\n${scheduleLines.join("\n")}` : "接下来没有家庭日程。",
+      ko: upcoming.length ? `앞으로 가족 일정 ${upcoming.length}개가 있습니다.\n${scheduleLines.join("\n")}` : "앞으로 가족 일정이 없습니다.",
+    };
+    return { intent: "schedule_summary", message: messages[language], searchResults: noResults, action: null, requiresConfirmation: false };
+  }
+
+  if (isPhotoCommand) {
+    const photoResults = timeline
+      .filter((entry) => entry.entryType === "photo" || /(写真|フォト|photo|照片|사진)/i.test(entry.content ?? ""))
+      .slice(0, 8)
+      .map((entry) => ({ id: entry.id, content: entry.content ?? "", createdAt: entry.createdAt }));
+    const messages: Record<AssistantLanguage, string> = {
+      ja: photoResults.length ? `${photoResults.length}件の写真投稿を見つけました。` : "写真の投稿はまだ見つかりませんでした。",
+      en: photoResults.length ? `I found ${photoResults.length} photo entries.` : "I could not find any photo entries yet.",
+      zh: photoResults.length ? `找到了${photoResults.length}条照片记录。` : "还没有找到照片记录。",
+      ko: photoResults.length ? `사진 기록 ${photoResults.length}개를 찾았습니다.` : "사진 기록을 아직 찾지 못했습니다.",
+    };
+    return { intent: "search_photos", message: messages[language], searchResults: photoResults, action: null, requiresConfirmation: false };
+  }
+
+  if (isTaskCommand) {
+    const taskResults = timeline
+      .filter((entry) => /(タスク|やること|todo|to-do|task|任务|할 일)/i.test(entry.content ?? ""))
+      .slice(0, 8)
+      .map((entry) => ({ id: entry.id, content: entry.content ?? "", createdAt: entry.createdAt }));
+    const messages: Record<AssistantLanguage, string> = {
+      ja: taskResults.length ? `${taskResults.length}件の家族タスク記録を確認しました。` : "家族タスクの記録はまだありません。",
+      en: taskResults.length ? `I found ${taskResults.length} family task records.` : "There are no family task records yet.",
+      zh: taskResults.length ? `找到了${taskResults.length}条家庭任务记录。` : "还没有家庭任务记录。",
+      ko: taskResults.length ? `가족 할 일 기록 ${taskResults.length}개를 확인했습니다.` : "가족 할 일 기록이 아직 없습니다.",
+    };
+    return { intent: "list_tasks", message: messages[language], searchResults: taskResults, action: null, requiresConfirmation: false };
+  }
+
+  return null;
 }
 
 function fallbackResult(language: AssistantLanguage, results: FamilyAssistantResult["searchResults"]): FamilyAssistantResult {
@@ -88,12 +148,15 @@ export async function getFamilyAssistantResponse(input: {
         .limit(20)
     : [];
 
+  const voiceCommandResult = getVoiceCommandResult(input.language, input.message, timeline, existingEvents);
+  if (voiceCommandResult) return voiceCommandResult;
+
   try {
     const response = await invokeLLM({
       messages: [
         {
           role: "system",
-          content: `あなたは家族向けの静かで安全なAIアシスタントです。回答は${languageNames[input.language]}で返してください。タイムライン検索、予定作成・更新・削除の提案、一般的な家族サポートだけを行います。予定の作成・変更・削除は必ず確認が必要なので、即時実行せず action と requiresConfirmation=true を返してください。現在時刻は ${new Date().toISOString()} です。`,
+          content: `あなたは家族向けの静かで安全なAIアシスタントです。回答は${languageNames[input.language]}で返してください。タイムライン検索、予定要約、写真検索、家族タスク確認、予定作成・更新・削除の提案、一般的な家族サポートだけを行います。予定の作成・変更・削除は必ず確認が必要なので、即時実行せず action と requiresConfirmation=true を返してください。現在時刻は ${new Date().toISOString()} です。`,
         },
         {
           role: "user",
@@ -113,7 +176,7 @@ export async function getFamilyAssistantResponse(input: {
           schema: {
             type: "object",
             properties: {
-              intent: { type: "string", enum: ["search_timeline", "create_schedule", "update_schedule", "delete_schedule", "general"] },
+              intent: { type: "string", enum: ["search_timeline", "schedule_summary", "search_photos", "list_tasks", "create_schedule", "update_schedule", "delete_schedule", "general"] },
               message: { type: "string" },
               action: {
                 anyOf: [
@@ -151,7 +214,8 @@ export async function getFamilyAssistantResponse(input: {
       message: parsed.message,
       action: parsed.action as ScheduleAction | null,
       requiresConfirmation: parsed.action ? true : false,
-      searchResults: parsed.intent === "search_timeline" ? searchResults : [],
+                  searchResults: ["search_timeline", "search_photos", "list_tasks"].includes(parsed.intent) ? searchResults : [],
+
     };
   } catch (error) {
     console.error("[FamilyAssistant] failed:", error);

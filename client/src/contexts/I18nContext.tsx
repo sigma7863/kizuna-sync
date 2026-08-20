@@ -85,7 +85,29 @@ type TranslationKey =
   | "family.eventStart"
   | "family.eventEnd"
   | "family.eventLocation"
-  | "family.applyChange";
+  | "family.applyChange"
+  | "family.trailHeatmap"
+  | "family.trailHeatmapHint"
+  | "family.trailRange"
+  | "family.trailDays"
+  | "family.trailMember"
+  | "family.allMembers"
+  | "family.trailPointCount"
+  | "family.trailPrivacy"
+  | "family.voiceCommandExamples"
+  | "family.voiceCommandSchedule"
+  | "family.voiceCommandPhotos"
+  | "family.voiceCommandTasks"
+  | "family.voiceCommandProcessing"
+  | "family.voiceCommandResult"
+  | "family.voiceCommandRetry"
+  | "family.voiceCommandStart"
+  | "family.celebration"
+  | "family.celebrationPlaceholder"
+  | "family.celebrationSend"
+  | "family.celebrationBadge"
+  | "family.celebrationEmpty"
+  | "family.celebrationSuccess";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -136,6 +158,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.photo": "写真",
     "family.music": "音楽",
     "family.location": "位置情報",
+    "family.trailHeatmap": "家族の足あと",
+    "family.trailHeatmapHint": "過去の位置情報を、家族の思い出として静かに振り返ります。",
+    "family.trailRange": "表示期間",
+    "family.trailDays": "過去{days}日",
+    "family.trailMember": "メンバー",
+    "family.allMembers": "家族全員",
+    "family.trailPointCount": "{count}地点",
+    "family.trailPrivacy": "位置情報は家族グループ内だけで表示されます。",
+    "family.voiceCommandExamples": "例：「今日の予定を教えて」「公園の写真を探して」",
+    "family.voiceCommandSchedule": "今日の予定を教えて",
+    "family.voiceCommandPhotos": "公園の写真を探して",
+    "family.voiceCommandTasks": "家族のタスクを確認して",
+    "family.voiceCommandProcessing": "音声を確認しています…",
+    "family.voiceCommandResult": "音声コマンドの結果",
+    "family.voiceCommandRetry": "もう一度話す",
+    "family.voiceCommandStart": "音声コマンドを開始",
+    "family.celebration": "お祝いメッセージ",
+    "family.celebrationPlaceholder": "家族に伝えたいお祝いを入力…",
+    "family.celebrationSend": "お祝いを送る",
+    "family.celebrationBadge": "お祝いスタンプ",
+    "family.celebrationEmpty": "今日のお祝いはまだありません。",
+    "family.celebrationSuccess": "お祝いスタンプを家族に届けました。",
     "family.shareFeeling": "今の気持ちをシェア",
     "family.moodSituation": "気持ち・状況",
     "family.moodPlaceholder": "例：今日は楽しかった！",
@@ -221,6 +265,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.photo": "Photo",
     "family.music": "Music",
     "family.location": "Location",
+    "family.trailHeatmap": "Family trail",
+    "family.trailHeatmapHint": "Quietly revisit recent places as shared family memories.",
+    "family.trailRange": "Time range",
+    "family.trailDays": "Last {days} days",
+    "family.trailMember": "Member",
+    "family.allMembers": "Everyone",
+    "family.trailPointCount": "{count} locations",
+    "family.trailPrivacy": "Location data is visible only inside this family group.",
+    "family.voiceCommandExamples": "Try: “Tell me today’s schedule” or “Find park photos”.",
+    "family.voiceCommandSchedule": "Tell me today’s schedule",
+    "family.voiceCommandPhotos": "Find photos from the park",
+    "family.voiceCommandTasks": "Check the family tasks",
+    "family.voiceCommandProcessing": "Checking your voice…",
+    "family.voiceCommandResult": "Voice command result",
+    "family.voiceCommandRetry": "Speak again",
+    "family.voiceCommandStart": "Start voice command",
+    "family.celebration": "Celebration message",
+    "family.celebrationPlaceholder": "Write a celebration for your family…",
+    "family.celebrationSend": "Send celebration",
+    "family.celebrationBadge": "Celebration sticker",
+    "family.celebrationEmpty": "No celebrations yet today.",
+    "family.celebrationSuccess": "Your celebration sticker was shared with the family.",
     "family.shareFeeling": "Share how you feel",
     "family.moodSituation": "Mood or situation",
     "family.moodPlaceholder": "e.g. I had a wonderful day!",
@@ -306,6 +372,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.photo": "照片",
     "family.music": "音乐",
     "family.location": "位置",
+    "family.trailHeatmap": "家庭足迹",
+    "family.trailHeatmapHint": "安静地回顾近期地点，把它们留作家庭记忆。",
+    "family.trailRange": "显示范围",
+    "family.trailDays": "过去{days}天",
+    "family.trailMember": "成员",
+    "family.allMembers": "全家",
+    "family.trailPointCount": "{count}个地点",
+    "family.trailPrivacy": "位置数据仅在家庭群组内显示。",
+    "family.voiceCommandExamples": "试试：“告诉我今天的日程”或“寻找公园照片”。",
+    "family.voiceCommandSchedule": "告诉我今天的日程",
+    "family.voiceCommandPhotos": "寻找公园照片",
+    "family.voiceCommandTasks": "查看家庭任务",
+    "family.voiceCommandProcessing": "正在确认语音…",
+    "family.voiceCommandResult": "语音指令结果",
+    "family.voiceCommandRetry": "再说一次",
+    "family.voiceCommandStart": "开始语音指令",
+    "family.celebration": "祝福消息",
+    "family.celebrationPlaceholder": "写下想送给家人的祝福…",
+    "family.celebrationSend": "发送祝福",
+    "family.celebrationBadge": "祝福贴纸",
+    "family.celebrationEmpty": "今天还没有祝福。",
+    "family.celebrationSuccess": "祝福贴纸已送达家人。",
     "family.shareFeeling": "分享现在的心情",
     "family.moodSituation": "心情或状态",
     "family.moodPlaceholder": "例如：今天过得很开心！",
@@ -391,6 +479,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.photo": "사진",
     "family.music": "음악",
     "family.location": "위치",
+    "family.trailHeatmap": "가족 발자국",
+    "family.trailHeatmapHint": "최근 장소를 가족의 추억으로 조용히 돌아봅니다.",
+    "family.trailRange": "기간",
+    "family.trailDays": "최근 {days}일",
+    "family.trailMember": "구성원",
+    "family.allMembers": "가족 모두",
+    "family.trailPointCount": "{count}곳",
+    "family.trailPrivacy": "위치 데이터는 가족 그룹 안에서만 표시됩니다.",
+    "family.voiceCommandExamples": "예: “오늘 일정을 알려줘” 또는 “공원 사진을 찾아줘”.",
+    "family.voiceCommandSchedule": "오늘 일정을 알려줘",
+    "family.voiceCommandPhotos": "공원 사진을 찾아줘",
+    "family.voiceCommandTasks": "가족 할 일을 확인해줘",
+    "family.voiceCommandProcessing": "음성을 확인하는 중…",
+    "family.voiceCommandResult": "음성 명령 결과",
+    "family.voiceCommandRetry": "다시 말하기",
+    "family.voiceCommandStart": "음성 명령 시작",
+    "family.celebration": "축하 메시지",
+    "family.celebrationPlaceholder": "가족에게 전할 축하를 적어 보세요…",
+    "family.celebrationSend": "축하 보내기",
+    "family.celebrationBadge": "축하 스티커",
+    "family.celebrationEmpty": "오늘은 아직 축하 메시지가 없습니다.",
+    "family.celebrationSuccess": "축하 스티커를 가족에게 보냈습니다.",
     "family.shareFeeling": "지금 기분 공유하기",
     "family.moodSituation": "기분 또는 상황",
     "family.moodPlaceholder": "예: 오늘 정말 즐거웠어요!",

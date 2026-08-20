@@ -75,3 +75,38 @@ describe("family AI assistant", () => {
     expect(getDbMock).not.toHaveBeenCalled();
   });
 });
+
+
+describe("voice command extensions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getFamilyTimelineMock.mockResolvedValue([
+      { id: 10, entryType: "photo", content: "公園の写真", createdAt: new Date("2026-08-17T09:00:00Z") },
+      { id: 11, entryType: "message", content: "タスク: 牛乳を買う", createdAt: new Date("2026-08-17T10:00:00Z") },
+    ]);
+    getDbMock.mockReturnValue(null);
+  });
+
+  it("summarizes schedules without invoking the model", async () => {
+    const { getFamilyAssistantResponse } = await import("./family-assistant");
+    const result = await getFamilyAssistantResponse({ familyGroupId: 3, message: "今日の予定を教えて", language: "ja" });
+    expect(result.intent).toBe("schedule_summary");
+    expect(result.requiresConfirmation).toBe(false);
+    expect(invokeLLMMock).not.toHaveBeenCalled();
+  });
+
+  it("searches photo entries from a spoken command", async () => {
+    const { getFamilyAssistantResponse } = await import("./family-assistant");
+    const result = await getFamilyAssistantResponse({ familyGroupId: 3, message: "公園の写真を探して", language: "ja" });
+    expect(result.intent).toBe("search_photos");
+    expect(result.searchResults).toHaveLength(1);
+    expect(result.searchResults[0].content).toContain("写真");
+  });
+
+  it("lists family task records from a spoken command", async () => {
+    const { getFamilyAssistantResponse } = await import("./family-assistant");
+    const result = await getFamilyAssistantResponse({ familyGroupId: 3, message: "家族のタスクを確認して", language: "ja" });
+    expect(result.intent).toBe("list_tasks");
+    expect(result.searchResults[0].content).toContain("タスク");
+  });
+});

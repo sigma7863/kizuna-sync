@@ -9,7 +9,8 @@ export type NotificationKind =
   | "reward"
   | "safety"
   | "assistant"
-  | "activity";
+  | "activity"
+  | "celebration";
 
 export interface NotificationPayload {
   title: string;
