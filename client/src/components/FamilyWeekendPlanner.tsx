@@ -1,0 +1,4 @@
+import { CalendarDays } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc";
+export function FamilyWeekendPlanner({ familyGroupId }: { familyGroupId: number }) { const {data=[]}=trpc.weekendPlanner.suggestions.useQuery({familyGroupId}); return <Card className="border-0 bg-emerald-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex gap-2 text-base"><CalendarDays className="h-5 w-5 text-emerald-600"/>家族の週末プランナー</CardTitle></CardHeader><CardContent className="grid gap-2">{data.map(x=><div key={x.id} className="rounded-xl bg-white p-3"><span className="text-[10px] text-emerald-700">{x.type}</span><p className="text-sm font-semibold">{x.title}</p><p className="text-xs text-slate-500">{x.description}</p></div>)}</CardContent></Card> }

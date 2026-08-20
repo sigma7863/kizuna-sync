@@ -1,0 +1,7 @@
+import { useState } from "react";
+import { Phone, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+export function FamilyContactsPanel({ familyGroupId }: { familyGroupId: number }) { const [label,setLabel]=useState(""); const [phone,setPhone]=useState(""); const u=trpc.useUtils(); const {data:items=[]}=trpc.familyContacts.list.useQuery({familyGroupId}); const create=trpc.familyContacts.create.useMutation({onSuccess:()=>{setLabel("");setPhone("");return u.familyContacts.list.invalidate({familyGroupId})}}); return <Card className="border-0 bg-sky-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex gap-2 text-base"><Phone className="h-5 w-5 text-sky-600"/>家族の連絡先カード</CardTitle></CardHeader><CardContent className="space-y-2"><div className="flex gap-2"><Input value={label} onChange={e=>setLabel(e.target.value)} placeholder="病院・親族など"/><Input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="電話番号"/><Button size="icon" disabled={!label||!phone} onClick={()=>create.mutate({familyGroupId,label,phone,category:"緊急"})}><Plus className="h-4 w-4"/></Button></div>{items.map(x=><a key={x.id} href={`tel:${x.phone}`} className="block rounded-xl bg-white p-3 text-sm shadow-sm"><b>{x.label}</b><span className="ml-2 text-sky-700">{x.phone}</span></a>)}</CardContent></Card> }

@@ -22,6 +22,8 @@ import {
   familyPollResponses,
   familySafetyChecklistItems,
   familyCelebrationDates,
+  familyContactCards,
+  familyGentleRules,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -446,6 +448,16 @@ export async function getFamilyCelebrationDates(familyGroupId: number) {
   if (!db) return [];
   return db.select().from(familyCelebrationDates).where(eq(familyCelebrationDates.familyGroupId, familyGroupId)).orderBy(familyCelebrationDates.celebrationAt);
 }
+
+export async function createFamilyContactCard(input: { familyGroupId: number; createdByUserId: number; label: string; phone: string; category: string }) {
+  const db = await getDb(); if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyContactCards).values(input);
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input };
+}
+export async function getFamilyContactCards(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyContactCards).where(eq(familyContactCards.familyGroupId, familyGroupId)) : []; }
+export async function createFamilyGentleRule(input: { familyGroupId: number; createdByUserId: number; title: string; detail?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyGentleRules).values({ ...input, detail: input.detail ?? null }); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, isAgreed: false }; }
+export async function getFamilyGentleRules(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyGentleRules).where(eq(familyGentleRules.familyGroupId, familyGroupId)) : []; }
+export async function toggleFamilyGentleRule(input: { familyGroupId: number; ruleId: number; isAgreed: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyGentleRules).set({ isAgreed: input.isAgreed }).where(and(eq(familyGentleRules.id, input.ruleId), eq(familyGentleRules.familyGroupId, input.familyGroupId))); }
 
 // Activity queries
 export async function logUserActivity(
