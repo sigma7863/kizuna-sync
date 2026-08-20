@@ -1206,6 +1206,42 @@ export const familyTomorrowPreparationRelays = mysqlTable("family_tomorrow_prepa
 }, (table) => [index("family_tomorrow_relay_group_ready_idx").on(table.familyGroupId, table.isReady)]);
 export type FamilyTomorrowPreparationRelay = typeof familyTomorrowPreparationRelays.$inferSelect;
 
+/** A compact, practical nudge that may help a family member when they are stuck. */
+export const familyHelpingHands = mysqlTable("family_helping_hands", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  situation: varchar("situation", { length: 160 }).notNull(),
+  smallAction: varchar("small_action", { length: 240 }).notNull(),
+  isHelpful: boolean("is_helpful").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_helping_hands_group_helpful_idx").on(table.familyGroupId, table.isHelpful)]);
+export type FamilyHelpingHand = typeof familyHelpingHands.$inferSelect;
+
+/** A short everyday discovery that can prompt a family conversation. */
+export const familyDiscoveryShares = mysqlTable("family_discovery_shares", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  discovery: varchar("discovery", { length: 240 }).notNull(),
+  sourceHint: varchar("source_hint", { length: 120 }),
+  isSaved: boolean("is_saved").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_discovery_shares_group_saved_idx").on(table.familyGroupId, table.isSaved)]);
+export type FamilyDiscoveryShare = typeof familyDiscoveryShares.$inferSelect;
+
+/** A soft plan for rest or a mood reset during an upcoming weekend. */
+export const familyWeekendCalmPlans = mysqlTable("family_weekend_calm_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  plan: varchar("plan", { length: 180 }).notNull(),
+  timingHint: varchar("timing_hint", { length: 120 }),
+  isEnjoyed: boolean("is_enjoyed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_weekend_calm_group_enjoyed_idx").on(table.familyGroupId, table.isEnjoyed)]);
+export type FamilyWeekendCalmPlan = typeof familyWeekendCalmPlans.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
