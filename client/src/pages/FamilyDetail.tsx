@@ -92,6 +92,9 @@ import { FamilyHelpedMemo } from "@/components/FamilyHelpedMemo";
 import { FamilyTomorrowMemo } from "@/components/FamilyTomorrowMemo";
 import { FamilySeasonalPhotoPrompt } from "@/components/FamilySeasonalPhotoPrompt";
 import { FamilyHelpGuide } from "@/components/FamilyHelpGuide";
+import { FamilyWeeklyPromise } from "@/components/FamilyWeeklyPromise";
+import { FamilyTalkTiming } from "@/components/FamilyTalkTiming";
+import { FamilyMemoryBookmarkExchange } from "@/components/FamilyMemoryBookmarkExchange";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -425,6 +428,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeekendReflection familyGroupId={familyGroupId}/><FamilySupportMap familyGroupId={familyGroupId}/><FamilyGentleReminders familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyEveningNote familyGroupId={familyGroupId}/><FamilyWalkLog familyGroupId={familyGroupId}/><FamilyHelpedMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyTomorrowMemo familyGroupId={familyGroupId}/><FamilySeasonalPhotoPrompt familyGroupId={familyGroupId}/><FamilyHelpGuide familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyPromise familyGroupId={familyGroupId}/><FamilyTalkTiming familyGroupId={familyGroupId}/><FamilyMemoryBookmarkExchange familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
