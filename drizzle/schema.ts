@@ -969,6 +969,53 @@ export const familyWeekendHomecomingPlans = mysqlTable("family_weekend_homecomin
 }, (table) => [index("family_weekend_homecoming_plans_group_planned_idx").on(table.familyGroupId, table.plannedAt)]);
 export type FamilyWeekendHomecomingPlan = typeof familyWeekendHomecomingPlans.$inferSelect;
 
+/** An open invitation to do a small chore or hobby together as a family. */
+export const familyTogetherInvitations = mysqlTable("family_together_invitations", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  kind: mysqlEnum("kind", ["chore", "hobby", "other"]).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  isClosed: boolean("is_closed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_together_invitations_group_closed_idx").on(table.familyGroupId, table.isClosed)]);
+export type FamilyTogetherInvitation = typeof familyTogetherInvitations.$inferSelect;
+
+/** A single participant response to a family together invitation. */
+export const familyTogetherResponses = mysqlTable("family_together_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  invitationId: int("invitation_id").notNull(),
+  userId: int("user_id").notNull(),
+  response: mysqlEnum("response", ["join", "maybe"]).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_together_responses_invitation_idx").on(table.invitationId)]);
+export type FamilyTogetherResponse = typeof familyTogetherResponses.$inferSelect;
+
+/** A color-based wellbeing and comfort signal that avoids reducing a family member to a numeric score. */
+export const familyComfortMeters = mysqlTable("family_comfort_meters", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  color: mysqlEnum("color", ["sunny", "soft", "cloudy", "rainy"]).notNull(),
+  message: varchar("message", { length: 160 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_comfort_meters_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyComfortMeter = typeof familyComfortMeters.$inferSelect;
+
+/** A family-contributed indoor idea for rain or other stay-at-home days. */
+export const familyRainyDayIdeas = mysqlTable("family_rainy_day_ideas", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  detail: varchar("detail", { length: 240 }),
+  mood: mysqlEnum("mood", ["quiet", "creative", "active"]).notNull(),
+  isTried: boolean("is_tried").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_rainy_day_ideas_group_tried_idx").on(table.familyGroupId, table.isTried)]);
+export type FamilyRainyDayIdea = typeof familyRainyDayIdeas.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

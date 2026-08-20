@@ -1,0 +1,17 @@
+import { useState } from "react";
+import { CheckCircle2, CloudRain, Loader2, Plus, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { rainyIdeaMoodLabels } from "@shared/familyTogetherComfort";
+
+type RainyMood = keyof typeof rainyIdeaMoodLabels;
+
+export function FamilyRainyDayIdeas({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [mood, setMood] = useState<RainyMood>("quiet"); const [title, setTitle] = useState(""); const [detail, setDetail] = useState("");
+  const { data: ideas = [], isLoading } = trpc.rainyDayIdeas.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.rainyDayIdeas.create.useMutation({ onSuccess: async () => { setTitle(""); setDetail(""); await utils.rainyDayIdeas.list.invalidate({ familyGroupId }); } });
+  const update = trpc.rainyDayIdeas.update.useMutation({ onSuccess: () => utils.rainyDayIdeas.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-slate-50 via-white to-blue-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><CloudRain className="h-5 w-5 text-blue-700"/>家族の雨の日アイデア帳</CardTitle><p className="text-xs text-slate-500">天気に左右されない、家の中の楽しい時間を持ち寄ろう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><select value={mood} onChange={(event) => setMood(event.target.value as RainyMood)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="quiet">ゆっくり</option><option value="creative">つくる</option><option value="active">からだを動かす</option></select><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：家族でホットケーキを作る" maxLength={160}/><div className="flex gap-2"><Input value={detail} onChange={(event) => setDetail(event.target.value)} placeholder="ひとこと（任意）" maxLength={240}/><Button size="sm" disabled={!title.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, title, detail, mood })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>足す</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-blue-700">アイデアを読み込み中です…</p> : <div className="grid gap-2">{ideas.map((idea) => <article key={idea.id} className={`rounded-xl p-3 shadow-sm ${idea.isTried ? "bg-blue-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className="text-[11px] font-medium text-blue-800"><Sparkles className="mr-1 inline h-3.5 w-3.5"/>{rainyIdeaMoodLabels[idea.mood]}</p><p className={`mt-1 text-sm font-semibold ${idea.isTried ? "text-blue-700 line-through" : "text-slate-800"}`}>{idea.title}</p>{idea.detail && <p className="mt-1 text-xs text-slate-600">{idea.detail}</p>}</div><button type="button" aria-label={idea.isTried ? "未実施に戻す" : "試した"} onClick={() => update.mutate({ familyGroupId, ideaId: idea.id, isTried: !idea.isTried })} className={idea.isTried ? "text-emerald-600" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{ideas.length === 0 && <p className="rounded-xl border border-dashed border-blue-200 p-3 text-center text-xs text-slate-500">雨の日でも気分が変わるアイデアを、最初に一つ残しましょう。</p>}</div>}</CardContent></Card>;
+}
