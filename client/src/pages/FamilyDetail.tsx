@@ -47,6 +47,9 @@ import { FamilyOutingPrep } from "@/components/FamilyOutingPrep";
 import { FamilyMealRelay } from "@/components/FamilyMealRelay";
 import { FamilyCareBoard } from "@/components/FamilyCareBoard";
 import { FamilyFunLottery } from "@/components/FamilyFunLottery";
+import { FamilyCareMessageBoard } from "@/components/FamilyCareMessageBoard";
+import { FamilySharedShelf } from "@/components/FamilySharedShelf";
+import { FamilyMonthlyChallenge } from "@/components/FamilyMonthlyChallenge";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -345,6 +348,9 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyContactsPanel familyGroupId={familyGroupId} userRole={members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian"}/><FamilyGentleRules familyGroupId={familyGroupId}/><FamilyWeekendPlanner familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyRoleMap familyGroupId={familyGroupId}/><FamilyBookshelf familyGroupId={familyGroupId}/><FamilyOutingPrep familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMealRelay familyGroupId={familyGroupId}/><FamilyCareBoard familyGroupId={familyGroupId}/><FamilyFunLottery familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyCareMessageBoard familyGroupId={familyGroupId} currentUserId={user?.id}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilySharedShelf familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMonthlyChallenge familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

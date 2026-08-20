@@ -77,6 +77,15 @@ import {
   completeFamilyCareDuty,
   createFamilyFunPrompt,
   getFamilyFunPrompts,
+  createFamilyCareMessage,
+  getFamilyCareMessages,
+  markFamilyCareMessageRead,
+  createFamilySharedItem,
+  getFamilySharedItems,
+  updateFamilySharedItemStatus,
+  createFamilyMonthlyChallenge,
+  getFamilyMonthlyChallenges,
+  advanceFamilyMonthlyChallenge,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -521,6 +530,24 @@ export const appRouter = router({
   funLottery: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyFunPrompts(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), content: z.string().trim().min(1).max(240), theme: z.string().trim().min(1).max(80) })).mutation(({ ctx, input }) => createFamilyFunPrompt({ ...input, createdByUserId: ctx.user.id })),
+  }),
+  careMessages: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyCareMessages(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), recipientUserId: z.number().optional(), message: z.string().trim().min(1).max(180) })).mutation(async ({ ctx, input }) => {
+      await createFamilyNotification({ familyGroupId: input.familyGroupId, type: "safety", title: "見守りメッセージ帳", message: `${ctx.user.name ?? "家族"}さんから気づかいメッセージが届きました。`, payload: { message: input.message }, excludeUserId: ctx.user.id, quiet: true });
+      return createFamilyCareMessage({ ...input, senderUserId: ctx.user.id });
+    }),
+    markRead: protectedProcedure.input(z.object({ familyGroupId: z.number(), messageId: z.number() })).mutation(({ input }) => markFamilyCareMessageRead(input)),
+  }),
+  sharedShelf: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilySharedItems(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), itemName: z.string().trim().min(1).max(160), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilySharedItem({ ...input, note: input.note || undefined, ownerUserId: ctx.user.id })),
+    updateStatus: protectedProcedure.input(z.object({ familyGroupId: z.number(), itemId: z.number(), borrowerUserId: z.number().optional(), status: z.enum(["available", "borrowed", "returned"]) })).mutation(({ input }) => updateFamilySharedItemStatus(input)),
+  }),
+  monthlyChallenge: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMonthlyChallenges(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), description: z.string().trim().max(240).optional(), targetCount: z.number().int().min(1).max(99), celebrationNote: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyMonthlyChallenge({ ...input, description: input.description || undefined, celebrationNote: input.celebrationNote || undefined, createdByUserId: ctx.user.id })),
+    advance: protectedProcedure.input(z.object({ familyGroupId: z.number(), challengeId: z.number(), delta: z.number().int().min(-1).max(1) })).mutation(({ input }) => advanceFamilyMonthlyChallenge(input)),
   }),
 
   activity: router({
