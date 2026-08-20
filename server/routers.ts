@@ -90,6 +90,14 @@ import {
   getFamilyWalkRoutes,
   createFamilyLearningCard,
   getFamilyLearningCards,
+  createFamilyDailyMoment,
+  getFamilyDailyMoments,
+  createFamilyMovementBingoCell,
+  getFamilyMovementBingoCells,
+  toggleFamilyMovementBingoCell,
+  createFamilyTakeHomeNote,
+  getFamilyTakeHomeNotes,
+  toggleFamilyTakeHomeNote,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -560,6 +568,20 @@ export const appRouter = router({
   learningCards: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyLearningCards(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), source: z.string().trim().max(180).optional(), sourceType: z.enum(["book", "school", "work", "other"]), insight: z.string().trim().min(1).max(500) })).mutation(({ ctx, input }) => createFamilyLearningCard({ ...input, source: input.source || undefined, createdByUserId: ctx.user.id })),
+  }),
+  dailyMoments: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyDailyMoments(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), photoId: z.number().int().positive().optional(), moodSign: z.string().trim().max(32).optional(), note: z.string().trim().min(1).max(280) })).mutation(({ ctx, input }) => createFamilyDailyMoment({ ...input, photoId: input.photoId || undefined, moodSign: input.moodSign || undefined, createdByUserId: ctx.user.id })),
+  }),
+  movementBingo: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMovementBingoCells(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), label: z.string().trim().min(1).max(100), icon: z.string().trim().max(16).optional() })).mutation(({ ctx, input }) => createFamilyMovementBingoCell({ ...input, icon: input.icon || undefined, createdByUserId: ctx.user.id })),
+    toggle: protectedProcedure.input(z.object({ familyGroupId: z.number(), cellId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => toggleFamilyMovementBingoCell(input)),
+  }),
+  takeHomeNotes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTakeHomeNotes(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), category: z.enum(["school", "work", "outing", "other"]), title: z.string().trim().min(1).max(160), content: z.string().trim().min(1).max(500) })).mutation(({ ctx, input }) => createFamilyTakeHomeNote({ ...input, createdByUserId: ctx.user.id })),
+    toggleResolved: protectedProcedure.input(z.object({ familyGroupId: z.number(), noteId: z.number(), isResolved: z.boolean() })).mutation(({ input }) => toggleFamilyTakeHomeNote(input)),
   }),
 
   activity: router({

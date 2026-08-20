@@ -53,6 +53,9 @@ import { FamilyMonthlyChallenge } from "@/components/FamilyMonthlyChallenge";
 import { FamilyMoodSign } from "@/components/FamilyMoodSign";
 import { FamilyWalkRoutes } from "@/components/FamilyWalkRoutes";
 import { FamilyLearningCards } from "@/components/FamilyLearningCards";
+import { FamilyDailyMoment } from "@/components/FamilyDailyMoment";
+import { FamilyMovementBingo } from "@/components/FamilyMovementBingo";
+import { FamilyTakeHomeNotes } from "@/components/FamilyTakeHomeNotes";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -357,6 +360,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMoodSign familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWalkRoutes familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyLearningCards familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyMoment familyGroupId={familyGroupId}/><FamilyMovementBingo familyGroupId={familyGroupId}/><FamilyTakeHomeNotes familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
