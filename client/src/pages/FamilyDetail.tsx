@@ -38,6 +38,9 @@ import { FamilyMemoryBookmark } from "@/components/FamilyMemoryBookmark";
 import { FamilySafetyChecklist } from "@/components/FamilySafetyChecklist";
 import { FamilyCelebrationCalendar } from "@/components/FamilyCelebrationCalendar";
 import { FamilyWordBaton } from "@/components/FamilyWordBaton";
+import { FamilyContactsPanel } from "@/components/FamilyContactsPanel";
+import { FamilyGentleRules } from "@/components/FamilyGentleRules";
+import { FamilyWeekendPlanner } from "@/components/FamilyWeekendPlanner";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -333,6 +336,7 @@ export default function FamilyDetail() {
           <FamilyCelebrationCalendar familyGroupId={familyGroupId} />
           <FamilyWordBaton familyGroupId={familyGroupId} />
         </div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyContactsPanel familyGroupId={familyGroupId}/><FamilyGentleRules familyGroupId={familyGroupId}/><FamilyWeekendPlanner familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

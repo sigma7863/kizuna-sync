@@ -247,6 +247,26 @@ export const photoJournals = mysqlTable("photo_journals", {
 export type PhotoJournal = typeof photoJournals.$inferSelect;
 export type InsertPhotoJournal = typeof photoJournals.$inferInsert;
 
+export const familyContactCards = mysqlTable("family_contact_cards", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  label: varchar("label", { length: 120 }).notNull(),
+  phone: varchar("phone", { length: 40 }).notNull(),
+  category: varchar("category", { length: 80 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_contact_cards_group_idx").on(table.familyGroupId)]);
+
+export const familyGentleRules = mysqlTable("family_gentle_rules", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  detail: text("detail"),
+  isAgreed: boolean("is_agreed").default(false).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_gentle_rules_group_idx").on(table.familyGroupId)]);
+
 /**
  * Location history - GPS tracking for safety
  */

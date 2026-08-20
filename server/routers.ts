@@ -52,6 +52,11 @@ import {
   toggleFamilySafetyChecklistItem,
   createFamilyCelebrationDate,
   getFamilyCelebrationDates,
+  createFamilyContactCard,
+  getFamilyContactCards,
+  createFamilyGentleRule,
+  getFamilyGentleRules,
+  toggleFamilyGentleRule,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -438,6 +443,23 @@ export const appRouter = router({
       await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", formatWordBatonContent(input.content), undefined, { isWordBaton: true });
       return { success: true };
     }),
+  }),
+
+  familyContacts: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyContactCards(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), label: z.string().min(1).max(120), phone: z.string().min(1).max(40), category: z.string().min(1).max(80) })).mutation(({ ctx, input }) => createFamilyContactCard({ ...input, createdByUserId: ctx.user.id })),
+  }),
+  gentleRules: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyGentleRules(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().min(1).max(160), detail: z.string().max(500).optional() })).mutation(({ ctx, input }) => createFamilyGentleRule({ ...input, createdByUserId: ctx.user.id })),
+    toggle: protectedProcedure.input(z.object({ familyGroupId: z.number(), ruleId: z.number(), isAgreed: z.boolean() })).mutation(({ input }) => toggleFamilyGentleRule(input)),
+  }),
+  weekendPlanner: router({
+    suggestions: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(() => ([
+      { id: "indoor-craft", title: "おうちで工作", type: "室内", description: "雨の日でも楽しめる、みんなで作る時間" },
+      { id: "park-walk", title: "近所をお散歩", type: "屋外", description: "気分転換に、ゆっくり歩いて季節を感じる" },
+      { id: "movie-night", title: "家族映画ナイト", type: "室内", description: "好きな飲み物と一緒に思い出を増やす" },
+    ])),
   }),
 
   activity: router({
