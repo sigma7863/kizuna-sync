@@ -181,6 +181,49 @@ export async function getFamilyTimeline(familyGroupId: number, limit = 50) {
   return result;
 }
 
+export async function getFamilyDigestAlbumEntries(familyGroupId: number, yearMonth: string) {
+  const db = await getDb();
+  if (!db) return [];
+  const entries = await db
+    .select()
+    .from(timelineEntries)
+    .where(eq(timelineEntries.familyGroupId, familyGroupId))
+    .orderBy(desc(timelineEntries.createdAt))
+    .limit(2000);
+
+  return entries.filter((entry) => {
+    const meta = entry.metadata as any;
+    const isCelebration = meta?.isCelebration === true || meta?.occasion !== undefined;
+    if (!isCelebration) return false;
+    const d = new Date(entry.createdAt);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    return ym === yearMonth;
+  });
+}
+
+export async function getFamilyDigestAvailableMonths(familyGroupId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const entries = await db
+    .select()
+    .from(timelineEntries)
+    .where(eq(timelineEntries.familyGroupId, familyGroupId))
+    .orderBy(desc(timelineEntries.createdAt))
+    .limit(2000);
+
+  const monthsSet = new Set<string>();
+  entries.forEach((entry) => {
+    const meta = entry.metadata as any;
+    const isCelebration = meta?.isCelebration === true || meta?.occasion !== undefined;
+    if (isCelebration) {
+      const d = new Date(entry.createdAt);
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      monthsSet.add(ym);
+    }
+  });
+  return Array.from(monthsSet).sort().reverse();
+}
+
 // Activity queries
 export async function logUserActivity(
   userId: number,

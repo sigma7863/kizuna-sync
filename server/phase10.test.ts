@@ -70,8 +70,9 @@ describe("phase 10 safety and automation helpers", () => {
   });
 
   it("generates deterministic wearable demo data within safe demo ranges", () => {
-    const a = generateWearableSnapshot({ familyGroupId: 1, userId: 2, seed: 42 });
-    const b = generateWearableSnapshot({ familyGroupId: 1, userId: 2, seed: 42 });
+    const fixedNow = new Date("2026-06-01T12:00:00Z");
+    const a = generateWearableSnapshot({ familyGroupId: 1, userId: 2, seed: 42, now: fixedNow });
+    const b = generateWearableSnapshot({ familyGroupId: 1, userId: 2, seed: 42, now: fixedNow });
     expect(a).toEqual(b);
     expect(a.source).toBe("simulated");
     expect(a.steps).toBeGreaterThanOrEqual(1800);

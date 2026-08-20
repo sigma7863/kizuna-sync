@@ -12,8 +12,8 @@ export function FamilyDigestAlbum({ familyGroupId }: { familyGroupId: number }) 
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   });
 
-  const { data: timeline = [] } = trpc.timeline.getFamilyTimeline.useQuery(
-    { familyGroupId, limit: 150 },
+  const { data: fetchedMonths = [] } = trpc.timeline.getDigestMonths.useQuery(
+    { familyGroupId },
     { enabled: familyGroupId > 0 }
   );
 
@@ -23,21 +23,10 @@ export function FamilyDigestAlbum({ familyGroupId }: { familyGroupId: number }) 
   );
 
   const months = useMemo(() => {
-    const set = new Set<string>();
-    timeline.forEach((entry) => {
-      const metadata = entry.metadata as any;
-      if (metadata?.isCelebration === true || metadata?.occasion !== undefined) {
-        const date = new Date(entry.createdAt);
-        set.add(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
-      }
-    });
-    const arr = Array.from(set).sort().reverse();
-    if (arr.length === 0) {
-      const now = new Date();
-      arr.push(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`);
-    }
-    return arr;
-  }, [timeline]);
+    if (fetchedMonths.length > 0) return fetchedMonths;
+    const now = new Date();
+    return [`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`];
+  }, [fetchedMonths]);
 
   return (
     <Card className="overflow-hidden border-0 bg-gradient-to-br from-amber-50 via-white to-pink-50 shadow-md">
