@@ -160,6 +160,12 @@ import {
   createFamilyGentleReminder,
   getFamilyGentleReminders,
   updateFamilyGentleReminder,
+  createFamilyEveningNote,
+  getFamilyEveningNotes,
+  createFamilyWalkLog,
+  getFamilyWalkLogs,
+  createFamilyHelpedMemo,
+  getFamilyHelpedMemos,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -765,6 +771,18 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyGentleReminders(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), note: z.string().trim().max(240).optional(), dueAt: z.date().optional() })).mutation(({ ctx, input }) => createFamilyGentleReminder({ ...input, note: input.note || undefined, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), reminderId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => updateFamilyGentleReminder(input)),
+  }),
+  eveningNotes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyEveningNotes(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), mood: z.enum(["calm", "tired", "happy", "anxious", "grateful"]), note: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyEveningNote({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+  }),
+  walkLogs: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWalkLogs(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), routeTitle: z.string().trim().min(1).max(160), spotName: z.string().trim().max(160).optional(), memo: z.string().trim().max(280).optional() })).mutation(({ ctx, input }) => createFamilyWalkLog({ ...input, spotName: input.spotName || undefined, memo: input.memo || undefined, userId: ctx.user.id })),
+  }),
+  helpedMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyHelpedMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), helperNote: z.string().trim().min(1).max(280), reaction: z.string().trim().max(80).optional() })).mutation(({ ctx, input }) => createFamilyHelpedMemo({ ...input, reaction: input.reaction || undefined, userId: ctx.user.id })),
   }),
 
   activity: router({
