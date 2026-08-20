@@ -253,6 +253,15 @@ import {
   createFamilyWeekendCalmPlan,
   getFamilyWeekendCalmPlans,
   updateFamilyWeekendCalmPlan,
+  createFamilyWeeklyCareTheme,
+  getFamilyWeeklyCareThemes,
+  updateFamilyWeeklyCareTheme,
+  createFamilyTriedMemo,
+  getFamilyTriedMemos,
+  updateFamilyTriedMemo,
+  createFamilyHomecomingBreather,
+  getFamilyHomecomingBreathers,
+  updateFamilyHomecomingBreather,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -1019,6 +1028,21 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWeekendCalmPlans(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), plan: z.string().trim().min(1).max(180), timingHint: z.string().trim().max(120).optional() })).mutation(({ ctx, input }) => createFamilyWeekendCalmPlan({ ...input, timingHint: input.timingHint || undefined, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), planId: z.number(), isEnjoyed: z.boolean() })).mutation(({ input }) => updateFamilyWeekendCalmPlan(input)),
+  }),
+  weeklyCareThemes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getFamilyWeeklyCareThemes(input.familyGroupId, input.weekKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), theme: z.string().trim().min(1).max(140), careHint: z.string().trim().max(200).optional() })).mutation(({ ctx, input }) => createFamilyWeeklyCareTheme({ ...input, careHint: input.careHint || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), themeId: z.number(), isActive: z.boolean() })).mutation(({ input }) => updateFamilyWeeklyCareTheme(input)),
+  }),
+  triedMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTriedMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), triedThing: z.string().trim().min(1).max(180), reflection: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyTriedMemo({ ...input, reflection: input.reflection || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isKept: z.boolean() })).mutation(({ input }) => updateFamilyTriedMemo(input)),
+  }),
+  homecomingBreathers: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyHomecomingBreathers(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), breather: z.string().trim().min(1).max(180), note: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyHomecomingBreather({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), breatherId: z.number(), isTaken: z.boolean() })).mutation(({ input }) => updateFamilyHomecomingBreather(input)),
   }),
 
   activity: router({

@@ -1242,6 +1242,43 @@ export const familyWeekendCalmPlans = mysqlTable("family_weekend_calm_plans", {
 }, (table) => [index("family_weekend_calm_group_enjoyed_idx").on(table.familyGroupId, table.isEnjoyed)]);
 export type FamilyWeekendCalmPlan = typeof familyWeekendCalmPlans.$inferSelect;
 
+/** A gentle weekly intention for the small care a family wants to offer each other. */
+export const familyWeeklyCareThemes = mysqlTable("family_weekly_care_themes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  weekKey: varchar("week_key", { length: 10 }).notNull(),
+  theme: varchar("theme", { length: 140 }).notNull(),
+  careHint: varchar("care_hint", { length: 200 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_weekly_care_themes_group_week_idx").on(table.familyGroupId, table.weekKey)]);
+export type FamilyWeeklyCareTheme = typeof familyWeeklyCareThemes.$inferSelect;
+
+/** A brief reflection after someone tries a small new action or idea. */
+export const familyTriedMemos = mysqlTable("family_tried_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  triedThing: varchar("tried_thing", { length: 180 }).notNull(),
+  reflection: varchar("reflection", { length: 240 }),
+  isKept: boolean("is_kept").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_tried_memos_group_kept_idx").on(table.familyGroupId, table.isKept)]);
+export type FamilyTriedMemo = typeof familyTriedMemos.$inferSelect;
+
+/** A small rest or enjoyment choice a family member wants after getting home. */
+export const familyHomecomingBreathers = mysqlTable("family_homecoming_breathers", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  breather: varchar("breather", { length: 180 }).notNull(),
+  note: varchar("note", { length: 180 }),
+  isTaken: boolean("is_taken").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_homecoming_breathers_group_taken_idx").on(table.familyGroupId, table.isTaken)]);
+export type FamilyHomecomingBreather = typeof familyHomecomingBreathers.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
