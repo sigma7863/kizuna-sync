@@ -98,6 +98,13 @@ import {
   createFamilyTakeHomeNote,
   getFamilyTakeHomeNotes,
   toggleFamilyTakeHomeNote,
+  createFamilyEncouragementPost,
+  getFamilyEncouragementPosts,
+  createFamilyEnergyStatus,
+  getFamilyEnergyStatuses,
+  createFamilyWishListItem,
+  getFamilyWishListItems,
+  updateFamilyWishListStatus,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -582,6 +589,19 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTakeHomeNotes(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), category: z.enum(["school", "work", "outing", "other"]), title: z.string().trim().min(1).max(160), content: z.string().trim().min(1).max(500) })).mutation(({ ctx, input }) => createFamilyTakeHomeNote({ ...input, createdByUserId: ctx.user.id })),
     toggleResolved: protectedProcedure.input(z.object({ familyGroupId: z.number(), noteId: z.number(), isResolved: z.boolean() })).mutation(({ input }) => toggleFamilyTakeHomeNote(input)),
+  }),
+  encouragements: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyEncouragementPosts(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), recipientUserId: z.number().optional(), message: z.string().trim().min(1).max(180), stamp: z.string().trim().max(16).optional() })).mutation(({ ctx, input }) => createFamilyEncouragementPost({ ...input, recipientUserId: input.recipientUserId || undefined, stamp: input.stamp || undefined, senderUserId: ctx.user.id })),
+  }),
+  energyStatuses: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyEnergyStatuses(input.familyGroupId)),
+    share: protectedProcedure.input(z.object({ familyGroupId: z.number(), energyLevel: z.number().int().min(1).max(5), note: z.string().trim().max(160).optional() })).mutation(({ ctx, input }) => createFamilyEnergyStatus({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+  }),
+  wishList: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWishListItems(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), category: z.enum(["place", "activity", "challenge", "other"]), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyWishListItem({ ...input, note: input.note || undefined, createdByUserId: ctx.user.id })),
+    updateStatus: protectedProcedure.input(z.object({ familyGroupId: z.number(), itemId: z.number(), status: z.enum(["wish", "candidate", "done"]) })).mutation(({ input }) => updateFamilyWishListStatus(input)),
   }),
 
   activity: router({

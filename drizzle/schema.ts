@@ -494,6 +494,43 @@ export const familyTakeHomeNotes = mysqlTable("family_take_home_notes", {
 }, (table) => [index("family_take_home_notes_group_resolved_idx").on(table.familyGroupId, table.isResolved)]);
 export type FamilyTakeHomeNote = typeof familyTakeHomeNotes.$inferSelect;
 
+/** Warm, concise encouragements shared between family members. */
+export const familyEncouragementPosts = mysqlTable("family_encouragement_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  senderUserId: int("sender_user_id").notNull(),
+  recipientUserId: int("recipient_user_id"),
+  message: varchar("message", { length: 180 }).notNull(),
+  stamp: varchar("stamp", { length: 16 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_encouragement_posts_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyEncouragementPost = typeof familyEncouragementPosts.$inferSelect;
+
+/** Self-reported daily energy level to help family members communicate capacity gently. */
+export const familyEnergyStatuses = mysqlTable("family_energy_statuses", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  energyLevel: int("energy_level").notNull(),
+  note: varchar("note", { length: 160 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_energy_statuses_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyEnergyStatus = typeof familyEnergyStatuses.$inferSelect;
+
+/** Shared wishlist of places, activities, and small challenges the family wants to try. */
+export const familyWishListItems = mysqlTable("family_wish_list_items", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  category: mysqlEnum("category", ["place", "activity", "challenge", "other"]).default("activity").notNull(),
+  note: varchar("note", { length: 240 }),
+  status: mysqlEnum("status", ["wish", "candidate", "done"]).default("wish").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_wish_list_items_group_status_idx").on(table.familyGroupId, table.status)]);
+export type FamilyWishListItem = typeof familyWishListItems.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
