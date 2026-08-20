@@ -199,6 +199,8 @@ import {
   createFamilyRainyDayIdea,
   getFamilyRainyDayIdeas,
   updateFamilyRainyDayIdea,
+  createFamilyDailyJoy,
+  getFamilyDailyJoys,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -873,6 +875,10 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyRainyDayIdeas(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), detail: z.string().trim().max(240).optional(), mood: z.enum(["quiet", "creative", "active"]) })).mutation(({ ctx, input }) => createFamilyRainyDayIdea({ ...input, detail: input.detail || undefined, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), ideaId: z.number(), isTried: z.boolean() })).mutation(({ input }) => updateFamilyRainyDayIdea(input)),
+  }),
+  dailyJoys: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), dayKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getFamilyDailyJoys(input.familyGroupId, input.dayKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), dayKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), joy: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyDailyJoy({ ...input, userId: ctx.user.id })),
   }),
 
   activity: router({

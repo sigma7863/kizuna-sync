@@ -101,6 +101,7 @@ import { FamilyWeekendHomecomingPlan } from "@/components/FamilyWeekendHomecomin
 import { FamilyTogetherInvitation } from "@/components/FamilyTogetherInvitation";
 import { FamilyComfortMeter } from "@/components/FamilyComfortMeter";
 import { FamilyRainyDayIdeas } from "@/components/FamilyRainyDayIdeas";
+import { FamilyDailyJoy } from "@/components/FamilyDailyJoy";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -391,7 +392,6 @@ export default function FamilyDetail() {
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-3">
-          <FamilyHelpBoard familyGroupId={familyGroupId} />
           <FamilyGratitudeRelay familyGroupId={familyGroupId} />
           <FamilyWeeklyPulse familyGroupId={familyGroupId} />
         </div>
@@ -425,7 +425,7 @@ export default function FamilyDetail() {
         <div id="family-daily-cards" className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyMoment familyGroupId={familyGroupId}/><FamilyMovementBingo familyGroupId={familyGroupId}/><FamilyTakeHomeNotes familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyEncouragementPost familyGroupId={familyGroupId}/><FamilyEnergyMeter familyGroupId={familyGroupId}/><FamilyWishList familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMorningBoard familyGroupId={familyGroupId}/><FamilyVoiceMemoExchange familyGroupId={familyGroupId}/><FamilyAchievementAlbum familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHomecomingNote familyGroupId={familyGroupId}/><FamilyReadingRelay familyGroupId={familyGroupId}/><FamilyWeatherMemo familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyReadingRelay familyGroupId={familyGroupId}/><FamilyWeatherMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyPlaylist familyGroupId={familyGroupId}/><FamilyForgottenItemRescue familyGroupId={familyGroupId}/><FamilyThankYouBookmarks familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMealRequest familyGroupId={familyGroupId}/><FamilyFunCountdown familyGroupId={familyGroupId}/><FamilyMemoryQuiz familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMonthlyGoals familyGroupId={familyGroupId}/><FamilyPhotoCaption familyGroupId={familyGroupId}/><FamilyQuietTimeSignal familyGroupId={familyGroupId}/></div>
@@ -437,6 +437,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyPromise familyGroupId={familyGroupId}/><FamilyTalkTiming familyGroupId={familyGroupId}/><FamilyMemoryBookmarkExchange familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyQuestionBox familyGroupId={familyGroupId}/><FamilyMorningEncouragement familyGroupId={familyGroupId}/><FamilyWeekendHomecomingPlan familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyTogetherInvitation familyGroupId={familyGroupId}/><FamilyComfortMeter familyGroupId={familyGroupId}/><FamilyRainyDayIdeas familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyJoy familyGroupId={familyGroupId}/><FamilyHomecomingNote familyGroupId={familyGroupId}/><FamilyHelpBoard familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

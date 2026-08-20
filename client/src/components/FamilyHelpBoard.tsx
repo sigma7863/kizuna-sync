@@ -21,7 +21,7 @@ export function FamilyHelpBoard({ familyGroupId }: { familyGroupId: number }) {
   return (
     <Card className="border-0 bg-gradient-to-br from-indigo-50 via-white to-cyan-50 shadow-md">
       <CardHeader className="flex-row items-center justify-between pb-2">
-        <div><CardTitle className="flex items-center gap-2 text-base text-slate-800"><HandHeart className="h-5 w-5 text-indigo-500" />家族おたすけボード</CardTitle><p className="mt-1 text-xs text-slate-500">お願いを、できる人がそっと引き受けます。</p></div>
+        <div><CardTitle className="flex items-center gap-2 text-base text-slate-800"><HandHeart className="h-5 w-5 text-indigo-500" />家族の手伝いリクエスト札</CardTitle><p className="mt-1 text-xs text-slate-500">お願いを、できる人がそっと引き受けて完了にします。</p></div>
         <Button size="sm" onClick={() => setExpanded((value) => !value)}><Plus className="mr-1 h-4 w-4" />お願い</Button>
       </CardHeader>
       <CardContent className="space-y-3">

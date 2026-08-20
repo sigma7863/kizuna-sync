@@ -1016,6 +1016,17 @@ export const familyRainyDayIdeas = mysqlTable("family_rainy_day_ideas", {
 }, (table) => [index("family_rainy_day_ideas_group_tried_idx").on(table.familyGroupId, table.isTried)]);
 export type FamilyRainyDayIdea = typeof familyRainyDayIdeas.$inferSelect;
 
+/** A small, same-day thing a family member is looking forward to and can invite kind conversation around. */
+export const familyDailyJoys = mysqlTable("family_daily_joys", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  dayKey: varchar("day_key", { length: 10 }).notNull(),
+  joy: varchar("joy", { length: 180 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_daily_joys_group_day_idx").on(table.familyGroupId, table.dayKey)]);
+export type FamilyDailyJoy = typeof familyDailyJoys.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
