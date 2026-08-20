@@ -455,6 +455,45 @@ export const familyLearningCards = mysqlTable("family_learning_cards", {
 
 export type FamilyLearningCard = typeof familyLearningCards.$inferSelect;
 
+/** A compact daily memory that combines an optional family album photo, mood, and note. */
+export const familyDailyMoments = mysqlTable("family_daily_moments", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  photoId: int("photo_id"),
+  moodSign: varchar("mood_sign", { length: 32 }),
+  note: varchar("note", { length: 280 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_daily_moments_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyDailyMoment = typeof familyDailyMoments.$inferSelect;
+
+/** User-defined, small movement actions for a family-friendly bingo board. */
+export const familyMovementBingoCells = mysqlTable("family_movement_bingo_cells", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  label: varchar("label", { length: 100 }).notNull(),
+  icon: varchar("icon", { length: 16 }),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_movement_bingo_cells_group_done_idx").on(table.familyGroupId, table.isCompleted)]);
+export type FamilyMovementBingoCell = typeof familyMovementBingoCells.$inferSelect;
+
+/** Notes brought home from school, work, and outings, with a gentle resolution state. */
+export const familyTakeHomeNotes = mysqlTable("family_take_home_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  category: mysqlEnum("category", ["school", "work", "outing", "other"]).default("other").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  content: varchar("content", { length: 500 }).notNull(),
+  isResolved: boolean("is_resolved").default(false).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_take_home_notes_group_resolved_idx").on(table.familyGroupId, table.isResolved)]);
+export type FamilyTakeHomeNote = typeof familyTakeHomeNotes.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
