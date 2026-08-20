@@ -1,0 +1,20 @@
+import { useState } from "react";
+import { Flag, Loader2, Plus, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { getChallengeProgress } from "@shared/familyChallenge";
+
+export function FamilyMonthlyChallenge({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [celebrationNote, setCelebrationNote] = useState("");
+  const [targetCount, setTargetCount] = useState("5");
+  const { data: challenges = [], isLoading } = trpc.monthlyChallenge.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.monthlyChallenge.create.useMutation({ onSuccess: async () => { setTitle(""); setDescription(""); setCelebrationNote(""); setTargetCount("5"); await utils.monthlyChallenge.list.invalidate({ familyGroupId }); } });
+  const advance = trpc.monthlyChallenge.advance.useMutation({ onSuccess: () => utils.monthlyChallenge.list.invalidate({ familyGroupId }) });
+
+  return <Card className="border-0 bg-gradient-to-br from-violet-50 via-white to-purple-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Flag className="h-5 w-5 text-violet-600"/>家族の今月チャレンジ</CardTitle><p className="text-xs text-slate-500">みんなで小さな目標に取り組み、達成を祝おう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：ありがとうを10回伝える" maxLength={160}/><Input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="説明（任意）" maxLength={240}/><div className="grid grid-cols-2 gap-2"><Input value={targetCount} onChange={(event) => setTargetCount(event.target.value)} type="number" min={1} max={99} placeholder="目標回数"/><Input value={celebrationNote} onChange={(event) => setCelebrationNote(event.target.value)} placeholder="達成時の一言（任意）" maxLength={180}/></div><Button size="sm" disabled={!title.trim() || !targetCount || create.isPending} onClick={() => create.mutate({ familyGroupId, title, description, celebrationNote, targetCount: Number(targetCount) })}>{create.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>チャレンジを作成</>}</Button></div>{isLoading ? <p className="py-3 text-center text-xs text-violet-700">チャレンジを読み込み中です…</p> : <div className="grid gap-2">{challenges.map((challenge) => { const progress = getChallengeProgress(challenge.progressCount, challenge.targetCount); return <div key={challenge.id} className={`rounded-xl p-3 shadow-sm ${progress.isCompleted ? "bg-violet-100" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className="text-sm font-semibold text-slate-800">{challenge.title}</p>{challenge.description && <p className="mt-1 text-xs text-slate-600">{challenge.description}</p>}<p className="mt-1 text-[11px] text-violet-700">進捗 {progress.progress}/{progress.target}</p>{progress.isCompleted && <p className="mt-1 text-xs text-violet-700"><Sparkles className="mr-1 inline h-3.5 w-3.5"/>{challenge.celebrationNote || "今月のチャレンジ達成！"}</p>}</div><div className="flex flex-col gap-1"><Button size="sm" variant="outline" className="bg-white" disabled={advance.isPending || progress.isCompleted} onClick={() => advance.mutate({ familyGroupId, challengeId: challenge.id, delta: 1 })}>達成を追加</Button><Button size="sm" variant="outline" className="bg-white" disabled={advance.isPending || challenge.progressCount === 0} onClick={() => advance.mutate({ familyGroupId, challengeId: challenge.id, delta: -1 })}>戻す</Button></div></div></div>; })}{challenges.length === 0 && <p className="rounded-xl border border-dashed border-violet-200 p-3 text-center text-xs text-slate-500">今月みんなで挑戦したいことを追加してみましょう。</p>}</div>}</CardContent></Card>;
+}

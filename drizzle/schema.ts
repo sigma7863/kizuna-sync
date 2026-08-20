@@ -378,6 +378,52 @@ export const familyFunPrompts = mysqlTable("family_fun_prompts", {
 
 export type FamilyFunPrompt = typeof familyFunPrompts.$inferSelect;
 
+/** Short caring notes exchanged inside the family with a gentle read state. */
+export const familyCareMessages = mysqlTable("family_care_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  senderUserId: int("sender_user_id").notNull(),
+  recipientUserId: int("recipient_user_id"),
+  message: varchar("message", { length: 180 }).notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_care_messages_group_read_idx").on(table.familyGroupId, table.isRead)]);
+
+export type FamilyCareMessage = typeof familyCareMessages.$inferSelect;
+
+/** Shared family items that can be lent and returned with a gentle status. */
+export const familySharedItems = mysqlTable("family_shared_items", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  ownerUserId: int("owner_user_id").notNull(),
+  borrowerUserId: int("borrower_user_id"),
+  itemName: varchar("item_name", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  status: mysqlEnum("status", ["available", "borrowed", "returned"]).default("available").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_shared_items_group_status_idx").on(table.familyGroupId, table.status)]);
+
+export type FamilySharedItem = typeof familySharedItems.$inferSelect;
+
+/** Shared monthly challenge for the family with simple collaborative progress tracking. */
+export const familyMonthlyChallenges = mysqlTable("family_monthly_challenges", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  description: varchar("description", { length: 240 }),
+  targetCount: int("target_count").notNull(),
+  progressCount: int("progress_count").default(0).notNull(),
+  celebrationNote: varchar("celebration_note", { length: 180 }),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_monthly_challenges_group_done_idx").on(table.familyGroupId, table.isCompleted)]);
+
+export type FamilyMonthlyChallenge = typeof familyMonthlyChallenges.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
