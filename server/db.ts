@@ -17,6 +17,7 @@ import {
   familyAlbumPhotos,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { matchesAlbumSearch } from "../shared/album";
 
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -259,6 +260,11 @@ export async function getFamilyAlbumPhotos(familyGroupId: number, favoritesOnly 
     ? and(eq(familyAlbumPhotos.familyGroupId, familyGroupId), eq(familyAlbumPhotos.isFavorite, true))
     : eq(familyAlbumPhotos.familyGroupId, familyGroupId);
   return db.select().from(familyAlbumPhotos).where(condition).orderBy(desc(familyAlbumPhotos.createdAt));
+}
+
+export async function searchFamilyAlbumPhotos(familyGroupId: number, keyword: string) {
+  const photos = await getFamilyAlbumPhotos(familyGroupId);
+  return photos.filter((photo) => matchesAlbumSearch(photo, keyword));
 }
 
 export async function setFamilyAlbumPhotoFavorite(input: { photoId: number; familyGroupId: number; isFavorite: boolean }) {
@@ -574,6 +580,20 @@ export async function getLatestWearableHealthSnapshot(familyGroupId: number, use
     .orderBy(desc(wearableHealthSnapshots.simulatedAt))
     .limit(1);
   return rows[0];
+}
+
+export async function getFamilyLatestWearableHealthSnapshots(familyGroupId: number, limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select().from(wearableHealthSnapshots)
+    .where(eq(wearableHealthSnapshots.familyGroupId, familyGroupId))
+    .orderBy(desc(wearableHealthSnapshots.simulatedAt))
+    .limit(limit);
+  const latestByUser = new Map<number, (typeof rows)[number]>();
+  for (const row of rows) {
+    if (!latestByUser.has(row.userId)) latestByUser.set(row.userId, row);
+  }
+  return Array.from(latestByUser.values());
 }
 
 

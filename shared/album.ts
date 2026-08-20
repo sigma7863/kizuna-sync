@@ -11,3 +11,13 @@ export function albumFileExtension(mimeType: AlbumMimeType) {
   if (mimeType === "image/webp") return "webp";
   return "jpg";
 }
+
+export function matchesAlbumSearch(photo: { fileName: string; description: string | null; tags: unknown }, keyword: string) {
+  const normalizedKeyword = keyword.trim().toLocaleLowerCase();
+  if (!normalizedKeyword) return true;
+  const tagText = Array.isArray(photo.tags) ? photo.tags.filter((tag): tag is string => typeof tag === "string").join(" ") : "";
+  return [photo.fileName, photo.description ?? "", tagText]
+    .join(" ")
+    .toLocaleLowerCase()
+    .includes(normalizedKeyword);
+}

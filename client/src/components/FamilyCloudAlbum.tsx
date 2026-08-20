@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { Download, Heart, ImagePlus, Loader2, Sparkles, Tag } from "lucide-react";
+import { Download, Heart, ImagePlus, Loader2, Search, Sparkles, Tag, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { MAX_ALBUM_PHOTO_BYTES, isSupportedAlbumMimeType, type AlbumMimeType } from "@shared/album";
 
@@ -20,15 +21,22 @@ function readAsDataUrl(file: File) {
 
 export function FamilyCloudAlbum({ familyGroupId }: FamilyCloudAlbumProps) {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [keyword, setKeyword] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const utils = trpc.useUtils();
   const { data: photos = [], isLoading } = trpc.album.list.useQuery(
     { familyGroupId, favoritesOnly },
     { enabled: familyGroupId > 0 },
   );
+  const { data: searchedPhotos = [], isLoading: isSearching } = trpc.album.search.useQuery(
+    { familyGroupId, keyword },
+    { enabled: familyGroupId > 0 && keyword.trim().length > 0 },
+  );
+  const displayedPhotos = keyword.trim() ? searchedPhotos : photos;
   const uploadPhoto = trpc.album.upload.useMutation({
     onSuccess: async () => {
       await utils.album.list.invalidate({ familyGroupId, favoritesOnly });
+      await utils.album.search.invalidate();
       toast.success("写真をアルバムに追加し、AIタグを付けました");
     },
     onError: (error) => toast.error(error.message),
@@ -36,6 +44,7 @@ export function FamilyCloudAlbum({ familyGroupId }: FamilyCloudAlbumProps) {
   const setFavorite = trpc.album.setFavorite.useMutation({
     onSuccess: async () => {
       await utils.album.list.invalidate({ familyGroupId, favoritesOnly });
+      await utils.album.search.invalidate();
     },
     onError: (error) => toast.error(error.message),
   });
@@ -66,8 +75,8 @@ export function FamilyCloudAlbum({ familyGroupId }: FamilyCloudAlbumProps) {
   };
 
   const downloadAll = () => {
-    if (photos.length === 0) return;
-    photos.forEach((photo, index) => {
+    if (displayedPhotos.length === 0) return;
+    displayedPhotos.forEach((photo, index) => {
       window.setTimeout(() => {
         const anchor = document.createElement("a");
         anchor.href = photo.imageUrl;
@@ -78,7 +87,7 @@ export function FamilyCloudAlbum({ familyGroupId }: FamilyCloudAlbumProps) {
         anchor.remove();
       }, index * 180);
     });
-    toast.success(`${photos.length}枚の保存を開始しました`);
+    toast.success(`${displayedPhotos.length}枚の保存を開始しました`);
   };
 
   return (
@@ -96,7 +105,7 @@ export function FamilyCloudAlbum({ familyGroupId }: FamilyCloudAlbumProps) {
             <Heart className={`mr-1.5 h-4 w-4 ${favoritesOnly ? "fill-current" : ""}`} />
             お気に入り
           </Button>
-          <Button size="sm" variant="outline" onClick={downloadAll} disabled={photos.length === 0}>
+          <Button size="sm" variant="outline" onClick={downloadAll} disabled={displayedPhotos.length === 0}>
             <Download className="mr-1.5 h-4 w-4" />
             まとめて保存
           </Button>
@@ -108,17 +117,22 @@ export function FamilyCloudAlbum({ familyGroupId }: FamilyCloudAlbumProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border bg-white px-3 py-1.5 shadow-sm">
+          <Search className="h-4 w-4 text-sky-500" />
+          <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="AIタグや説明から思い出を探す" className="h-8 border-0 p-0 text-sm shadow-none focus-visible:ring-0" />
+          {keyword && <button type="button" className="text-slate-400 hover:text-slate-600" onClick={() => setKeyword("")} aria-label="検索をクリア"><X className="h-4 w-4" /></button>}
+        </div>
+        {isLoading || isSearching ? (
           <div className="flex min-h-52 items-center justify-center text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />読み込み中…</div>
-        ) : photos.length === 0 ? (
+        ) : displayedPhotos.length === 0 ? (
           <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-sky-200 bg-white/70 p-8 text-center">
             <ImagePlus className="mb-3 h-9 w-9 text-sky-300" />
-            <p className="text-sm font-medium text-slate-700">{favoritesOnly ? "お気に入りの写真はまだありません" : "最初の家族写真を追加しましょう"}</p>
+            <p className="text-sm font-medium text-slate-700">{keyword ? "一致する思い出が見つかりませんでした" : favoritesOnly ? "お気に入りの写真はまだありません" : "最初の家族写真を追加しましょう"}</p>
             <p className="mt-1 text-xs text-slate-500">AIが説明とタグを付け、思い出を探しやすくします。</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {photos.map((photo) => {
+            {displayedPhotos.map((photo) => {
               const tags = Array.isArray(photo.tags) ? photo.tags.filter((tag): tag is string => typeof tag === "string") : [];
               return (
                 <article key={photo.id} className="group overflow-hidden rounded-2xl border border-white bg-white shadow-sm transition-shadow hover:shadow-md">

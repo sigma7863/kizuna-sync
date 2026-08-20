@@ -20,6 +20,7 @@ import {
   getFamilyDigestAvailableMonths,
   createFamilyAlbumPhoto,
   getFamilyAlbumPhotos,
+  searchFamilyAlbumPhotos,
   setFamilyAlbumPhotoFavorite,
   logUserActivity,
   saveLocationHistory,
@@ -32,6 +33,7 @@ import {
   upsertPhotoJournalSchedule,
   setPhotoJournalScheduleTaskUid,
   getRecentPhotoJournals,
+  getFamilyLatestWearableHealthSnapshots,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -62,6 +64,8 @@ import { cancelWearableSimulation, clearWearableSimulationCancellation, generate
 import { broadcastFamilyLocationUpdate, broadcastRippleNotification } from "./websocket-integration";
 import { buildCelebrationMetadata, CelebrationOccasion } from "./celebration";
 import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension } from "../shared/album";
+import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
+import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -185,6 +189,10 @@ export const appRouter = router({
       .input(z.object({ familyGroupId: z.number(), favoritesOnly: z.boolean().optional() }))
       .query(({ input }) => getFamilyAlbumPhotos(input.familyGroupId, input.favoritesOnly ?? false)),
 
+    search: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), keyword: z.string().max(100) }))
+      .query(({ input }) => searchFamilyAlbumPhotos(input.familyGroupId, input.keyword)),
+
     upload: protectedProcedure
       .input(z.object({
         familyGroupId: z.number(),
@@ -220,6 +228,52 @@ export const appRouter = router({
     setFavorite: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), photoId: z.number(), isFavorite: z.boolean() }))
       .mutation(({ input }) => setFamilyAlbumPhotoFavorite(input)),
+  }),
+
+  checkIn: router({
+    send: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), note: z.string().max(120).optional() }))
+      .mutation(async ({ ctx, input }) => {
+        const displayName = ctx.user.name ?? "家族";
+        const content = buildCheckInContent(input.note);
+        await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", content, undefined, buildCheckInMetadata());
+        const members = await getFamilyMembers(input.familyGroupId);
+        const guardianIds = members
+          .filter((member) => member.family_members.memberRole === "guardian")
+          .map((member) => member.family_members.userId);
+        await createFamilyNotification({
+          familyGroupId: input.familyGroupId,
+          type: "safety",
+          title: "安心チェックイン",
+          message: `${displayName}さんが「大丈夫」と知らせました。`,
+          payload: { status: "okay", note: content, sourceUserId: ctx.user.id },
+          quiet: true,
+          excludeUserId: ctx.user.id,
+          recipientUserIds: guardianIds,
+        });
+        broadcastRippleNotification({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          userName: displayName,
+          activityType: "message",
+          timestamp: Date.now(),
+          metadata: { isCheckIn: true, status: "okay" },
+        });
+        return { success: true, content };
+      }),
+  }),
+
+  highlights: router({
+    today: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ input }) => {
+        const [timeline, locations, health] = await Promise.all([
+          getFamilyTimeline(input.familyGroupId, 100),
+          getFamilyLatestLocations(input.familyGroupId),
+          getFamilyLatestWearableHealthSnapshots(input.familyGroupId),
+        ]);
+        return buildTodayKizunaHighlights({ timeline, locations, health });
+      }),
   }),
 
   activity: router({

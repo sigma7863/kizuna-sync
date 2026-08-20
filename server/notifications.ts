@@ -20,6 +20,7 @@ export interface NotificationPayload {
   payload?: Record<string, unknown>;
   quiet?: boolean;
   excludeUserId?: number;
+  recipientUserIds?: number[];
 }
 
 export interface NotificationEvent {
@@ -121,8 +122,11 @@ export async function createFamilyNotification(input: NotificationPayload): Prom
     .from(familyMembers)
     .where(eq(familyMembers.familyGroupId, input.familyGroupId));
 
+  const recipients = input.recipientUserIds
+    ? members.filter((member) => input.recipientUserIds?.includes(member.userId))
+    : members;
   const events: NotificationEvent[] = [];
-  for (const member of members) {
+  for (const member of recipients) {
     if (member.userId === input.excludeUserId) continue;
 
     const createdAt = new Date();
