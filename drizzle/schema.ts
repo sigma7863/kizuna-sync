@@ -531,6 +531,45 @@ export const familyWishListItems = mysqlTable("family_wish_list_items", {
 }, (table) => [index("family_wish_list_items_group_status_idx").on(table.familyGroupId, table.status)]);
 export type FamilyWishListItem = typeof familyWishListItems.$inferSelect;
 
+/** A lightweight morning plan and readiness signal shared by each family member. */
+export const familyMorningPlans = mysqlTable("family_morning_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  departureTime: varchar("departure_time", { length: 5 }),
+  moodSign: varchar("mood_sign", { length: 32 }),
+  carryingItems: varchar("carrying_items", { length: 280 }),
+  isReady: boolean("is_ready").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_morning_plans_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyMorningPlan = typeof familyMorningPlans.$inferSelect;
+
+/** Audio memos are stored in S3 while this table keeps family ownership and playback metadata. */
+export const familyVoiceMemos = mysqlTable("family_voice_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  fileKey: varchar("file_key", { length: 512 }).notNull(),
+  audioUrl: varchar("audio_url", { length: 512 }).notNull(),
+  mimeType: varchar("mime_type", { length: 64 }).notNull(),
+  durationSeconds: int("duration_seconds").notNull(),
+  note: varchar("note", { length: 180 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_voice_memos_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyVoiceMemo = typeof familyVoiceMemos.$inferSelect;
+
+/** A compact, user-created record of completed helpful, healthy, or brave actions. */
+export const familyAchievementEntries = mysqlTable("family_achievement_entries", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  category: mysqlEnum("category", ["help", "movement", "challenge", "other"]).default("other").notNull(),
+  note: varchar("note", { length: 240 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_achievement_entries_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyAchievementEntry = typeof familyAchievementEntries.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

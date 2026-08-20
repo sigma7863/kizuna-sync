@@ -105,6 +105,12 @@ import {
   createFamilyWishListItem,
   getFamilyWishListItems,
   updateFamilyWishListStatus,
+  createFamilyMorningPlan,
+  getFamilyMorningPlans,
+  createFamilyVoiceMemo,
+  getFamilyVoiceMemos,
+  createFamilyAchievementEntry,
+  getFamilyAchievementEntries,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -602,6 +608,26 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWishListItems(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), category: z.enum(["place", "activity", "challenge", "other"]), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyWishListItem({ ...input, note: input.note || undefined, createdByUserId: ctx.user.id })),
     updateStatus: protectedProcedure.input(z.object({ familyGroupId: z.number(), itemId: z.number(), status: z.enum(["wish", "candidate", "done"]) })).mutation(({ input }) => updateFamilyWishListStatus(input)),
+  }),
+  morningPlans: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMorningPlans(input.familyGroupId)),
+    share: protectedProcedure.input(z.object({ familyGroupId: z.number(), departureTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(), moodSign: z.string().trim().max(32).optional(), carryingItems: z.string().trim().max(280).optional(), isReady: z.boolean() })).mutation(({ ctx, input }) => createFamilyMorningPlan({ ...input, departureTime: input.departureTime || undefined, moodSign: input.moodSign || undefined, carryingItems: input.carryingItems || undefined, userId: ctx.user.id })),
+  }),
+  voiceMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyVoiceMemos(input.familyGroupId)),
+    upload: protectedProcedure.input(z.object({ familyGroupId: z.number(), dataUrl: z.string().min(1), mimeType: z.enum(["audio/webm", "audio/ogg", "audio/mp4"]), durationSeconds: z.number().int().min(0).max(600), note: z.string().trim().max(180).optional() })).mutation(async ({ ctx, input }) => {
+      const match = input.dataUrl.match(/^data:(audio\/(?:webm|ogg|mp4));base64,([A-Za-z0-9+/=]+)$/);
+      if (!match || match[1] !== input.mimeType) throw new TRPCError({ code: "BAD_REQUEST", message: "Unsupported audio data" });
+      const audioBuffer = Buffer.from(match[2], "base64");
+      if (audioBuffer.byteLength > 8 * 1024 * 1024) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Audio must be 8MB or smaller" });
+      const extension = input.mimeType === "audio/ogg" ? "ogg" : input.mimeType === "audio/mp4" ? "m4a" : "webm";
+      const uploaded = await storagePut(`family-voice-memos/${input.familyGroupId}/${ctx.user.id}/${nanoid()}.${extension}`, audioBuffer, input.mimeType);
+      return createFamilyVoiceMemo({ familyGroupId: input.familyGroupId, userId: ctx.user.id, fileKey: uploaded.key, audioUrl: uploaded.url, mimeType: input.mimeType, durationSeconds: input.durationSeconds, note: input.note || undefined });
+    }),
+  }),
+  achievements: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyAchievementEntries(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), category: z.enum(["help", "movement", "challenge", "other"]), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyAchievementEntry({ ...input, note: input.note || undefined, userId: ctx.user.id })),
   }),
 
   activity: router({
