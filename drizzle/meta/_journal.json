@@ -288,6 +288,13 @@
       "when": 1787234074099,
       "tag": "0040_watery_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1787234467602,
+      "tag": "0041_skinny_edwin_jarvis",
+      "breakpoints": true
     }
   ]
 }
