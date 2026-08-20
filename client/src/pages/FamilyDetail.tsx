@@ -35,6 +35,9 @@ import { FamilyPollPanel } from "@/components/FamilyPollPanel";
 import { FamilyEventVote } from "@/components/FamilyEventVote";
 import { FamilyConditionBoard } from "@/components/FamilyConditionBoard";
 import { FamilyMemoryBookmark } from "@/components/FamilyMemoryBookmark";
+import { FamilySafetyChecklist } from "@/components/FamilySafetyChecklist";
+import { FamilyCelebrationCalendar } from "@/components/FamilyCelebrationCalendar";
+import { FamilyWordBaton } from "@/components/FamilyWordBaton";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -323,6 +326,12 @@ export default function FamilyDetail() {
           <FamilyEventVote familyGroupId={familyGroupId} />
           <FamilyConditionBoard familyGroupId={familyGroupId} />
           <FamilyMemoryBookmark familyGroupId={familyGroupId} />
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <FamilySafetyChecklist familyGroupId={familyGroupId} />
+          <FamilyCelebrationCalendar familyGroupId={familyGroupId} />
+          <FamilyWordBaton familyGroupId={familyGroupId} />
         </div>
 
         {/* Tabs */}
