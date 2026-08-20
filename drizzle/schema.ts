@@ -152,6 +152,59 @@ export const familyHelpRequests = mysqlTable("family_help_requests", {
 export type FamilyHelpRequest = typeof familyHelpRequests.$inferSelect;
 export type InsertFamilyHelpRequest = typeof familyHelpRequests.$inferInsert;
 
+/** Shared shopping checklist for lightweight household coordination. */
+export const familyShoppingItems = mysqlTable("family_shopping_items", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  purchasedByUserId: int("purchased_by_user_id"),
+  itemName: varchar("item_name", { length: 160 }).notNull(),
+  quantity: varchar("quantity", { length: 80 }),
+  isPurchased: boolean("is_purchased").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_shopping_items_group_purchased_idx").on(table.familyGroupId, table.isPurchased)]);
+
+/** Messages kept private to a family until a future scheduled opening date. */
+export const familyTimeCapsules = mysqlTable("family_time_capsules", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  creatorUserId: int("creator_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  message: text("message").notNull(),
+  opensAt: timestamp("opens_at").notNull(),
+  openedAt: timestamp("opened_at"),
+  scheduleCronTaskUid: varchar("schedule_cron_task_uid", { length: 65 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("family_time_capsules_group_opens_idx").on(table.familyGroupId, table.opensAt),
+  index("family_time_capsules_task_uid_idx").on(table.scheduleCronTaskUid),
+]);
+
+/** A gentle, family-visible pulse question whose responses are only aggregated. */
+export const familyPolls = mysqlTable("family_polls", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  creatorUserId: int("creator_user_id").notNull(),
+  question: varchar("question", { length: 240 }).notNull(),
+  options: json("options").notNull(),
+  endsAt: timestamp("ends_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_polls_group_ends_idx").on(table.familyGroupId, table.endsAt)]);
+
+export const familyPollResponses = mysqlTable("family_poll_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  pollId: int("poll_id").notNull(),
+  respondentUserId: int("respondent_user_id").notNull(),
+  optionIndex: int("option_index").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_poll_responses_poll_user_idx").on(table.pollId, table.respondentUserId)]);
+
+export type FamilyShoppingItem = typeof familyShoppingItems.$inferSelect;
+export type FamilyTimeCapsule = typeof familyTimeCapsules.$inferSelect;
+export type FamilyPoll = typeof familyPolls.$inferSelect;
+export type FamilyPollResponse = typeof familyPollResponses.$inferSelect;
+
 /**
  * Photo journal - AI-generated photo stories
  */
