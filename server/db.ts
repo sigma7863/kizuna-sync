@@ -52,6 +52,9 @@ import {
   familyPlaylistItems,
   familyForgottenItemAlerts,
   familyThankYouBookmarks,
+  familyMealRequests,
+  familyFunCountdowns,
+  familyMemoryQuizzes,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -590,6 +593,16 @@ export async function resolveFamilyForgottenItemAlert(input: { familyGroupId: nu
 
 export async function createFamilyThankYouBookmark(input: { familyGroupId: number; userId: number; message: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyThankYouBookmarks).values(input); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input }; }
 export async function getFamilyThankYouBookmarks(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyThankYouBookmarks).where(eq(familyThankYouBookmarks.familyGroupId, familyGroupId)).orderBy(desc(familyThankYouBookmarks.createdAt)).limit(60) : []; }
+
+export async function createFamilyMealRequest(input: { familyGroupId: number; userId: number; dishName: string; reason?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, reason: input.reason ?? null }; const result = await db.insert(familyMealRequests).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, status: "open" as const }; }
+export async function getFamilyMealRequests(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyMealRequests).where(eq(familyMealRequests.familyGroupId, familyGroupId)).orderBy(desc(familyMealRequests.createdAt)).limit(30) : []; }
+export async function updateFamilyMealRequestStatus(input: { familyGroupId: number; requestId: number; status: "open" | "planned" | "served" }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyMealRequests).set({ status: input.status }).where(and(eq(familyMealRequests.id, input.requestId), eq(familyMealRequests.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyFunCountdown(input: { familyGroupId: number; userId: number; title: string; eventAt: Date; note?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, note: input.note ?? null }; const result = await db.insert(familyFunCountdowns).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values }; }
+export async function getFamilyFunCountdowns(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyFunCountdowns).where(eq(familyFunCountdowns.familyGroupId, familyGroupId)).orderBy(familyFunCountdowns.eventAt).limit(24) : []; }
+
+export async function createFamilyMemoryQuiz(input: { familyGroupId: number; userId: number; question: string; optionA: string; optionB: string; optionC: string; correctAnswer: "a" | "b" | "c"; hint?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, hint: input.hint ?? null }; const result = await db.insert(familyMemoryQuizzes).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values }; }
+export async function getFamilyMemoryQuizzes(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyMemoryQuizzes).where(eq(familyMemoryQuizzes.familyGroupId, familyGroupId)).orderBy(desc(familyMemoryQuizzes.createdAt)).limit(24) : []; }
 export async function advanceFamilyMonthlyChallenge(input: { familyGroupId: number; challengeId: number; delta: number }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const [current] = await db.select().from(familyMonthlyChallenges).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))).limit(1); if (!current) throw new Error("Challenge not found"); const nextProgress = Math.max(0, current.progressCount + input.delta); return db.update(familyMonthlyChallenges).set({ progressCount: nextProgress, isCompleted: nextProgress >= current.targetCount }).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))); }
 
 // Activity queries

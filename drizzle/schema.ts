@@ -644,6 +644,45 @@ export const familyThankYouBookmarks = mysqlTable("family_thank_you_bookmarks", 
 }, (table) => [index("family_thank_you_bookmarks_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyThankYouBookmark = typeof familyThankYouBookmarks.$inferSelect;
 
+/** A direct, kind request for a dish and the reason it would make the day better. */
+export const familyMealRequests = mysqlTable("family_meal_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  dishName: varchar("dish_name", { length: 160 }).notNull(),
+  reason: varchar("reason", { length: 240 }),
+  status: mysqlEnum("status", ["open", "planned", "served"]).default("open").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_meal_requests_group_status_idx").on(table.familyGroupId, table.status)]);
+export type FamilyMealRequest = typeof familyMealRequests.$inferSelect;
+
+/** Shared upcoming family moments for a warm, visible countdown. */
+export const familyFunCountdowns = mysqlTable("family_fun_countdowns", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  eventAt: timestamp("event_at").notNull(),
+  note: varchar("note", { length: 240 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_fun_countdowns_group_event_idx").on(table.familyGroupId, table.eventAt)]);
+export type FamilyFunCountdown = typeof familyFunCountdowns.$inferSelect;
+
+/** Family-authored multiple choice questions around real shared memories. */
+export const familyMemoryQuizzes = mysqlTable("family_memory_quizzes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  question: varchar("question", { length: 300 }).notNull(),
+  optionA: varchar("option_a", { length: 180 }).notNull(),
+  optionB: varchar("option_b", { length: 180 }).notNull(),
+  optionC: varchar("option_c", { length: 180 }).notNull(),
+  correctAnswer: mysqlEnum("correct_answer", ["a", "b", "c"]).notNull(),
+  hint: varchar("hint", { length: 240 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_memory_quizzes_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyMemoryQuiz = typeof familyMemoryQuizzes.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
