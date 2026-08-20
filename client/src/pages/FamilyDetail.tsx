@@ -336,7 +336,7 @@ export default function FamilyDetail() {
           <FamilyCelebrationCalendar familyGroupId={familyGroupId} />
           <FamilyWordBaton familyGroupId={familyGroupId} />
         </div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyContactsPanel familyGroupId={familyGroupId}/><FamilyGentleRules familyGroupId={familyGroupId}/><FamilyWeekendPlanner familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyContactsPanel familyGroupId={familyGroupId} userRole={members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian"}/><FamilyGentleRules familyGroupId={familyGroupId}/><FamilyWeekendPlanner familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
