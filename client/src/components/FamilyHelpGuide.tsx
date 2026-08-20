@@ -1,0 +1,17 @@
+import { useState } from "react";
+import { BookOpenCheck, Loader2, Pin, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { guideCategoryLabels } from "@shared/familyTomorrowFlow";
+
+type GuideCategory = keyof typeof guideCategoryLabels;
+
+export function FamilyHelpGuide({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [category, setCategory] = useState<GuideCategory>("housework"); const [title, setTitle] = useState(""); const [steps, setSteps] = useState("");
+  const { data: guides = [], isLoading } = trpc.helpGuides.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.helpGuides.create.useMutation({ onSuccess: async () => { setTitle(""); setSteps(""); await utils.helpGuides.list.invalidate({ familyGroupId }); } });
+  const updatePinned = trpc.helpGuides.updatePinned.useMutation({ onSuccess: () => utils.helpGuides.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-stone-50 via-white to-amber-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><BookOpenCheck className="h-5 w-5 text-amber-800"/>家族の困ったときガイド</CardTitle><p className="text-xs text-slate-500">家事・端末・体調の小さな手順を、家族の言葉で共有しよう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><select value={category} onChange={(event) => setCategory(event.target.value as GuideCategory)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="housework">家事</option><option value="device">端末</option><option value="health">体調</option><option value="other">そのほか</option></select><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：Wi-Fiがつながらないとき" maxLength={160}/><Input value={steps} onChange={(event) => setSteps(event.target.value)} placeholder="手順を短く書く" maxLength={600}/><Button size="sm" disabled={!title.trim() || !steps.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, category, title, steps })}>{create.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>ガイドを残す</>}</Button></div>{isLoading ? <p className="py-3 text-center text-xs text-amber-800">ガイドを読み込み中です…</p> : <div className="grid gap-2">{guides.map((guide) => <article key={guide.id} className="rounded-xl bg-white p-3 shadow-sm"><div className="flex items-start justify-between gap-2"><div><p className="text-[11px] font-medium text-amber-800">{guideCategoryLabels[guide.category]}</p><p className="mt-1 text-sm font-semibold text-slate-800">{guide.title}</p><p className="mt-1 whitespace-pre-wrap text-xs text-slate-600">{guide.steps}</p></div><button type="button" aria-label={guide.isPinned ? "固定を外す" : "固定する"} onClick={() => updatePinned.mutate({ familyGroupId, guideId: guide.id, isPinned: !guide.isPinned })} className={guide.isPinned ? "text-amber-600" : "text-slate-400"}><Pin className={`h-5 w-5 ${guide.isPinned ? "fill-amber-500" : ""}`}/></button></div></article>)}{guides.length === 0 && <p className="rounded-xl border border-dashed border-amber-200 p-3 text-center text-xs text-slate-500">次に同じことで困らないよう、最初の小さな手順を残しましょう。</p>}</div>}</CardContent></Card>;
+}

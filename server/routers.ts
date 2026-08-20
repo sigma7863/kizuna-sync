@@ -166,6 +166,14 @@ import {
   getFamilyWalkLogs,
   createFamilyHelpedMemo,
   getFamilyHelpedMemos,
+  createFamilyTomorrowMemo,
+  getFamilyTomorrowMemos,
+  createFamilySeasonalPhotoPrompt,
+  getFamilySeasonalPhotoPrompts,
+  updateFamilySeasonalPhotoPrompt,
+  createFamilyHelpGuide,
+  getFamilyHelpGuides,
+  updateFamilyHelpGuidePinned,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -783,6 +791,20 @@ export const appRouter = router({
   helpedMemos: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyHelpedMemos(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), helperNote: z.string().trim().min(1).max(280), reaction: z.string().trim().max(80).optional() })).mutation(({ ctx, input }) => createFamilyHelpedMemo({ ...input, reaction: input.reaction || undefined, userId: ctx.user.id })),
+  }),
+  tomorrowMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), from: z.date(), to: z.date() })).query(({ input }) => getFamilyTomorrowMemos(input.familyGroupId, input.from, input.to)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), targetDate: z.date(), kind: z.enum(["plan", "care", "fun"]), note: z.string().trim().min(1).max(280) })).mutation(({ ctx, input }) => createFamilyTomorrowMemo({ ...input, userId: ctx.user.id })),
+  }),
+  seasonalPhotoPrompts: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), monthKey: z.string().regex(/^\d{4}-\d{2}$/) })).query(({ input }) => getFamilySeasonalPhotoPrompts(input.familyGroupId, input.monthKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), monthKey: z.string().regex(/^\d{4}-\d{2}$/), theme: z.string().trim().min(1).max(160), detail: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilySeasonalPhotoPrompt({ ...input, detail: input.detail || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), promptId: z.number(), isActive: z.boolean() })).mutation(({ input }) => updateFamilySeasonalPhotoPrompt(input)),
+  }),
+  helpGuides: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyHelpGuides(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), category: z.enum(["housework", "device", "health", "other"]), title: z.string().trim().min(1).max(160), steps: z.string().trim().min(1).max(600) })).mutation(({ ctx, input }) => createFamilyHelpGuide({ ...input, userId: ctx.user.id })),
+    updatePinned: protectedProcedure.input(z.object({ familyGroupId: z.number(), guideId: z.number(), isPinned: z.boolean() })).mutation(({ input }) => updateFamilyHelpGuidePinned(input)),
   }),
 
   activity: router({

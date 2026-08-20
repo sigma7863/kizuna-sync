@@ -860,6 +860,44 @@ export const familyHelpedMemos = mysqlTable("family_helped_memos", {
 }, (table) => [index("family_helped_memos_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyHelpedMemo = typeof familyHelpedMemos.$inferSelect;
 
+/** A gentle note for a family's next day: a plan, a caring cue, or something to look forward to. */
+export const familyTomorrowMemos = mysqlTable("family_tomorrow_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  targetDate: timestamp("target_date").notNull(),
+  kind: mysqlEnum("kind", ["plan", "care", "fun"]).notNull(),
+  note: varchar("note", { length: 280 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_tomorrow_memos_group_target_idx").on(table.familyGroupId, table.targetDate)]);
+export type FamilyTomorrowMemo = typeof familyTomorrowMemos.$inferSelect;
+
+/** A seasonal photo theme proposed by a family member to make shared memory collection playful. */
+export const familySeasonalPhotoPrompts = mysqlTable("family_seasonal_photo_prompts", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  monthKey: varchar("month_key", { length: 7 }).notNull(),
+  theme: varchar("theme", { length: 160 }).notNull(),
+  detail: varchar("detail", { length: 240 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_seasonal_photo_prompts_group_month_idx").on(table.familyGroupId, table.monthKey)]);
+export type FamilySeasonalPhotoPrompt = typeof familySeasonalPhotoPrompts.$inferSelect;
+
+/** A family-authored how-to guide for everyday household, device, and wellbeing questions. */
+export const familyHelpGuides = mysqlTable("family_help_guides", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  category: mysqlEnum("category", ["housework", "device", "health", "other"]).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  steps: varchar("steps", { length: 600 }).notNull(),
+  isPinned: boolean("is_pinned").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_help_guides_group_pinned_idx").on(table.familyGroupId, table.isPinned)]);
+export type FamilyHelpGuide = typeof familyHelpGuides.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
