@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock, Images } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
 import { SafetyGuardian } from "@/components/SafetyGuardian";
@@ -28,7 +28,7 @@ import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const { t } = useI18n();
   const familyGroupId = parseInt(params?.id || "0");
@@ -36,6 +36,14 @@ export default function FamilyDetail() {
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "trail" | "ai" | "assistant" | "celebration" | "digest" | "album" | "stats" | "automation" | "health">("timeline");
+
+  useEffect(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    const allowedTabs = ["timeline", "safety", "trail", "ai", "assistant", "celebration", "digest", "album", "stats", "automation", "health"] as const;
+    if (requestedTab && (allowedTabs as readonly string[]).includes(requestedTab)) {
+      setActiveTab(requestedTab as typeof activeTab);
+    }
+  }, [location]);
 
   useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
     setRippleNotifications((previous) => [
