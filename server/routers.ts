@@ -47,6 +47,11 @@ import {
   createFamilyPoll,
   getFamilyPollsWithResults,
   answerFamilyPoll,
+  createFamilySafetyChecklistItem,
+  getFamilySafetyChecklistItems,
+  toggleFamilySafetyChecklistItem,
+  createFamilyCelebrationDate,
+  getFamilyCelebrationDates,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -82,6 +87,7 @@ import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
 import { formatGratitudeContent } from "../shared/gratitude";
 import { buildWeeklyPulse } from "../shared/weeklyPulse";
 import { buildTimeCapsuleCron } from "./time-capsule-scheduler";
+import { formatWordBatonContent } from "../shared/familyCelebrations";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -410,6 +416,28 @@ export const appRouter = router({
     answer: protectedProcedure
       .input(z.object({ pollId: z.number(), optionIndex: z.number().int().min(0).max(3) }))
       .mutation(({ ctx, input }) => answerFamilyPoll({ ...input, userId: ctx.user.id })),
+  }),
+
+  safetyChecklist: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilySafetyChecklistItems(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), label: z.string().min(1).max(180), category: z.string().min(1).max(80) })).mutation(({ ctx, input }) => createFamilySafetyChecklistItem({ ...input, createdByUserId: ctx.user.id })),
+    toggle: protectedProcedure.input(z.object({ familyGroupId: z.number(), itemId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => toggleFamilySafetyChecklistItem(input)),
+  }),
+
+  celebrationCalendar: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyCelebrationDates(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().min(1).max(160), celebrationAt: z.string().datetime() })).mutation(({ ctx, input }) => createFamilyCelebrationDate({ ...input, createdByUserId: ctx.user.id, celebrationAt: new Date(input.celebrationAt) })),
+  }),
+
+  wordBaton: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ input }) => {
+      const entries = await getFamilyTimeline(input.familyGroupId, 100);
+      return entries.filter((entry) => Boolean((entry.metadata as Record<string, unknown> | null)?.isWordBaton)).slice(0, 20);
+    }),
+    add: protectedProcedure.input(z.object({ familyGroupId: z.number(), content: z.string().min(1).max(180) })).mutation(async ({ ctx, input }) => {
+      await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", formatWordBatonContent(input.content), undefined, { isWordBaton: true });
+      return { success: true };
+    }),
   }),
 
   activity: router({

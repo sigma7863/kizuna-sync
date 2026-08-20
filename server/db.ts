@@ -20,6 +20,8 @@ import {
   familyTimeCapsules,
   familyPolls,
   familyPollResponses,
+  familySafetyChecklistItems,
+  familyCelebrationDates,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -411,6 +413,38 @@ export async function answerFamilyPoll(input: { pollId: number; userId: number; 
   if (existing[0]) return { alreadyAnswered: true as const };
   const result = await db.insert(familyPollResponses).values({ pollId: input.pollId, respondentUserId: input.userId, optionIndex: input.optionIndex });
   return { alreadyAnswered: false as const, id: Number((result as { insertId?: number }).insertId ?? 0) };
+}
+
+export async function createFamilySafetyChecklistItem(input: { familyGroupId: number; createdByUserId: number; label: string; category: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(familySafetyChecklistItems).values(input);
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, isCompleted: false };
+}
+
+export async function getFamilySafetyChecklistItems(familyGroupId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(familySafetyChecklistItems).where(eq(familySafetyChecklistItems.familyGroupId, familyGroupId)).orderBy(familySafetyChecklistItems.isCompleted, desc(familySafetyChecklistItems.updatedAt));
+}
+
+export async function toggleFamilySafetyChecklistItem(input: { familyGroupId: number; itemId: number; isCompleted: boolean }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(familySafetyChecklistItems).set({ isCompleted: input.isCompleted }).where(and(eq(familySafetyChecklistItems.id, input.itemId), eq(familySafetyChecklistItems.familyGroupId, input.familyGroupId)));
+}
+
+export async function createFamilyCelebrationDate(input: { familyGroupId: number; createdByUserId: number; title: string; celebrationAt: Date }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyCelebrationDates).values(input);
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input };
+}
+
+export async function getFamilyCelebrationDates(familyGroupId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(familyCelebrationDates).where(eq(familyCelebrationDates.familyGroupId, familyGroupId)).orderBy(familyCelebrationDates.celebrationAt);
 }
 
 // Activity queries

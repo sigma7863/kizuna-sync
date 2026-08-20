@@ -205,6 +205,32 @@ export type FamilyTimeCapsule = typeof familyTimeCapsules.$inferSelect;
 export type FamilyPoll = typeof familyPolls.$inferSelect;
 export type FamilyPollResponse = typeof familyPollResponses.$inferSelect;
 
+/** Shared emergency preparation items for a family's disaster-readiness check. */
+export const familySafetyChecklistItems = mysqlTable("family_safety_checklist_items", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  label: varchar("label", { length: 180 }).notNull(),
+  category: varchar("category", { length: 80 }).notNull(),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_safety_checklist_group_done_idx").on(table.familyGroupId, table.isCompleted)]);
+
+/** Family celebrations announced at a selected calendar date. */
+export const familyCelebrationDates = mysqlTable("family_celebration_dates", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  celebrationAt: timestamp("celebration_at").notNull(),
+  scheduleCronTaskUid: varchar("schedule_cron_task_uid", { length: 65 }),
+  celebratedAt: timestamp("celebrated_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("family_celebration_dates_group_at_idx").on(table.familyGroupId, table.celebrationAt),
+  index("family_celebration_dates_task_uid_idx").on(table.scheduleCronTaskUid),
+]);
+
 /**
  * Photo journal - AI-generated photo stories
  */
