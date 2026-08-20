@@ -1,0 +1,14 @@
+import { useState } from "react";
+import { CheckCircle2, HousePlus, Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+
+export function FamilyHomePreparation({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [title, setTitle] = useState(""); const [note, setNote] = useState("");
+  const { data: items = [], isLoading } = trpc.homePreparation.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.homePreparation.create.useMutation({ onSuccess: async () => { setTitle(""); setNote(""); await utils.homePreparation.list.invalidate({ familyGroupId }); } });
+  const update = trpc.homePreparation.update.useMutation({ onSuccess: () => utils.homePreparation.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><HousePlus className="h-5 w-5 text-amber-600"/>家族のおかえり準備リスト</CardTitle><p className="text-xs text-slate-500">帰宅前に必要なことを分け合って、ゆとりのある時間に。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：お風呂を沸かす" maxLength={160}/><Input value={note} onChange={(event) => setNote(event.target.value)} placeholder="補足（任意）" maxLength={240}/><Button size="sm" disabled={!title.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, title, note })}>{create.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>準備に追加</>}</Button></div>{isLoading ? <p className="py-3 text-center text-xs text-amber-700">準備リストを読み込み中です…</p> : <div className="grid gap-2">{items.map((item) => <article key={item.id} className={`rounded-xl p-3 shadow-sm ${item.isCompleted ? "bg-amber-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className={`text-sm font-semibold ${item.isCompleted ? "text-amber-900 line-through" : "text-slate-800"}`}>{item.title}</p>{item.note && <p className="mt-1 text-xs text-slate-600">{item.note}</p>}</div><button type="button" disabled={update.isPending} aria-label={item.isCompleted ? "未完了に戻す" : "準備できた"} onClick={() => update.mutate({ familyGroupId, itemId: item.id, isCompleted: !item.isCompleted })} className={item.isCompleted ? "text-amber-700" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{items.length === 0 && <p className="rounded-xl border border-dashed border-amber-200 p-3 text-center text-xs text-slate-500">帰宅前にできる小さな準備を一つ書いてみましょう。</p>}</div>}</CardContent></Card>;
+}

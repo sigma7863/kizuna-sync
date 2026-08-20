@@ -756,6 +756,76 @@ export const familyCareReplies = mysqlTable("family_care_replies", {
 }, (table) => [index("family_care_replies_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyCareReply = typeof familyCareReplies.$inferSelect;
 
+/** A family-created daily conversation prompt. */
+export const familyDailyQuestions = mysqlTable("family_daily_questions", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  dayKey: varchar("day_key", { length: 10 }).notNull(),
+  question: varchar("question", { length: 280 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_daily_questions_group_day_idx").on(table.familyGroupId, table.dayKey)]);
+export type FamilyDailyQuestion = typeof familyDailyQuestions.$inferSelect;
+
+/** An answer to a daily family conversation prompt. */
+export const familyDailyQuestionAnswers = mysqlTable("family_daily_question_answers", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  questionId: int("question_id").notNull(),
+  userId: int("user_id").notNull(),
+  answer: varchar("answer", { length: 280 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_daily_question_answers_question_idx").on(table.familyGroupId, table.questionId)]);
+export type FamilyDailyQuestionAnswer = typeof familyDailyQuestionAnswers.$inferSelect;
+
+/** Small preparations that help the household welcome each other home with less rush. */
+export const familyHomePreparationItems = mysqlTable("family_home_preparation_items", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_home_preparation_group_completed_idx").on(table.familyGroupId, table.isCompleted)]);
+export type FamilyHomePreparationItem = typeof familyHomePreparationItems.$inferSelect;
+
+/** Lightweight encouragement reactions that can accompany or stand in for words. */
+export const familyEncouragementStamps = mysqlTable("family_encouragement_stamps", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  stamp: mysqlEnum("stamp", ["sun", "heart", "clap", "rainbow"]).notNull(),
+  message: varchar("message", { length: 180 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_encouragement_stamps_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyEncouragementStamp = typeof familyEncouragementStamps.$inferSelect;
+
+/** Weekly reflections that preserve what went well and what the family hopes to enjoy next. */
+export const familyWeekendReflections = mysqlTable("family_weekend_reflections", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  weekKey: varchar("week_key", { length: 10 }).notNull(),
+  goodThing: varchar("good_thing", { length: 280 }).notNull(),
+  nextHope: varchar("next_hope", { length: 280 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_weekend_reflections_group_week_idx").on(table.familyGroupId, table.weekKey)]);
+export type FamilyWeekendReflection = typeof familyWeekendReflections.$inferSelect;
+
+/** Gentle, family-visible reminders designed to support rather than pressure. */
+export const familyGentleReminders = mysqlTable("family_gentle_reminders", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  dueAt: timestamp("due_at"),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_gentle_reminders_group_completed_idx").on(table.familyGroupId, table.isCompleted)]);
+export type FamilyGentleReminder = typeof familyGentleReminders.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

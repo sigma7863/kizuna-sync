@@ -218,6 +218,20 @@
       "when": 1787229768731,
       "tag": "0030_stale_lifeguard",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1787230402734,
+      "tag": "0031_little_anthem",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1787230767931,
+      "tag": "0032_thankful_maximus",
+      "breakpoints": true
     }
   ]
 }

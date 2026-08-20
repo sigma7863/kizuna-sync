@@ -1,0 +1,16 @@
+import { useState } from "react";
+import { CircleHelp, Loader2, MessageCircle, Plus, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { countQuestionAnswers, getDayKey } from "@shared/familyDailyFlow";
+
+export function FamilyDailyQuestion({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const dayKey = getDayKey(); const [question, setQuestion] = useState(""); const [answers, setAnswers] = useState<Record<number, string>>({});
+  const { data, isLoading } = trpc.dailyQuestions.list.useQuery({ familyGroupId, dayKey }, { enabled: familyGroupId > 0 });
+  const questions = data?.questions ?? []; const savedAnswers = data?.answers ?? [];
+  const create = trpc.dailyQuestions.create.useMutation({ onSuccess: async () => { setQuestion(""); await utils.dailyQuestions.list.invalidate({ familyGroupId, dayKey }); } });
+  const answer = trpc.dailyQuestions.answer.useMutation({ onSuccess: async () => { setAnswers({}); await utils.dailyQuestions.list.invalidate({ familyGroupId, dayKey }); } });
+  return <Card className="border-0 bg-gradient-to-br from-sky-50 via-white to-violet-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><CircleHelp className="h-5 w-5 text-sky-600"/>家族の1日1質問</CardTitle><p className="text-xs text-slate-500">答えやすい問いを一つ。毎日の会話を自然に始めよう。</p></CardHeader><CardContent className="space-y-3"><div className="flex gap-2 rounded-xl bg-white/80 p-3"><Input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="例：今日、少し笑ったことは？" maxLength={280}/><Button size="icon" disabled={!question.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, dayKey, question })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <Plus className="h-4 w-4"/>}</Button></div>{isLoading ? <p className="py-3 text-center text-xs text-sky-700">今日の質問を読み込み中です…</p> : <div className="grid gap-2">{questions.map((item) => <article key={item.id} className="rounded-xl bg-white p-3 shadow-sm"><p className="flex gap-1 text-sm font-semibold text-slate-800"><MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-sky-600"/>{item.question}</p><p className="mt-1 text-[11px] text-sky-700">{countQuestionAnswers(savedAnswers, item.id)}件の答え</p><div className="mt-2 flex gap-2"><Input value={answers[item.id] ?? ""} onChange={(event) => setAnswers((current) => ({ ...current, [item.id]: event.target.value }))} placeholder="あなたのひとこと" maxLength={280}/><Button size="icon" disabled={!answers[item.id]?.trim() || answer.isPending} onClick={() => answer.mutate({ familyGroupId, questionId: item.id, answer: answers[item.id] })}><Send className="h-4 w-4"/></Button></div>{savedAnswers.filter((entry) => entry.questionId === item.id).slice(0, 3).map((entry) => <p key={entry.id} className="mt-2 rounded-lg bg-sky-50 px-2 py-1.5 text-xs text-slate-600">{entry.answer}</p>)}</article>)}{questions.length === 0 && <p className="rounded-xl border border-dashed border-sky-200 p-3 text-center text-xs text-slate-500">今日の小さな質問を、最初に投げかけてみましょう。</p>}</div>}</CardContent></Card>;
+}

@@ -1,0 +1,11 @@
+import { HandHeart, Loader2, Sparkles, UsersRound } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc";
+import { countAvailableSupporters } from "@shared/familyWeeklyCare";
+
+const roleLabel = { guardian: "保護者", child: "子ども", elderly: "高齢者" } as const;
+
+export function FamilySupportMap({ familyGroupId }: { familyGroupId: number }) {
+  const { data: profiles = [], isLoading } = trpc.roleMap.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  return <Card className="border-0 bg-gradient-to-br from-violet-50 via-white to-indigo-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><HandHeart className="h-5 w-5 text-violet-600"/>家族のちいさな頼り先マップ</CardTitle><p className="text-xs text-slate-500">困ったときに頼れる得意なことを、すぐ見つけよう。</p></CardHeader><CardContent className="space-y-3">{isLoading ? <p className="flex items-center justify-center py-6 text-xs text-violet-700"><Loader2 className="mr-1 h-4 w-4 animate-spin"/>頼り先を読み込み中です…</p> : <><p className="flex items-center gap-1 text-xs font-medium text-violet-700"><UsersRound className="h-4 w-4"/>頼れる家族：{countAvailableSupporters(profiles)}人</p><div className="grid gap-2">{profiles.filter((profile) => profile.strengths.length > 0).map((profile) => <article key={profile.userId} className="rounded-xl bg-white p-3 shadow-sm"><div className="flex items-center justify-between"><p className="text-sm font-semibold text-slate-800">{profile.name}</p><span className="text-[10px] text-violet-700">{roleLabel[profile.memberRole]}</span></div><div className="mt-2 flex flex-wrap gap-1">{profile.strengths.map((strength) => <span key={strength} className="rounded-full bg-violet-100 px-2 py-1 text-[11px] text-violet-800"><Sparkles className="mr-0.5 inline h-3 w-3"/>{strength}</span>)}</div>{profile.supportNote && <p className="mt-2 text-xs text-slate-600">{profile.supportNote}</p>}</article>)}{profiles.every((profile) => profile.strengths.length === 0) && <p className="rounded-xl border border-dashed border-violet-200 p-3 text-center text-xs text-slate-500">役割マップに得意なことを登録すると、ここに頼り先が表示されます。</p>}</div></>}</CardContent></Card>;
+}
