@@ -86,6 +86,10 @@ import {
   createFamilyMonthlyChallenge,
   getFamilyMonthlyChallenges,
   advanceFamilyMonthlyChallenge,
+  createFamilyWalkRoute,
+  getFamilyWalkRoutes,
+  createFamilyLearningCard,
+  getFamilyLearningCards,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -548,6 +552,14 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMonthlyChallenges(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), description: z.string().trim().max(240).optional(), targetCount: z.number().int().min(1).max(99), celebrationNote: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyMonthlyChallenge({ ...input, description: input.description || undefined, celebrationNote: input.celebrationNote || undefined, createdByUserId: ctx.user.id })),
     advance: protectedProcedure.input(z.object({ familyGroupId: z.number(), challengeId: z.number(), delta: z.number().int().min(-1).max(1) })).mutation(({ input }) => advanceFamilyMonthlyChallenge(input)),
+  }),
+  walkRoutes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWalkRoutes(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), description: z.string().trim().max(500).optional(), startPoint: z.string().trim().min(1).max(180), highlights: z.string().trim().max(500).optional(), distanceKm: z.number().positive().max(99.99), durationMin: z.number().int().min(1).max(1_440), safetyNote: z.string().trim().max(280).optional() })).mutation(({ ctx, input }) => createFamilyWalkRoute({ ...input, description: input.description || undefined, highlights: input.highlights || undefined, safetyNote: input.safetyNote || undefined, createdByUserId: ctx.user.id })),
+  }),
+  learningCards: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyLearningCards(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), source: z.string().trim().max(180).optional(), sourceType: z.enum(["book", "school", "work", "other"]), insight: z.string().trim().min(1).max(500) })).mutation(({ ctx, input }) => createFamilyLearningCard({ ...input, source: input.source || undefined, createdByUserId: ctx.user.id })),
   }),
 
   activity: router({

@@ -424,6 +424,37 @@ export const familyMonthlyChallenges = mysqlTable("family_monthly_challenges", {
 
 export type FamilyMonthlyChallenge = typeof familyMonthlyChallenges.$inferSelect;
 
+/** Family-recommended walking routes with practical safety notes and highlights. */
+export const familyWalkRoutes = mysqlTable("family_walk_routes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  description: varchar("description", { length: 500 }),
+  startPoint: varchar("start_point", { length: 180 }).notNull(),
+  highlights: varchar("highlights", { length: 500 }),
+  distanceKm: decimal("distance_km", { precision: 5, scale: 2 }).notNull(),
+  durationMin: int("duration_min").notNull(),
+  safetyNote: varchar("safety_note", { length: 280 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_walk_routes_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+
+export type FamilyWalkRoute = typeof familyWalkRoutes.$inferSelect;
+
+/** Small learning cards shared from books, school, work, and everyday discoveries. */
+export const familyLearningCards = mysqlTable("family_learning_cards", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  source: varchar("source", { length: 180 }),
+  sourceType: mysqlEnum("source_type", ["book", "school", "work", "other"]).notNull(),
+  insight: varchar("insight", { length: 500 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_learning_cards_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+
+export type FamilyLearningCard = typeof familyLearningCards.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
