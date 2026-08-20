@@ -1,0 +1,2 @@
+export function getMondayKey(date = new Date()) { const copy = new Date(date); const shift = (copy.getDay() + 6) % 7; copy.setDate(copy.getDate() - shift); return `${copy.getFullYear()}-${String(copy.getMonth() + 1).padStart(2, "0")}-${String(copy.getDate()).padStart(2, "0")}`; }
+export function countKeptTrials(entries: Array<{ isKept: boolean }>) { return entries.filter((entry) => entry.isKept).length; }
