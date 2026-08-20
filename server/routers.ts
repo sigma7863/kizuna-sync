@@ -228,6 +228,14 @@ import {
   createFamilyBedtimePreparationMemo,
   getFamilyBedtimePreparationMemos,
   updateFamilyBedtimePreparationMemo,
+  createFamilyWellbeingNote,
+  getFamilyWellbeingNotes,
+  createFamilyMonthlyJoyBox,
+  getFamilyMonthlyJoyBoxes,
+  updateFamilyMonthlyJoyBox,
+  createFamilyGoodFindMemo,
+  getFamilyGoodFindMemos,
+  updateFamilyGoodFindMemo,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -951,6 +959,20 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyBedtimePreparationMemos(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), kind: z.enum(["bag", "clothes", "plan", "care"]), memo: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyBedtimePreparationMemo({ ...input, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isPrepared: z.boolean() })).mutation(({ input }) => updateFamilyBedtimePreparationMemo(input)),
+  }),
+  wellbeingNotes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyWellbeingNotes(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), state: z.enum(["good", "slow", "tired", "need_space"]), supportNeed: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyWellbeingNote({ ...input, supportNeed: input.supportNeed || undefined, userId: ctx.user.id })),
+  }),
+  monthlyJoyBoxes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), monthKey: z.string().regex(/^\d{4}-\d{2}$/) })).query(({ input }) => getFamilyMonthlyJoyBoxes(input.familyGroupId, input.monthKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), monthKey: z.string().regex(/^\d{4}-\d{2}$/), joy: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyMonthlyJoyBox({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), joyId: z.number(), isRealized: z.boolean() })).mutation(({ input }) => updateFamilyMonthlyJoyBox(input)),
+  }),
+  goodFindMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyGoodFindMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), goodThing: z.string().trim().min(1).max(240), tag: z.string().trim().max(80).optional() })).mutation(({ ctx, input }) => createFamilyGoodFindMemo({ ...input, tag: input.tag || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isSaved: z.boolean() })).mutation(({ input }) => updateFamilyGoodFindMemo(input)),
   }),
 
   activity: router({
