@@ -826,6 +826,40 @@ export const familyGentleReminders = mysqlTable("family_gentle_reminders", {
 }, (table) => [index("family_gentle_reminders_group_completed_idx").on(table.familyGroupId, table.isCompleted)]);
 export type FamilyGentleReminder = typeof familyGentleReminders.$inferSelect;
 
+/** A low-pressure nightly note for sharing a feeling or a small sense of relief before sleep. */
+export const familyEveningNotes = mysqlTable("family_evening_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  mood: mysqlEnum("mood", ["calm", "tired", "happy", "anxious", "grateful"]).notNull(),
+  note: varchar("note", { length: 180 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_evening_notes_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyEveningNote = typeof familyEveningNotes.$inferSelect;
+
+/** A memory-oriented walking log for keeping the route, a found spot, and a shared detail. */
+export const familyWalkLogs = mysqlTable("family_walk_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  routeTitle: varchar("route_title", { length: 160 }).notNull(),
+  spotName: varchar("spot_name", { length: 160 }),
+  memo: varchar("memo", { length: 280 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_walk_logs_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyWalkLog = typeof familyWalkLogs.$inferSelect;
+
+/** A concise record of a family member's everyday help, inviting gratitude without scoring it. */
+export const familyHelpedMemos = mysqlTable("family_helped_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  helperNote: varchar("helper_note", { length: 280 }).notNull(),
+  reaction: varchar("reaction", { length: 80 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_helped_memos_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyHelpedMemo = typeof familyHelpedMemos.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

@@ -1,0 +1,13 @@
+import { useState } from "react";
+import { Footprints, Loader2, MapPin, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+
+export function FamilyWalkLog({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [routeTitle, setRouteTitle] = useState(""); const [spotName, setSpotName] = useState(""); const [memo, setMemo] = useState("");
+  const { data: logs = [], isLoading } = trpc.walkLogs.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.walkLogs.create.useMutation({ onSuccess: async () => { setRouteTitle(""); setSpotName(""); setMemo(""); await utils.walkLogs.list.invalidate({ familyGroupId }); } });
+  return <Card className="border-0 bg-gradient-to-br from-emerald-50 via-white to-lime-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Footprints className="h-5 w-5 text-emerald-700"/>家族の思い出散歩ログ</CardTitle><p className="text-xs text-slate-500">歩いた道と見つけたものを、未来の会話に残そう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><Input value={routeTitle} onChange={(event) => setRouteTitle(event.target.value)} placeholder="散歩コース・道の名前" maxLength={160}/><div className="grid grid-cols-2 gap-2"><Input value={spotName} onChange={(event) => setSpotName(event.target.value)} placeholder="見つけた場所（任意）" maxLength={160}/><Input value={memo} onChange={(event) => setMemo(event.target.value)} placeholder="見つけたこと（任意）" maxLength={280}/></div><Button size="sm" disabled={!routeTitle.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, routeTitle, spotName, memo })}>{create.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>散歩を残す</>}</Button></div>{isLoading ? <p className="py-3 text-center text-xs text-emerald-700">散歩ログを読み込み中です…</p> : <div className="grid gap-2">{logs.slice(0, 4).map((log) => <article key={log.id} className="rounded-xl bg-white p-3 shadow-sm"><p className="flex items-center gap-1 text-sm font-semibold text-slate-800"><Footprints className="h-4 w-4 text-emerald-700"/>{log.routeTitle}</p>{log.spotName && <p className="mt-1 flex items-center gap-1 text-xs text-emerald-800"><MapPin className="h-3.5 w-3.5"/>{log.spotName}</p>}{log.memo && <p className="mt-1 text-xs text-slate-600">{log.memo}</p>}</article>)}{logs.length === 0 && <p className="rounded-xl border border-dashed border-emerald-200 p-3 text-center text-xs text-slate-500">いつもの道で見つけた小さな発見も、思い出になります。</p>}</div>}</CardContent></Card>;
+}
