@@ -50,6 +50,13 @@
       "when": 1787203621897,
       "tag": "0006_deep_electro",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1787217854526,
+      "tag": "0007_striped_stark_industries",
+      "breakpoints": true
     }
   ]
 }

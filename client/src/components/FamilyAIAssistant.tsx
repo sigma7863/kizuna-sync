@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
 import { trpc } from "@/lib/trpc";
 import { useI18n, type Language } from "@/contexts/I18nContext";
+import { speechLanguageFor, type VoiceTurnStatus } from "@/lib/voiceConversation";
 import { toast } from "sonner";
 
 export type ScheduleAction = {
@@ -41,6 +42,7 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
   const [messages, setMessages] = useState<Message[]>([]);
   const [pendingAction, setPendingAction] = useState<ScheduleAction | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [voiceTurnStatus, setVoiceTurnStatus] = useState<VoiceTurnStatus>("ready");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -69,25 +71,34 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language === "ja" ? "ja-JP" : language === "en" ? "en-US" : language === "zh" ? "zh-CN" : "ko-KR";
+    utterance.lang = speechLanguageFor(language);
+    utterance.onstart = () => setVoiceTurnStatus("speaking");
+    utterance.onend = () => setVoiceTurnStatus("ready");
+    utterance.onerror = () => setVoiceTurnStatus("ready");
     window.speechSynthesis.speak(utterance);
   };
 
   const sendMessage = async (content: string) => {
     const nextMessages = [...messages, { role: "user" as const, content }];
     setMessages(nextMessages);
-    const result = await askMutation.mutateAsync({
-      familyGroupId,
-      message: content,
-      language: language as Language,
-    });
-    const searchText = result.searchResults.length > 0
-      ? `\n\n${result.searchResults.map((entry) => `• ${entry.content}`).join("\n")}`
-      : "";
-    const fullText = `${result.message}${searchText}`;
-    setMessages((previous) => [...previous, { role: "assistant", content: fullText }]);
-    setPendingAction(result.action as ScheduleAction | null);
-    if (fullText) speakText(fullText);
+    setVoiceTurnStatus("thinking");
+    try {
+      const result = await askMutation.mutateAsync({
+        familyGroupId,
+        message: content,
+        language: language as Language,
+      });
+      const searchText = result.searchResults.length > 0
+        ? `\n\n${result.searchResults.map((entry) => `• ${entry.content}`).join("\n")}`
+        : "";
+      const fullText = `${result.message}${searchText}`;
+      setMessages((previous) => [...previous, { role: "assistant", content: fullText }]);
+      setPendingAction(result.action as ScheduleAction | null);
+      if (fullText) speakText(fullText);
+      else setVoiceTurnStatus("ready");
+    } catch {
+      setVoiceTurnStatus("ready");
+    }
   };
 
   const startRecording = async () => {
@@ -95,6 +106,7 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
       toast.error(t("family.voiceUnavailable"));
       return;
     }
+    window.speechSynthesis?.cancel();
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
     chunksRef.current = [];
@@ -104,17 +116,24 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
     recorder.onstop = async () => {
       stream.getTracks().forEach((track) => track.stop());
       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      const audioData = await blobToDataUrl(blob);
-      const result = await transcribeMutation.mutateAsync({
-        audioData,
-        mimeType: "audio/webm",
-        language: language as Language,
-      });
-      if (result.text.trim()) await sendMessage(result.text.trim());
+      setVoiceTurnStatus("transcribing");
+      try {
+        const audioData = await blobToDataUrl(blob);
+        const result = await transcribeMutation.mutateAsync({
+          audioData,
+          mimeType: "audio/webm",
+          language: language as Language,
+        });
+        if (result.text.trim()) await sendMessage(result.text.trim());
+        else setVoiceTurnStatus("ready");
+      } catch {
+        setVoiceTurnStatus("ready");
+      }
     };
     recorderRef.current = recorder;
     recorder.start();
     setIsRecording(true);
+    setVoiceTurnStatus("listening");
   };
 
   const stopRecording = () => {
@@ -122,6 +141,14 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
     recorderRef.current = null;
     setIsRecording(false);
   };
+
+  const voiceStatusLabel = {
+    ready: "タップして話しかける",
+    listening: "聞いています…",
+    transcribing: "音声を文字にしています…",
+    thinking: "家族AIが考えています…",
+    speaking: "AIが読み上げています…",
+  }[voiceTurnStatus];
 
   return (
     <Card className="border-0 bg-white/90 shadow-md">
@@ -133,6 +160,11 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        <div className="flex items-center gap-2 rounded-xl border border-violet-100 bg-violet-50/70 px-3 py-2 text-xs text-violet-800">
+          <span className={`h-2 w-2 rounded-full ${voiceTurnStatus === "ready" ? "bg-violet-300" : "bg-violet-500 animate-pulse"}`} />
+          <span className="font-medium">音声対話</span>
+          <span className="ml-auto">{voiceStatusLabel}</span>
+        </div>
         <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-indigo-900">{t("family.events")}</h3>

@@ -81,7 +81,7 @@ export async function uploadFamilyPhoto(
 /**
  * AIで写真を分析
  */
-async function analyzePhotoWithAI(
+export async function analyzePhotoWithAI(
   photoUrl: string
 ): Promise<{ description: string; tags: string[] }> {
   try {
