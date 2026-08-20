@@ -34,6 +34,10 @@ import {
   setPhotoJournalScheduleTaskUid,
   getRecentPhotoJournals,
   getFamilyLatestWearableHealthSnapshots,
+  createFamilyHelpRequest,
+  getFamilyHelpRequests,
+  acceptFamilyHelpRequest,
+  completeFamilyHelpRequest,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -66,6 +70,8 @@ import { buildCelebrationMetadata, CelebrationOccasion } from "./celebration";
 import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension } from "../shared/album";
 import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
 import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
+import { formatGratitudeContent } from "../shared/gratitude";
+import { buildWeeklyPulse } from "../shared/weeklyPulse";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -273,6 +279,77 @@ export const appRouter = router({
           getFamilyLatestWearableHealthSnapshots(input.familyGroupId),
         ]);
         return buildTodayKizunaHighlights({ timeline, locations, health });
+      }),
+  }),
+
+  helpBoard: router({
+    list: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(({ input }) => getFamilyHelpRequests(input.familyGroupId)),
+
+    create: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), title: z.string().min(1).max(160), detail: z.string().max(500).optional() }))
+      .mutation(async ({ ctx, input }) => {
+        const request = await createFamilyHelpRequest({ ...input, requesterUserId: ctx.user.id });
+        await createFamilyNotification({
+          familyGroupId: input.familyGroupId,
+          type: "activity",
+          title: "おたすけリクエスト",
+          message: `${ctx.user.name ?? "家族"}さんが「${input.title}」をお願いしています。`,
+          payload: { requestId: request.id, kind: "help_request" },
+          excludeUserId: ctx.user.id,
+          quiet: true,
+        });
+        return request;
+      }),
+
+    accept: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), requestId: z.number() }))
+      .mutation(({ ctx, input }) => acceptFamilyHelpRequest({ ...input, helperUserId: ctx.user.id })),
+
+    complete: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), requestId: z.number() }))
+      .mutation(({ ctx, input }) => completeFamilyHelpRequest({ ...input, userId: ctx.user.id })),
+  }),
+
+  gratitude: router({
+    send: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), message: z.string().min(1).max(140), stamp: z.string().max(12).optional() }))
+      .mutation(async ({ ctx, input }) => {
+        const stamp = input.stamp || "💐";
+        const content = formatGratitudeContent(input.message, stamp);
+        await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", content, undefined, { isGratitude: true, stamp });
+        await createFamilyNotification({
+          familyGroupId: input.familyGroupId,
+          type: "celebration",
+          title: "ありがとうリレー",
+          message: `${ctx.user.name ?? "家族"}さんから感謝が届きました。`,
+          payload: { message: input.message, stamp, isGratitude: true },
+          excludeUserId: ctx.user.id,
+          quiet: true,
+        });
+        broadcastRippleNotification({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? "家族",
+          activityType: "message",
+          timestamp: Date.now(),
+          metadata: { isGratitude: true, stamp },
+        });
+        return { success: true, content };
+      }),
+  }),
+
+  pulse: router({
+    weekly: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ input }) => {
+        const [timeline, albumPhotos, health] = await Promise.all([
+          getFamilyTimeline(input.familyGroupId, 500),
+          getFamilyAlbumPhotos(input.familyGroupId),
+          getFamilyLatestWearableHealthSnapshots(input.familyGroupId),
+        ]);
+        return buildWeeklyPulse({ timeline, albumPhotos, health });
       }),
   }),
 

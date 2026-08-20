@@ -26,6 +26,9 @@ import { FamilyCloudAlbum } from "@/components/FamilyCloudAlbum";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { FamilyCheckIn } from "@/components/FamilyCheckIn";
 import { TodayKizunaHighlights } from "@/components/TodayKizunaHighlights";
+import { FamilyHelpBoard } from "@/components/FamilyHelpBoard";
+import { FamilyGratitudeRelay } from "@/components/FamilyGratitudeRelay";
+import { FamilyWeeklyPulse } from "@/components/FamilyWeeklyPulse";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -296,6 +299,12 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-2">
           <FamilyCheckIn familyGroupId={familyGroupId} />
           <TodayKizunaHighlights familyGroupId={familyGroupId} />
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <FamilyHelpBoard familyGroupId={familyGroupId} />
+          <FamilyGratitudeRelay familyGroupId={familyGroupId} />
+          <FamilyWeeklyPulse familyGroupId={familyGroupId} />
         </div>
 
         {/* Tabs */}

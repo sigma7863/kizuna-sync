@@ -132,6 +132,27 @@ export type FamilyAlbumPhoto = typeof familyAlbumPhotos.$inferSelect;
 export type InsertFamilyAlbumPhoto = typeof familyAlbumPhotos.$inferInsert;
 
 /**
+ * Family help requests - lightweight, family-visible requests that can be
+ * accepted and completed by another member.
+ */
+export const familyHelpRequests = mysqlTable("family_help_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  requesterUserId: int("requester_user_id").notNull(),
+  helperUserId: int("helper_user_id"),
+  title: varchar("title", { length: 160 }).notNull(),
+  detail: text("detail"),
+  status: mysqlEnum("status", ["open", "accepted", "completed"]).default("open").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+  index("family_help_requests_group_status_idx").on(table.familyGroupId, table.status),
+]);
+
+export type FamilyHelpRequest = typeof familyHelpRequests.$inferSelect;
+export type InsertFamilyHelpRequest = typeof familyHelpRequests.$inferInsert;
+
+/**
  * Photo journal - AI-generated photo stories
  */
 export const photoJournals = mysqlTable("photo_journals", {

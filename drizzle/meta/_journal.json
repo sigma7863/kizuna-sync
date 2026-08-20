@@ -57,6 +57,13 @@
       "when": 1787217854526,
       "tag": "0007_striped_stark_industries",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1787219225397,
+      "tag": "0008_stiff_lightspeed",
+      "breakpoints": true
     }
   ]
 }
