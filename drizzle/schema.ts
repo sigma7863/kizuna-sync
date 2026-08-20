@@ -1,4 +1,4 @@
-import { decimal, int, mysqlEnum, mysqlTable, text, timestamp, varchar, json, boolean } from "drizzle-orm/mysql-core";
+import { decimal, index, int, mysqlEnum, mysqlTable, text, timestamp, varchar, json, boolean } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -238,3 +238,62 @@ export const notificationSettings = mysqlTable("notification_settings", {
 
 export type NotificationSetting = typeof notificationSettings.$inferSelect;
 export type InsertNotificationSetting = typeof notificationSettings.$inferInsert;
+
+
+/**
+ * Geofence alert state - deduplication, acknowledgement, and re-notification state
+ */
+export const geofenceAlertStates = mysqlTable("geofence_alert_states", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  geofenceId: int("geofence_id").notNull(),
+  state: mysqlEnum("state", ["inside", "outside"]).default("inside").notNull(),
+  lastDistanceMeters: int("last_distance_meters").notNull(),
+  lastNotifiedAt: timestamp("last_notified_at"),
+  acknowledgedAt: timestamp("acknowledged_at"),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GeofenceAlertState = typeof geofenceAlertStates.$inferSelect;
+export type InsertGeofenceAlertState = typeof geofenceAlertStates.$inferInsert;
+
+/**
+ * Weekly AI photo journal schedule - Heartbeat task ownership and user preferences
+ */
+export const photoJournalSchedules = mysqlTable("photo_journal_schedules", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  scheduleCronTaskUid: varchar("schedule_cron_task_uid", { length: 65 }),
+  enabled: boolean("enabled").default(false).notNull(),
+  weekday: int("weekday").default(0).notNull(),
+  hour: int("hour").default(9).notNull(),
+  minute: int("minute").default(0).notNull(),
+  lastGeneratedAt: timestamp("last_generated_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  scheduleTaskUidIdx: index("photo_journal_schedule_task_uid_idx").on(table.scheduleCronTaskUid),
+}));
+
+export type PhotoJournalSchedule = typeof photoJournalSchedules.$inferSelect;
+export type InsertPhotoJournalSchedule = typeof photoJournalSchedules.$inferInsert;
+
+/**
+ * Wearable health snapshots - explicitly simulated data for demos and testing
+ */
+export const wearableHealthSnapshots = mysqlTable("wearable_health_snapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  steps: int("steps").notNull(),
+  heartRate: int("heart_rate").notNull(),
+  sleepMinutes: int("sleep_minutes").notNull(),
+  source: mysqlEnum("source", ["simulated"]).default("simulated").notNull(),
+  simulatedAt: timestamp("simulated_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type WearableHealthSnapshot = typeof wearableHealthSnapshots.$inferSelect;
+export type InsertWearableHealthSnapshot = typeof wearableHealthSnapshots.$inferInsert;

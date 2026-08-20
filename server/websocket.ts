@@ -10,6 +10,17 @@ export interface RippleNotification {
   metadata?: Record<string, unknown>;
 }
 
+export interface RealtimeLocationUpdate {
+  userId: number;
+  userName: string;
+  familyGroupId: number;
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  locationName?: string;
+  timestamp: number;
+}
+
 export interface RealtimeNotification {
   id: number;
   userId: number;
@@ -121,4 +132,8 @@ export function broadcastTimelineUpdate(io: SocketIOServer, familyGroupId: numbe
 
 export function broadcastNotification(io: SocketIOServer, notification: RealtimeNotification) {
   io.to(`family:${notification.familyGroupId}`).emit("notification:receive", notification);
+}
+
+export function broadcastLocationUpdate(io: SocketIOServer, update: RealtimeLocationUpdate) {
+  io.to(`family:${update.familyGroupId}`).emit("location:updated", { ...update, timestamp: Date.now() });
 }

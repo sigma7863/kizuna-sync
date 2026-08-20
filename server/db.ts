@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { and, desc, eq, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -10,6 +10,10 @@ import {
   userActivities,
   locationHistory,
   geofences,
+  geofenceAlertStates,
+  photoJournalSchedules,
+  wearableHealthSnapshots,
+  photoJournals,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -284,4 +288,200 @@ export async function getFamilyGeofences(familyGroupId: number) {
   const db = await getDb();
   if (!db) return [];
   return await db.select().from(geofences).where(eq(geofences.familyGroupId, familyGroupId));
+}
+
+
+export async function getFamilyLatestLocations(familyGroupId: number, limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({ location: locationHistory, user: users })
+    .from(locationHistory)
+    .innerJoin(users, eq(locationHistory.userId, users.id))
+    .where(eq(locationHistory.familyGroupId, familyGroupId))
+    .orderBy(desc(locationHistory.createdAt))
+    .limit(limit);
+  const latestByUser = new Map<number, (typeof rows)[number]>();
+  for (const row of rows) {
+    if (!latestByUser.has(row.location.userId)) latestByUser.set(row.location.userId, row);
+  }
+  return Array.from(latestByUser.values()).map(({ location, user }) => ({
+    userId: location.userId,
+    userName: user.name ?? "Family member",
+    latitude: Number(location.latitude),
+    longitude: Number(location.longitude),
+    accuracy: location.accuracy ?? undefined,
+    locationName: location.locationName ?? undefined,
+    timestamp: location.createdAt,
+  }));
+}
+
+export async function getGeofenceAlertState(familyGroupId: number, userId: number, geofenceId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db
+    .select()
+    .from(geofenceAlertStates)
+    .where(and(
+      eq(geofenceAlertStates.familyGroupId, familyGroupId),
+      eq(geofenceAlertStates.userId, userId),
+      eq(geofenceAlertStates.geofenceId, geofenceId),
+    ))
+    .limit(1);
+  return rows[0];
+}
+
+export async function upsertGeofenceAlertState(input: {
+  familyGroupId: number;
+  userId: number;
+  geofenceId: number;
+  state: "inside" | "outside";
+  lastDistanceMeters: number;
+  lastNotifiedAt?: Date | null;
+  acknowledgedAt?: Date | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await getGeofenceAlertState(input.familyGroupId, input.userId, input.geofenceId);
+  const values = {
+    state: input.state,
+    lastDistanceMeters: input.lastDistanceMeters,
+    lastNotifiedAt: input.lastNotifiedAt ?? null,
+    acknowledgedAt: input.acknowledgedAt ?? null,
+  };
+  if (existing) {
+    await db.update(geofenceAlertStates).set(values).where(eq(geofenceAlertStates.id, existing.id));
+    return { ...existing, ...values };
+  }
+  await db.insert(geofenceAlertStates).values({
+    familyGroupId: input.familyGroupId,
+    userId: input.userId,
+    geofenceId: input.geofenceId,
+    ...values,
+  });
+  return { familyGroupId: input.familyGroupId, userId: input.userId, geofenceId: input.geofenceId, ...values };
+}
+
+export async function acknowledgeGeofenceAlert(userId: number, familyGroupId: number, geofenceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(geofenceAlertStates)
+    .set({ acknowledgedAt: new Date() })
+    .where(and(
+      eq(geofenceAlertStates.userId, userId),
+      eq(geofenceAlertStates.familyGroupId, familyGroupId),
+      eq(geofenceAlertStates.geofenceId, geofenceId),
+    ));
+  return { success: true };
+}
+
+export async function getRecentFamilyPhotoEntries(familyGroupId: number, since: Date, limit = 24) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(timelineEntries)
+    .where(and(
+      eq(timelineEntries.familyGroupId, familyGroupId),
+      eq(timelineEntries.entryType, "photo"),
+      gte(timelineEntries.createdAt, since),
+    ))
+    .orderBy(desc(timelineEntries.createdAt))
+    .limit(limit);
+}
+
+export async function getPhotoJournalSchedule(familyGroupId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(photoJournalSchedules)
+    .where(and(eq(photoJournalSchedules.familyGroupId, familyGroupId), eq(photoJournalSchedules.userId, userId)))
+    .limit(1);
+  return rows[0];
+}
+
+export async function upsertPhotoJournalSchedule(input: {
+  familyGroupId: number;
+  userId: number;
+  enabled: boolean;
+  weekday: number;
+  hour: number;
+  minute: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await getPhotoJournalSchedule(input.familyGroupId, input.userId);
+  if (existing) {
+    await db.update(photoJournalSchedules).set(input).where(eq(photoJournalSchedules.id, existing.id));
+    return { ...existing, ...input };
+  }
+  const result = await db.insert(photoJournalSchedules).values(input);
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, scheduleCronTaskUid: null, lastGeneratedAt: null };
+}
+
+export async function setPhotoJournalScheduleTaskUid(id: number, scheduleCronTaskUid: string | null) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(photoJournalSchedules).set({ scheduleCronTaskUid }).where(eq(photoJournalSchedules.id, id));
+  return { success: true };
+}
+
+export async function markPhotoJournalGenerated(id: number, generatedAt: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(photoJournalSchedules).set({ lastGeneratedAt: generatedAt }).where(eq(photoJournalSchedules.id, id));
+  return { success: true };
+}
+
+export async function createWearableHealthSnapshot(input: {
+  familyGroupId: number;
+  userId: number;
+  steps: number;
+  heartRate: number;
+  sleepMinutes: number;
+  simulatedAt: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(wearableHealthSnapshots).values({ ...input, source: "simulated" });
+  return { ...input, source: "simulated" as const, id: Number((result as { insertId?: number }).insertId ?? 0), createdAt: new Date() };
+}
+
+export async function getLatestWearableHealthSnapshot(familyGroupId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(wearableHealthSnapshots)
+    .where(and(eq(wearableHealthSnapshots.familyGroupId, familyGroupId), eq(wearableHealthSnapshots.userId, userId)))
+    .orderBy(desc(wearableHealthSnapshots.simulatedAt))
+    .limit(1);
+  return rows[0];
+}
+
+
+export async function createPhotoJournal(input: {
+  familyGroupId: number;
+  title: string;
+  story: string;
+  photoUrls: string[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(photoJournals).values(input);
+  return input;
+}
+
+export async function getRecentPhotoJournals(familyGroupId: number, limit = 6) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(photoJournals)
+    .where(eq(photoJournals.familyGroupId, familyGroupId))
+    .orderBy(desc(photoJournals.createdAt))
+    .limit(limit);
+}
+
+
+export async function getPhotoJournalScheduleByTaskUid(scheduleCronTaskUid: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(photoJournalSchedules)
+    .where(eq(photoJournalSchedules.scheduleCronTaskUid, scheduleCronTaskUid))
+    .limit(1);
+  return rows[0];
 }

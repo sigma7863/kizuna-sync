@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { MapPin, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { FamilyLocationMap } from "@/components/FamilyLocationMap";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
+import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 interface SafeLocation {
   id: number;
@@ -46,6 +48,8 @@ export function SafetyGuardian({
   const [newLocationLng, setNewLocationLng] = useState("");
   const [newLocationRadius, setNewLocationRadius] = useState("500");
   const [geoWatchId, setGeoWatchId] = useState<number | null>(null);
+  const [latestAlert, setLatestAlert] = useState<{ geofenceName: string; state: "inside" | "outside"; distanceMeters: number; severity: "info" | "urgent" } | null>(null);
+  const [liveLocations, setLiveLocations] = useState<MemberLocation[]>([]);
 
   // Queries
   const { data: geofences } = trpc.geofence.getByFamilyGroup.useQuery(
@@ -64,7 +68,29 @@ export function SafetyGuardian({
     },
   });
 
-  const saveLocationMutation = trpc.location.saveLocation.useMutation();
+  const { data: latestLocations = [] } = trpc.location.latestByFamily.useQuery(
+    { familyGroupId },
+    { enabled: !!familyGroupId, refetchInterval: 15_000 }
+  );
+  useFamilyRealtime(familyGroupId, undefined, (update) => {
+    setLiveLocations((previous) => [
+      ...previous.filter((location) => location.userId !== update.userId),
+      { ...update, timestamp: new Date(update.timestamp) },
+    ]);
+  });
+
+  const displayLocations = liveLocations.length > 0
+    ? liveLocations
+    : memberLocations.length > 0
+      ? memberLocations
+      : latestLocations;
+
+  const saveLocationMutation = trpc.location.saveLocation.useMutation({
+    onSuccess: (result) => {
+      const newestAlert = result.alerts.find((alert) => alert.notified);
+      if (newestAlert) setLatestAlert(newestAlert);
+    },
+  });
 
   // GPS位置情報の取得と監視
   useEffect(() => {
@@ -82,7 +108,6 @@ export function SafetyGuardian({
           accuracy: Math.round(accuracy),
         });
 
-        // ジオフェンスチェック
         if (geofences) {
           geofences.forEach((geofence) => {
             const distance = calculateDistance(
@@ -91,9 +116,7 @@ export function SafetyGuardian({
               Number(geofence.latitude),
               Number(geofence.longitude)
             );
-
             if (distance <= geofence.radiusMeters) {
-              // 安全地帯に到着 - 静かに通知
               onLocationUpdate?.({
                 userId: 0,
                 userName: "You",
@@ -154,6 +177,23 @@ export function SafetyGuardian({
 
   return (
     <div className="space-y-6">
+      <FamilyLocationMap locations={displayLocations} geofences={geofences ?? []} />
+
+      {latestAlert && (
+        <Card className={`border-0 p-4 shadow-md ${latestAlert.severity === "urgent" ? "bg-red-50" : "bg-emerald-50"}`}>
+          <div className="flex items-start gap-3">
+            <AlertCircle className={`mt-0.5 h-5 w-5 ${latestAlert.severity === "urgent" ? "text-red-500" : "text-emerald-500"}`} />
+            <div className="flex-1">
+              <p className="font-semibold text-gray-800">
+                {latestAlert.state === "outside" ? "安全地帯から離れています" : "安全地帯に到着しました"}
+              </p>
+              <p className="text-sm text-gray-600">{latestAlert.geofenceName}・{latestAlert.distanceMeters}m</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => setLatestAlert(null)}>閉じる</Button>
+          </div>
+        </Card>
+      )}
+
       {/* 安全地帯設定 */}
       <Card className="p-6 bg-white border-0 shadow-md">
         <div className="flex items-center justify-between mb-4">
@@ -258,14 +298,14 @@ export function SafetyGuardian({
       </Card>
 
       {/* メンバーの位置情報 */}
-      {memberLocations.length > 0 && (
+      {displayLocations.length > 0 && (
         <Card className="p-6 bg-white border-0 shadow-md">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-blue-500" />
             家族の位置情報
           </h3>
           <div className="space-y-3">
-            {memberLocations.map((location) => (
+            {displayLocations.map((location) => (
               <div
                 key={location.userId}
                 className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-200 flex items-center justify-between"

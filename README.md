@@ -1038,3 +1038,12 @@ await createInvite.mutateAsync({ eventId: "123", origin: window.location.origin 
 // Backend - use input.origin to build the URL
 const inviteUrl = `${input.origin}/events/${eventId}/join?token=${token}`;
 ```
+
+
+## KizunaSync フェーズ10の運用メモ
+
+週次AIフォトジャーナルは、アプリ内の「週次AI」タブで曜日・時刻・有効化を設定します。実行時刻はUTCで解釈され、サーバー側のHeartbeatコールバック `/api/scheduled/generateWeeklyPhotoJournal` が直近7日間の写真を集約し、AIストーリーを生成して保存・静かな通知を行います。コールバックの変更後は、必ずこのプロジェクトを本番へデプロイしてから、画面上で週次設定を有効化してください。開発プレビューのままでは本番Heartbeatを有効化しないでください。
+
+安全タブでは、ブラウザの位置情報許可を使って最新地点を地図へ表示し、安全地帯の円を重ねます。ジオフェンス境界を外へ出た遷移は緊急度付き通知として保存され、同一状態の通知は15分間隔で抑制されます。位置情報を利用できない環境では、ユーザーが許可を与えるまで地図は既定位置を表示します。
+
+ヘルス体験タブの歩数・心拍・睡眠は、実機連携ではなく `simulated` と明示されたデモデータです。生成した値はタイムラインと絆の波紋へ追加されますが、医療判断・緊急時の用途には利用しないでください。

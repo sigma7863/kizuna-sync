@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { type Request, type Response } from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -10,6 +10,8 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { setupRealtimeEndpoints } from "../realtime";
 import { initializeWebSocketServer } from "../websocket-integration";
+import { sdk } from "./sdk";
+import { generateWeeklyPhotoJournalForTask } from "../photo-journal-scheduler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -40,6 +42,26 @@ async function startServer() {
   registerOAuthRoutes(app);
   setupRealtimeEndpoints(app);
   initializeWebSocketServer(server);
+
+  app.post("/api/scheduled/generateWeeklyPhotoJournal", async (req: Request, res: Response) => {
+    try {
+      const user = await sdk.authenticateRequest(req);
+      if (!user.isCron || !user.taskUid) {
+        return res.status(403).json({ error: "cron-only" });
+      }
+      const result = await generateWeeklyPhotoJournalForTask(user.taskUid);
+      return res.json(result);
+    } catch (error) {
+      console.error("[Heartbeat] Weekly photo journal failed", error);
+      return res.status(500).json({
+        error: String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        context: { url: req.originalUrl, taskUid: req.headers["x-manus-task-uid"] ?? null },
+        timestamp: new Date().toISOString(),
+      });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

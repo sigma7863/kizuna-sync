@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { parse as parseCookie } from "cookie";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
@@ -19,6 +20,12 @@ import {
   saveLocationHistory,
   createGeofence,
   getFamilyGeofences,
+  getFamilyLatestLocations,
+  acknowledgeGeofenceAlert,
+  getPhotoJournalSchedule,
+  upsertPhotoJournalSchedule,
+  setPhotoJournalScheduleTaskUid,
+  getRecentPhotoJournals,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { getFamilyStats } from "./statistics";
@@ -41,6 +48,11 @@ import {
 } from "./family-assistant";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut, storageGetSignedUrl } from "./storage";
+import { evaluateGeofenceForLocation } from "./geofence-monitor";
+import { buildWeeklyCron } from "./photo-journal-scheduler";
+import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
+import { cancelWearableSimulation, clearWearableSimulationCancellation, generateWearableSnapshot, isWearableSimulationCancelled, persistWearableSnapshot, WearableSimulationCancelledError } from "./wearable-simulator";
+import { broadcastFamilyLocationUpdate, broadcastRippleNotification } from "./websocket-integration";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -182,7 +194,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        return await saveLocationHistory(
+        const saved = await saveLocationHistory(
           ctx.user.id,
           input.familyGroupId,
           input.latitude,
@@ -190,7 +202,29 @@ export const appRouter = router({
           input.accuracy,
           input.locationName
         );
+        broadcastFamilyLocationUpdate({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? "Family member",
+          latitude: input.latitude,
+          longitude: input.longitude,
+          accuracy: input.accuracy,
+          locationName: input.locationName,
+          timestamp: Date.now(),
+        });
+        const alerts = await evaluateGeofenceForLocation({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          userName: ctx.user.name,
+          latitude: input.latitude,
+          longitude: input.longitude,
+        });
+        return { saved, alerts };
       }),
+
+    latestByFamily: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ input }) => getFamilyLatestLocations(input.familyGroupId)),
   }),
 
   geofence: router({
@@ -218,6 +252,108 @@ export const appRouter = router({
       .input(z.object({ familyGroupId: z.number() }))
       .query(async ({ input }) => {
         return await getFamilyGeofences(input.familyGroupId);
+      }),
+
+    acknowledgeAlert: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), geofenceId: z.number() }))
+      .mutation(async ({ ctx, input }) => acknowledgeGeofenceAlert(ctx.user.id, input.familyGroupId, input.geofenceId)),
+  }),
+
+  health: router({
+    simulate: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), seed: z.number().optional(), simulationId: z.string().min(1).max(80) }))
+      .mutation(async ({ ctx, input }) => {
+        if (isWearableSimulationCancelled(input.simulationId)) {
+          clearWearableSimulationCancellation(input.simulationId);
+          return { cancelled: true, simulationId: input.simulationId };
+        }
+        const snapshot = generateWearableSnapshot({ familyGroupId: input.familyGroupId, userId: ctx.user.id, seed: input.seed });
+        if (isWearableSimulationCancelled(input.simulationId)) {
+          clearWearableSimulationCancellation(input.simulationId);
+          return { cancelled: true, simulationId: input.simulationId };
+        }
+        let persisted;
+        try {
+          persisted = await persistWearableSnapshot(snapshot, input.simulationId);
+        } catch (error) {
+          if (error instanceof WearableSimulationCancelledError) {
+            clearWearableSimulationCancellation(input.simulationId);
+            return { cancelled: true, simulationId: input.simulationId };
+          }
+          throw error;
+        }
+        if (isWearableSimulationCancelled(input.simulationId)) {
+          clearWearableSimulationCancellation(input.simulationId);
+          return { cancelled: true, simulationId: input.simulationId };
+        }
+        broadcastRippleNotification({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          activityType: "walking",
+          userName: ctx.user.name ?? "Family member",
+          timestamp: Date.now(),
+          metadata: { source: "simulated", steps: snapshot.steps, heartRate: snapshot.heartRate, sleepMinutes: snapshot.sleepMinutes },
+        });
+        clearWearableSimulationCancellation(input.simulationId);
+        return { ...persisted, cancelled: false, simulationId: input.simulationId };
+      }),
+
+    stopSimulation: protectedProcedure
+      .input(z.object({ simulationId: z.string().min(1).max(80) }))
+      .mutation(async ({ input }) => {
+        cancelWearableSimulation(input.simulationId);
+        return { success: true, simulationId: input.simulationId };
+      }),
+
+    latest: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { getLatestWearableHealthSnapshot } = await import("./db");
+        return getLatestWearableHealthSnapshot(input.familyGroupId, ctx.user.id);
+      }),
+  }),
+
+  photoJournal: router({
+    getSchedule: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ ctx, input }) => getPhotoJournalSchedule(input.familyGroupId, ctx.user.id)),
+
+    list: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ input }) => getRecentPhotoJournals(input.familyGroupId)),
+
+    saveSchedule: protectedProcedure
+      .input(z.object({
+        familyGroupId: z.number(),
+        enabled: z.boolean(),
+        weekday: z.number().int().min(0).max(6),
+        hour: z.number().int().min(0).max(23),
+        minute: z.number().int().min(0).max(59),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const existing = await getPhotoJournalSchedule(input.familyGroupId, ctx.user.id);
+        const saved = await upsertPhotoJournalSchedule({ ...input, userId: ctx.user.id });
+        const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        const cron = buildWeeklyCron(input.weekday, input.hour, input.minute);
+        const job = {
+          name: `kizuna-weekly-journal-${input.familyGroupId}-${ctx.user.id}`,
+          cron,
+          path: "/api/scheduled/generateWeeklyPhotoJournal",
+          payload: {},
+          description: "Weekly KizunaSync AI photo journal generation",
+        } as const;
+
+        if (input.enabled) {
+          if (existing?.scheduleCronTaskUid) {
+            await updateHeartbeatJob(existing.scheduleCronTaskUid, { cron, enable: true, path: job.path, payload: job.payload, description: job.description }, sessionToken);
+          } else {
+            const created = await createHeartbeatJob(job, sessionToken);
+            await setPhotoJournalScheduleTaskUid(saved.id, created.taskUid);
+          }
+        } else if (existing?.scheduleCronTaskUid) {
+          await updateHeartbeatJob(existing.scheduleCronTaskUid, { enable: false }, sessionToken);
+        }
+        return { ...saved, cron, setupRequired: !sessionToken };
       }),
   }),
 

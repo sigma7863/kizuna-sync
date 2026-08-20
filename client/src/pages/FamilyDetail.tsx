@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2 } from "lucide-react";
+import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
@@ -17,6 +17,9 @@ import { FamilyNotificationCenter } from "@/components/FamilyNotificationCenter"
 import { FamilyAIAssistant } from "@/components/FamilyAIAssistant";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
+import { FamilyAutomationPanel } from "@/components/FamilyAutomationPanel";
+import { WearableHealthSimulator } from "@/components/WearableHealthSimulator";
+import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
@@ -27,7 +30,19 @@ export default function FamilyDetail() {
 
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "ai" | "assistant" | "stats">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "ai" | "assistant" | "stats" | "automation" | "health">("timeline");
+
+  useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
+    setRippleNotifications((previous) => [
+      ...previous.slice(-4),
+      {
+        id: `ripple-${update.userId}-${update.timestamp}`,
+        type: update.activityType,
+        userName: update.userName,
+        timestamp: new Date(update.timestamp),
+      },
+    ]);
+  });
 
   // Queries
   const { data: familyGroup } = trpc.family.getById.useQuery(
@@ -299,6 +314,28 @@ export default function FamilyDetail() {
             {t("family.assistant")}
           </button>
           <button
+            onClick={() => setActiveTab("automation")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "automation"
+                ? "border-amber-500 text-amber-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <CalendarClock className="w-4 h-4 inline mr-2" />
+            週次AI
+          </button>
+          <button
+            onClick={() => setActiveTab("health")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "health"
+                ? "border-rose-500 text-rose-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Activity className="w-4 h-4 inline mr-2" />
+            ヘルス体験
+          </button>
+          <button
             onClick={() => setActiveTab("stats")}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "stats"
@@ -393,6 +430,12 @@ export default function FamilyDetail() {
 
         {/* Family AI Assistant Section */}
         {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
+        {/* Weekly AI Journal Section */}
+        {activeTab === "automation" && <FamilyAutomationPanel familyGroupId={familyGroupId} />}
+
+        {/* Wearable Health Simulation Section */}
+        {activeTab === "health" && <WearableHealthSimulator familyGroupId={familyGroupId} />}
+
         {/* Statistics Dashboard Section */}
         {activeTab === "stats" && (
           <FamilyStatsDashboard familyGroupId={familyGroupId} />

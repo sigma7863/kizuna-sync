@@ -4,6 +4,7 @@ import {
   broadcastNotification,
   broadcastRipple,
   broadcastTimelineUpdate,
+  broadcastLocationUpdate,
   initializeWebSocket,
   RealtimeNotification,
 } from "./websocket";
@@ -33,6 +34,11 @@ export function broadcastTimelineUpdateNotification(
 ) {
   if (!io) return;
   broadcastTimelineUpdate(io, familyGroupId, entry);
+}
+
+export function broadcastFamilyLocationUpdate(update: Parameters<typeof broadcastLocationUpdate>[1]) {
+  if (!io) return;
+  broadcastLocationUpdate(io, update);
 }
 
 export function broadcastFamilyNotification(notification: RealtimeNotification) {

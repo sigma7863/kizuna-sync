@@ -43,6 +43,13 @@
       "when": 1787202482011,
       "tag": "0005_sad_brother_voodoo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1787203621897,
+      "tag": "0006_deep_electro",
+      "breakpoints": true
     }
   ]
 }
