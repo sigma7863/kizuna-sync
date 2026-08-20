@@ -1,0 +1,15 @@
+import { useState } from "react";
+import { CheckCircle2, Ear, Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { countOpenConversationMoments } from "@shared/familyConversationMoments";
+
+export function FamilyLaterListenMemo({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [title, setTitle] = useState(""); const [note, setNote] = useState("");
+  const { data: memos = [], isLoading } = trpc.laterListenMemos.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.laterListenMemos.create.useMutation({ onSuccess: async () => { setTitle(""); setNote(""); await utils.laterListenMemos.list.invalidate({ familyGroupId }); } });
+  const update = trpc.laterListenMemos.update.useMutation({ onSuccess: () => utils.laterListenMemos.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-violet-50 via-white to-fuchsia-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Ear className="h-5 w-5 text-violet-700"/>家族の「あとで聞かせて」メモ</CardTitle><p className="text-xs text-slate-500">今は話せなくても、後で聞きたい気持ちをそっと残そう。</p></CardHeader><CardContent className="space-y-3"><p className="text-xs font-medium text-violet-700">あとで聞きたいこと：{countOpenConversationMoments(memos)}件</p><div className="grid gap-2 rounded-xl bg-white/80 p-3"><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：今日の発表、どんな感じだった？" maxLength={160}/><div className="flex gap-2"><Input value={note} onChange={(event) => setNote(event.target.value)} placeholder="急がないひとこと（任意）" maxLength={240}/><Button size="sm" disabled={!title.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, title, note })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>残す</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-violet-700">メモを読み込み中です…</p> : <div className="grid gap-2">{memos.map((memo) => <article key={memo.id} className={`rounded-xl p-3 shadow-sm ${memo.isFollowedUp ? "bg-violet-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className={`text-sm font-semibold ${memo.isFollowedUp ? "text-violet-700 line-through" : "text-slate-800"}`}>{memo.title}</p>{memo.note && <p className="mt-1 text-xs text-slate-600">{memo.note}</p>}</div><button type="button" aria-label={memo.isFollowedUp ? "未完了に戻す" : "聞けた"} onClick={() => update.mutate({ familyGroupId, memoId: memo.id, isFollowedUp: !memo.isFollowedUp })} className={memo.isFollowedUp ? "text-emerald-600" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{memos.length === 0 && <p className="rounded-xl border border-dashed border-violet-200 p-3 text-center text-xs text-slate-500">後で落ち着いて聞いてみたいことを、一つ残してみましょう。</p>}</div>}</CardContent></Card>;
+}
