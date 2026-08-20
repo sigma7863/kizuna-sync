@@ -1,13 +1,19 @@
-import { Server as HTTPServer } from 'http';
-import { Server as SocketIOServer } from 'socket.io';
-import { broadcastRipple, broadcastTimelineUpdate, initializeWebSocket } from './websocket';
+import { Server as HTTPServer } from "http";
+import { Server as SocketIOServer } from "socket.io";
+import {
+  broadcastNotification,
+  broadcastRipple,
+  broadcastTimelineUpdate,
+  initializeWebSocket,
+  RealtimeNotification,
+} from "./websocket";
 
 let io: SocketIOServer | null = null;
 
 export function initializeWebSocketServer(httpServer: HTTPServer): SocketIOServer {
   if (!io) {
     io = initializeWebSocket(httpServer);
-    console.log('[WebSocket] Server initialized');
+    console.log("[WebSocket] Server initialized");
   }
   return io;
 }
@@ -27,4 +33,9 @@ export function broadcastTimelineUpdateNotification(
 ) {
   if (!io) return;
   broadcastTimelineUpdate(io, familyGroupId, entry);
+}
+
+export function broadcastFamilyNotification(notification: RealtimeNotification) {
+  if (!io) return;
+  broadcastNotification(io, notification);
 }

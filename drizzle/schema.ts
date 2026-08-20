@@ -182,3 +182,59 @@ export const pushSubscriptions = mysqlTable("push_subscriptions", {
 
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+
+/**
+ * In-app notifications - quiet, role-aware family updates
+ */
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  familyGroupId: int("family_group_id").notNull(),
+  type: varchar("type", { length: 64 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  payload: json("payload"),
+  quiet: boolean("quiet").default(true).notNull(),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * Family schedule events - confirmed events created by family members or AI proposals
+ */
+export const familyScheduleEvents = mysqlTable("family_schedule_events", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  location: varchar("location", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FamilyScheduleEvent = typeof familyScheduleEvents.$inferSelect;
+export type InsertFamilyScheduleEvent = typeof familyScheduleEvents.$inferInsert;
+
+/**
+   * Role-based notification settings for quiet notifications, vibration, sound, and visual banner
+   */
+export const notificationSettings = mysqlTable("notification_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  familyGroupId: int("family_group_id").notNull(),
+  memberRole: mysqlEnum("member_role", ["guardian", "child", "elderly"]).default("guardian").notNull(),
+  vibrationEnabled: boolean("vibration_enabled").default(true).notNull(),
+  soundEnabled: boolean("sound_enabled").default(false).notNull(),
+  bannerEnabled: boolean("banner_enabled").default(true).notNull(),
+  quietMode: boolean("quiet_mode").default(true).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NotificationSetting = typeof notificationSettings.$inferSelect;
+export type InsertNotificationSetting = typeof notificationSettings.$inferInsert;

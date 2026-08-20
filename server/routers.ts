@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import {
   createFamilyGroup,
@@ -21,6 +22,25 @@ import {
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { getFamilyStats } from "./statistics";
+import {
+  createFamilyNotification,
+  getUserNotifications,
+  getUnreadNotificationCount,
+  markNotificationRead,
+  markAllNotificationsRead,
+  savePushSubscription,
+  getNotificationSettings,
+  updateNotificationSettings,
+} from "./notifications";
+import {
+  getFamilyAssistantResponse,
+  confirmFamilySchedule,
+  getFamilyScheduleEvents,
+  AssistantLanguage,
+  ScheduleAction,
+} from "./family-assistant";
+import { transcribeAudio } from "./_core/voiceTranscription";
+import { storagePut, storageGetSignedUrl } from "./storage";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -260,6 +280,176 @@ export const appRouter = router({
       .input(z.object({ familyGroupId: z.number() }))
       .query(async ({ input }) => {
         return await getFamilyStats(input.familyGroupId);
+      }),
+  }),
+
+  notifications: router({
+    list: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), limit: z.number().min(1).max(100).default(30) }))
+      .query(async ({ ctx, input }) => getUserNotifications(ctx.user.id, input.familyGroupId, input.limit)),
+
+    unreadCount: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ ctx, input }) => getUnreadNotificationCount(ctx.user.id, input.familyGroupId)),
+
+    settings: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(async ({ ctx, input }) => getNotificationSettings(ctx.user.id, input.familyGroupId)),
+
+    updateSettings: protectedProcedure
+      .input(
+        z.object({
+          familyGroupId: z.number(),
+          vibrationEnabled: z.boolean(),
+          soundEnabled: z.boolean(),
+          bannerEnabled: z.boolean(),
+          quietMode: z.boolean(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => updateNotificationSettings(ctx.user.id, input.familyGroupId, {
+        vibrationEnabled: input.vibrationEnabled,
+        soundEnabled: input.soundEnabled,
+        bannerEnabled: input.bannerEnabled,
+        quietMode: input.quietMode,
+      })),
+
+    markRead: protectedProcedure
+      .input(z.object({ notificationId: z.number() }))
+      .mutation(async ({ ctx, input }) => markNotificationRead(ctx.user.id, input.notificationId)),
+
+    markAllRead: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .mutation(async ({ ctx, input }) => markAllNotificationsRead(ctx.user.id, input.familyGroupId)),
+
+    publish: protectedProcedure
+      .input(
+        z.object({
+          familyGroupId: z.number(),
+          type: z.enum(["calendar_event", "achievement", "reward", "safety", "assistant", "activity"]),
+          title: z.string().min(1).max(255),
+          message: z.string().min(1),
+          payload: z.record(z.string(), z.unknown()).optional(),
+          quiet: z.boolean().default(true),
+          excludeSelf: z.boolean().default(false),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return createFamilyNotification({
+          familyGroupId: input.familyGroupId,
+          type: input.type,
+          title: input.title,
+          message: input.message,
+          payload: input.payload,
+          quiet: input.quiet,
+          excludeUserId: input.excludeSelf ? ctx.user.id : undefined,
+        });
+      }),
+
+    subscribe: protectedProcedure
+      .input(
+        z.object({
+          endpoint: z.string().url(),
+          keys: z.object({ auth: z.string().min(1), p256dh: z.string().min(1) }),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        await savePushSubscription(ctx.user.id, input);
+        return { success: true } as const;
+      }),
+  }),
+
+  assistant: router({
+    ask: protectedProcedure
+      .input(
+        z.object({
+          familyGroupId: z.number(),
+          message: z.string().min(1).max(2000),
+          language: z.enum(["ja", "en", "zh", "ko"]).default("ja"),
+        })
+      )
+      .mutation(async ({ input }) =>
+        getFamilyAssistantResponse({
+          familyGroupId: input.familyGroupId,
+          message: input.message,
+          language: input.language as AssistantLanguage,
+        })
+      ),
+
+    confirmSchedule: protectedProcedure
+      .input(
+        z.object({
+          familyGroupId: z.number(),
+          action: z.object({
+            type: z.enum(["create_schedule", "update_schedule", "delete_schedule"]),
+            eventId: z.number().optional(),
+            title: z.string().min(1).max(255),
+            description: z.string().max(2000),
+            startTime: z.string(),
+            endTime: z.string(),
+            location: z.string().max(255),
+          }),
+        })
+      )
+      .mutation(async ({ ctx, input }) =>
+        confirmFamilySchedule({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          action: input.action as ScheduleAction,
+        })
+      ),
+
+    schedule: protectedProcedure
+      .input(z.object({ familyGroupId: z.number() }))
+      .query(({ input }) => getFamilyScheduleEvents(input.familyGroupId)),
+  }),
+
+  voice: router({
+    transcribe: protectedProcedure
+      .input(
+        z.object({
+          audioUrl: z.string().url(),
+          language: z.enum(["ja", "en", "zh", "ko"]).optional(),
+          prompt: z.string().max(500).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await transcribeAudio(input);
+        if ("error" in result) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: result.error, cause: result });
+        }
+        return result;
+      }),
+
+    transcribeBase64: protectedProcedure
+      .input(
+        z.object({
+          audioData: z.string().min(32).max(24_000_000),
+          mimeType: z.string().regex(/^audio\//),
+          language: z.enum(["ja", "en", "zh", "ko"]).optional(),
+          prompt: z.string().max(500).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const rawBase64 = input.audioData.replace(/^data:[^;]+;base64,/, "");
+        const buffer = Buffer.from(rawBase64, "base64");
+        if (buffer.length === 0 || buffer.length > 16 * 1024 * 1024) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "音声ファイルのサイズが不正です" });
+        }
+        const uploaded = await storagePut(
+          `voice-assistant/${ctx.user.id}/${Date.now()}.webm`,
+          buffer,
+          input.mimeType
+        );
+        const signedUrl = await storageGetSignedUrl(uploaded.key);
+        const result = await transcribeAudio({
+          audioUrl: signedUrl,
+          language: input.language,
+          prompt: input.prompt,
+        });
+        if ("error" in result) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: result.error, cause: result });
+        }
+        return result;
       }),
   }),
   // Chat, Memory, and Routine routers are implemented but temporarily disabled

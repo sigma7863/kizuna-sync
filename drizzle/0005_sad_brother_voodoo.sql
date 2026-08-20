@@ -1,0 +1,1 @@
+ALTER TABLE `notification_settings` ADD `member_role` enum('guardian','child','elderly') DEFAULT 'guardian' NOT NULL;

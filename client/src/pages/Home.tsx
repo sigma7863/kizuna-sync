@@ -10,10 +10,13 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useI18n } from "@/contexts/I18nContext";
 
 export default function Home() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [, setLocation] = useLocation();
+  const { t } = useI18n();
   const [familyName, setFamilyName] = useState("");
   const [selectedRole, setSelectedRole] = useState<"guardian" | "child" | "elderly">("guardian");
 
@@ -62,12 +65,12 @@ export default function Home() {
           <div className="mb-8">
             <Heart className="w-16 h-16 text-pink-500 mx-auto mb-4 animate-pulse" />
             <h1 className="text-4xl font-bold text-gray-800 mb-2">KizunaSync</h1>
-            <p className="text-lg text-gray-600">家族を繋ぐ、絆の同期アプリ</p>
+            <p className="text-lg text-gray-600">{t("home.tagline")}</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
             <p className="text-gray-700 mb-6">
-              家族全員がスマホで繋がり、日常の小さな行動や気持ちをリアルタイムで共有・見守り合えるアプリです。
+              {t("home.description")}
             </p>
 
             <div className="space-y-3 mb-6">
@@ -89,12 +92,12 @@ export default function Home() {
               onClick={() => window.location.href = getLoginUrl()}
               className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold py-3 rounded-lg"
             >
-              ログインして始める
+              {t("common.login")}
             </Button>
           </div>
 
           <p className="text-sm text-gray-500">
-            Manus OAuthで安全にログインできます
+            {t("home.loginHint")}
           </p>
         </div>
       </div>
@@ -110,7 +113,8 @@ export default function Home() {
             <Heart className="w-8 h-8 text-pink-500" />
             <h1 className="text-2xl font-bold text-gray-800">KizunaSync</h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <span className="text-sm text-gray-600">{user?.name}</span>
             <Button
               variant="outline"
@@ -119,7 +123,7 @@ export default function Home() {
               className="flex items-center gap-2"
             >
               <LogOut className="w-4 h-4" />
-              ログアウト
+              {t("common.logout")}
             </Button>
           </div>
         </div>
@@ -133,19 +137,19 @@ export default function Home() {
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2">
                 <Plus className="w-5 h-5" />
-                新しい家族グループを作成
+                {t("home.createFamily")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>新しい家族グループを作成</DialogTitle>
+                <DialogTitle>{t("home.createFamily")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="family-name">グループ名</Label>
+                  <Label htmlFor="family-name">{t("home.groupName")}</Label>
                   <Input
                     id="family-name"
-                    placeholder="例：田中家"
+                    placeholder={t("home.groupPlaceholder")}
                     value={familyName}
                     onChange={(e) => setFamilyName(e.target.value)}
                     className="mt-2"
@@ -156,7 +160,7 @@ export default function Home() {
                   disabled={!familyName.trim() || createFamilyMutation.isPending}
                   className="w-full bg-gradient-to-r from-pink-500 to-purple-500"
                 >
-                  {createFamilyMutation.isPending ? "作成中..." : "作成"}
+                  {createFamilyMutation.isPending ? t("home.creating") : t("home.create")}
                 </Button>
               </div>
             </DialogContent>
@@ -176,7 +180,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">{group.name}</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      {new Date(group.createdAt).toLocaleDateString('ja-JP')}に作成
+                      {new Date(group.createdAt).toLocaleDateString()} {t("home.createdAt")}
                     </p>
                   </div>
                   <Users className="w-6 h-6 text-pink-400" />
@@ -190,7 +194,7 @@ export default function Home() {
                   }}
                 >
                   <HomeIcon className="w-4 h-4 mr-2" />
-                  開く
+                  {t("common.open")}
                 </Button>
               </Card>
             ))}
@@ -199,28 +203,28 @@ export default function Home() {
           <Card className="p-12 text-center bg-white border-0 shadow-md">
             <Heart className="w-16 h-16 text-pink-200 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              まだ家族グループがありません
+              {t("home.noFamilies")}
             </h3>
             <p className="text-gray-600 mb-6">
-              新しい家族グループを作成して、家族との繋がりを始めましょう。
+              {t("home.noFamiliesHint")}
             </p>
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
                   <Plus className="w-4 h-4 mr-2" />
-                  グループを作成
+                  {t("home.createGroup")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>新しい家族グループを作成</DialogTitle>
+                  <DialogTitle>{t("home.createFamily")}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="family-name">グループ名</Label>
+                    <Label htmlFor="family-name">{t("home.groupName")}</Label>
                     <Input
                       id="family-name"
-                      placeholder="例：田中家"
+                      placeholder={t("home.groupPlaceholder")}
                       value={familyName}
                       onChange={(e) => setFamilyName(e.target.value)}
                       className="mt-2"
@@ -231,7 +235,7 @@ export default function Home() {
                     disabled={!familyName.trim() || createFamilyMutation.isPending}
                     className="w-full bg-gradient-to-r from-pink-500 to-purple-500"
                   >
-                    {createFamilyMutation.isPending ? "作成中..." : "作成"}
+                    {createFamilyMutation.isPending ? t("home.creating") : t("home.create")}
                   </Button>
                 </div>
               </DialogContent>

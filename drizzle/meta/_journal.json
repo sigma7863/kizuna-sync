@@ -15,6 +15,34 @@
       "when": 1779672821343,
       "tag": "0001_unusual_bushwacker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787201478822,
+      "tag": "0002_lyrical_serpent_society",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787201617234,
+      "tag": "0003_tranquil_the_captain",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1787202028036,
+      "tag": "0004_confused_randall",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1787202482011,
+      "tag": "0005_sad_brother_voodoo",
+      "breakpoints": true
     }
   ]
 }

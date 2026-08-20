@@ -13,16 +13,21 @@ import { KizunaRipple } from "@/components/KizunaRipple";
 import { SafetyGuardian } from "@/components/SafetyGuardian";
 import { AIFeatures } from "@/components/AIFeatures";
 import { FamilyStatsDashboard } from "@/components/FamilyStatsDashboard";
+import { FamilyNotificationCenter } from "@/components/FamilyNotificationCenter";
+import { FamilyAIAssistant } from "@/components/FamilyAIAssistant";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useI18n } from "@/contexts/I18nContext";
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { t } = useI18n();
   const familyGroupId = parseInt(params?.id || "0");
 
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "ai" | "stats">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "ai" | "assistant" | "stats">("timeline");
 
   // Queries
   const { data: familyGroup } = trpc.family.getById.useQuery(
@@ -76,7 +81,7 @@ export default function FamilyDetail() {
       {
         id: `${Date.now()}-${Math.random()}`,
         type: activityType,
-        userName: user?.name || "Unknown",
+        userName: user?.name || t("family.unknownUser"),
         timestamp: new Date(),
       },
     ]);
@@ -101,12 +106,12 @@ export default function FamilyDetail() {
 
   const getActivityLabel = (type: string) => {
     const labels: Record<string, string> = {
-      mood: "気持ち",
-      photo: "写真",
-      music: "音楽",
-      message: "メッセージ",
-      location: "位置情報",
-      activity: "アクティビティ",
+      mood: t("family.mood"),
+      photo: t("family.photo"),
+      music: t("family.music"),
+      message: t("family.message"),
+      location: t("family.location"),
+      activity: t("family.activity"),
     };
     return labels[type] || type;
   };
@@ -114,7 +119,7 @@ export default function FamilyDetail() {
   if (!familyGroupId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">グループが見つかりません</p>
+        <p className="text-gray-600">{t("family.groupNotFound")}</p>
       </div>
     );
   }
@@ -133,28 +138,34 @@ export default function FamilyDetail() {
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                戻る
+                {t("common.back")}
               </Button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">{familyGroup?.name}</h1>
                 <p className="text-sm text-gray-500">
-                  {members?.length || 0}人のメンバー
+                  {members?.length || 0}{t("family.members")}
                 </p>
               </div>
             </div>
-            <Button
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <Button
               onClick={() => setLocation(`/family/${familyGroupId}/invite`)}
               className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-2"
             >
-              <Plus className="w-4 h-4" />
-              メンバーを招待
-            </Button>
+                <Plus className="w-4 h-4" />
+                {t("family.invite")}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <FamilyNotificationCenter familyGroupId={familyGroupId} />
+        </div>
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           <Button
@@ -163,7 +174,7 @@ export default function FamilyDetail() {
             onClick={() => handleLogActivity("mood")}
           >
             <Smile className="w-6 h-6 text-pink-500" />
-            <span className="text-xs text-center">気持ち</span>
+            <span className="text-xs text-center">{t("family.mood")}</span>
           </Button>
           <Button
             variant="outline"
@@ -171,7 +182,7 @@ export default function FamilyDetail() {
             onClick={() => handleLogActivity("photo")}
           >
             <Camera className="w-6 h-6 text-blue-500" />
-            <span className="text-xs text-center">写真</span>
+            <span className="text-xs text-center">{t("family.photo")}</span>
           </Button>
           <Button
             variant="outline"
@@ -179,7 +190,7 @@ export default function FamilyDetail() {
             onClick={() => handleLogActivity("music")}
           >
             <Music className="w-6 h-6 text-purple-500" />
-            <span className="text-xs text-center">音楽</span>
+            <span className="text-xs text-center">{t("family.music")}</span>
           </Button>
           <Button
             variant="outline"
@@ -187,19 +198,19 @@ export default function FamilyDetail() {
             onClick={() => handleLogActivity("location")}
           >
             <MapPin className="w-6 h-6 text-green-500" />
-            <span className="text-xs text-center">位置情報</span>
+            <span className="text-xs text-center">{t("family.location")}</span>
           </Button>
         </div>
 
         {/* Post Section */}
         <Card className="p-6 mb-8 bg-white border-0 shadow-md">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">今の気持ちをシェア</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">{t("family.shareFeeling")}</h2>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="mood">気持ち・状況</Label>
+              <Label htmlFor="mood">{t("family.moodSituation")}</Label>
               <Textarea
                 id="mood"
-                placeholder="例：今日は楽しかった！ 😊"
+                placeholder={t("family.moodPlaceholder")}
                 value={moodText}
                 onChange={(e) => setMoodText(e.target.value)}
                 className="mt-2 resize-none"
@@ -211,7 +222,7 @@ export default function FamilyDetail() {
               disabled={!moodText.trim() || createTimelineEntryMutation.isPending}
               className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white"
             >
-              {createTimelineEntryMutation.isPending ? "投稿中..." : "投稿"}
+              {createTimelineEntryMutation.isPending ? t("family.posting") : t("family.post")}
             </Button>
           </div>
         </Card>
@@ -221,7 +232,7 @@ export default function FamilyDetail() {
           <Card className="p-6 mb-8 bg-white border-0 shadow-md">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Users className="w-5 h-5" />
-              家族メンバー
+              {t("family.membersTitle")}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {members.map((member) => (
@@ -231,9 +242,9 @@ export default function FamilyDetail() {
                   </div>
                   <p className="font-semibold text-gray-800 text-sm">{member.users.name}</p>
                   <p className="text-xs text-gray-600 mt-1">
-                    {member.family_members.memberRole === "guardian" && "保護者"}
-                    {member.family_members.memberRole === "child" && "子供"}
-                    {member.family_members.memberRole === "elderly" && "高齢者"}
+                    {member.family_members.memberRole === "guardian" && t("family.roleGuardian")}
+                    {member.family_members.memberRole === "child" && t("family.roleChild")}
+                    {member.family_members.memberRole === "elderly" && t("family.roleElderly")}
                   </p>
                 </div>
               ))}
@@ -252,7 +263,7 @@ export default function FamilyDetail() {
             }`}
           >
             <Heart className="w-4 h-4 inline mr-2" />
-            タイムライン
+            {t("family.timeline")}
           </button>
           <button
             onClick={() => setActiveTab("safety")}
@@ -263,7 +274,7 @@ export default function FamilyDetail() {
             }`}
           >
             <MapPin className="w-4 h-4 inline mr-2" />
-            見守り
+            {t("family.safety")}
           </button>
           <button
             onClick={() => setActiveTab("ai")}
@@ -274,7 +285,18 @@ export default function FamilyDetail() {
             }`}
           >
             <Sparkles className="w-4 h-4 inline mr-2" />
-            AI提案
+            {t("family.aiProposal")}
+          </button>
+          <button
+            onClick={() => setActiveTab("assistant")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "assistant"
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Sparkles className="w-4 h-4 inline mr-2" />
+            {t("family.assistant")}
           </button>
           <button
             onClick={() => setActiveTab("stats")}
@@ -285,7 +307,7 @@ export default function FamilyDetail() {
             }`}
           >
             <Share2 className="w-4 h-4 inline mr-2" />
-            統計
+            {t("family.stats")}
           </button>
         </div>
 
@@ -294,12 +316,12 @@ export default function FamilyDetail() {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
               <Heart className="w-5 h-5 text-pink-500" />
-              家族タイムライン
+              {t("family.timelineTitle")}
             </h2>
 
             {timelineLoading ? (
               <Card className="p-8 text-center bg-white border-0 shadow-md">
-                <p className="text-gray-600">読み込み中...</p>
+                <p className="text-gray-600">{t("family.loadingTimeline")}</p>
               </Card>
             ) : timeline && timeline.length > 0 ? (
               timeline.map((entry) => (
@@ -328,7 +350,7 @@ export default function FamilyDetail() {
                       {entry.imageUrl && (
                         <img
                           src={entry.imageUrl}
-                          alt="Timeline entry"
+                          alt={t("family.timelineAlt")}
                           className="mt-3 rounded-lg max-w-xs max-h-48 object-cover"
                         />
                       )}
@@ -340,10 +362,10 @@ export default function FamilyDetail() {
               <Card className="p-8 text-center bg-white border-0 shadow-md">
                 <Heart className="w-12 h-12 text-pink-200 mx-auto mb-4" />
                 <p className="text-gray-600">
-                  まだタイムラインに投稿がありません
+                  {t("family.noTimeline")}
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
-                  家族の気持ちや行動をシェアして、絆を深めましょう
+                  {t("family.noTimelineHint")}
                 </p>
               </Card>
             )}
@@ -369,6 +391,8 @@ export default function FamilyDetail() {
           />
         )}
 
+        {/* Family AI Assistant Section */}
+        {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
         {/* Statistics Dashboard Section */}
         {activeTab === "stats" && (
           <FamilyStatsDashboard familyGroupId={familyGroupId} />
