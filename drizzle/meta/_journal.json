@@ -113,6 +113,27 @@
       "when": 1787222378026,
       "tag": "0015_lean_crusher_hogan",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1787222634605,
+      "tag": "0016_new_the_hunter",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1787222722929,
+      "tag": "0017_harsh_nekra",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1787222810640,
+      "tag": "0018_nervous_butterfly",
+      "breakpoints": true
     }
   ]
 }

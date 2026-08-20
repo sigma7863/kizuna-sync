@@ -336,6 +336,48 @@ export const familyOutingChecklistItems = mysqlTable("family_outing_checklist_it
 export type FamilyOuting = typeof familyOutings.$inferSelect;
 export type FamilyOutingChecklistItem = typeof familyOutingChecklistItems.$inferSelect;
 
+/** Meal ideas suggested by family members, with a gentle shared selection state. */
+export const familyMealIdeas = mysqlTable("family_meal_ideas", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  ideaType: mysqlEnum("idea_type", ["want", "can_make"]).notNull(),
+  note: varchar("note", { length: 240 }),
+  isSelected: boolean("is_selected").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_meal_ideas_group_selected_idx").on(table.familyGroupId, table.isSelected)]);
+
+export type FamilyMealIdea = typeof familyMealIdeas.$inferSelect;
+
+/** Small, recurring family care tasks such as pet, plant, and household care. */
+export const familyCareDuties = mysqlTable("family_care_duties", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  assignedUserId: int("assigned_user_id"),
+  careTarget: varchar("care_target", { length: 80 }).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  dueOn: timestamp("due_on"),
+  status: mysqlEnum("status", ["open", "done"]).default("open").notNull(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_care_duties_group_status_idx").on(table.familyGroupId, table.status)]);
+
+export type FamilyCareDuty = typeof familyCareDuties.$inferSelect;
+
+/** Family-contributed prompts for spontaneous play and conversation. */
+export const familyFunPrompts = mysqlTable("family_fun_prompts", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  content: varchar("content", { length: 240 }).notNull(),
+  theme: varchar("theme", { length: 80 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_fun_prompts_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+
+export type FamilyFunPrompt = typeof familyFunPrompts.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

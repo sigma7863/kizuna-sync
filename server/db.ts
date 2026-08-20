@@ -29,6 +29,9 @@ import {
   familyBookshelfItems,
   familyOutings,
   familyOutingChecklistItems,
+  familyMealIdeas,
+  familyCareDuties,
+  familyFunPrompts,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -496,6 +499,14 @@ export async function createFamilyOuting(input: { familyGroupId: number; created
 export async function getFamilyOutingsWithChecklist(familyGroupId: number) { const db = await getDb(); if (!db) return []; const outings = await db.select().from(familyOutings).where(eq(familyOutings.familyGroupId, familyGroupId)).orderBy(familyOutings.meetingAt); const items = await db.select().from(familyOutingChecklistItems); return outings.map((outing) => ({ ...outing, checklist: items.filter((item) => item.outingId === outing.id) })); }
 export async function createFamilyOutingChecklistItem(input: { outingId: number; createdByUserId: number; label: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyOutingChecklistItems).values(input); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, isCompleted: false }; }
 export async function toggleFamilyOutingChecklistItem(input: { outingId: number; itemId: number; isCompleted: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyOutingChecklistItems).set({ isCompleted: input.isCompleted }).where(and(eq(familyOutingChecklistItems.id, input.itemId), eq(familyOutingChecklistItems.outingId, input.outingId))); }
+export async function createFamilyMealIdea(input: { familyGroupId: number; createdByUserId: number; title: string; ideaType: "want" | "can_make"; note?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, note: input.note ?? null }; const result = await db.insert(familyMealIdeas).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isSelected: false }; }
+export async function getFamilyMealIdeas(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyMealIdeas).where(eq(familyMealIdeas.familyGroupId, familyGroupId)).orderBy(desc(familyMealIdeas.createdAt)) : []; }
+export async function selectFamilyMealIdea(input: { familyGroupId: number; mealIdeaId: number }) { const db = await getDb(); if (!db) throw new Error("Database not available"); await db.update(familyMealIdeas).set({ isSelected: false }).where(eq(familyMealIdeas.familyGroupId, input.familyGroupId)); return db.update(familyMealIdeas).set({ isSelected: true }).where(and(eq(familyMealIdeas.id, input.mealIdeaId), eq(familyMealIdeas.familyGroupId, input.familyGroupId))); }
+export async function createFamilyCareDuty(input: { familyGroupId: number; createdByUserId: number; assignedUserId?: number; careTarget: string; title: string; dueOn?: Date }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, assignedUserId: input.assignedUserId ?? null, dueOn: input.dueOn ?? null }; const result = await db.insert(familyCareDuties).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, status: "open" as const, completedAt: null }; }
+export async function getFamilyCareDuties(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyCareDuties).where(eq(familyCareDuties.familyGroupId, familyGroupId)).orderBy(desc(familyCareDuties.createdAt)) : []; }
+export async function completeFamilyCareDuty(input: { familyGroupId: number; dutyId: number; isDone: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyCareDuties).set({ status: input.isDone ? "done" : "open", completedAt: input.isDone ? new Date() : null }).where(and(eq(familyCareDuties.id, input.dutyId), eq(familyCareDuties.familyGroupId, input.familyGroupId))); }
+export async function createFamilyFunPrompt(input: { familyGroupId: number; createdByUserId: number; content: string; theme: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyFunPrompts).values(input); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input }; }
+export async function getFamilyFunPrompts(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyFunPrompts).where(eq(familyFunPrompts.familyGroupId, familyGroupId)).orderBy(desc(familyFunPrompts.createdAt)) : []; }
 
 // Activity queries
 export async function logUserActivity(
