@@ -65,6 +65,9 @@ import { FamilyAchievementAlbum } from "@/components/FamilyAchievementAlbum";
 import { FamilyHomecomingNote } from "@/components/FamilyHomecomingNote";
 import { FamilyReadingRelay } from "@/components/FamilyReadingRelay";
 import { FamilyWeatherMemo } from "@/components/FamilyWeatherMemo";
+import { FamilyPlaylist } from "@/components/FamilyPlaylist";
+import { FamilyForgottenItemRescue } from "@/components/FamilyForgottenItemRescue";
+import { FamilyThankYouBookmarks } from "@/components/FamilyThankYouBookmarks";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -373,6 +376,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyEncouragementPost familyGroupId={familyGroupId}/><FamilyEnergyMeter familyGroupId={familyGroupId}/><FamilyWishList familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMorningBoard familyGroupId={familyGroupId}/><FamilyVoiceMemoExchange familyGroupId={familyGroupId}/><FamilyAchievementAlbum familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHomecomingNote familyGroupId={familyGroupId}/><FamilyReadingRelay familyGroupId={familyGroupId}/><FamilyWeatherMemo familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyPlaylist familyGroupId={familyGroupId}/><FamilyForgottenItemRescue familyGroupId={familyGroupId}/><FamilyThankYouBookmarks familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
