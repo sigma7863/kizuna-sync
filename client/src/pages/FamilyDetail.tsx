@@ -21,6 +21,7 @@ import { FamilyAutomationPanel } from "@/components/FamilyAutomationPanel";
 import { WearableHealthSimulator } from "@/components/WearableHealthSimulator";
 import { FamilyTrailHeatmap } from "@/components/FamilyTrailHeatmap";
 import { FamilyCelebrationComposer } from "@/components/FamilyCelebrationComposer";
+import { FamilyDigestAlbum } from "@/components/FamilyDigestAlbum";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -32,7 +33,7 @@ export default function FamilyDetail() {
 
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "trail" | "ai" | "assistant" | "celebration" | "stats" | "automation" | "health">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "trail" | "ai" | "assistant" | "celebration" | "digest" | "stats" | "automation" | "health">("timeline");
 
   useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
     setRippleNotifications((previous) => [
@@ -340,6 +341,17 @@ export default function FamilyDetail() {
             {t("family.celebration")}
           </button>
           <button
+            onClick={() => setActiveTab("digest")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "digest"
+                ? "border-amber-500 text-amber-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Sparkles className="w-4 h-4 inline mr-2" />
+            {t("family.digestAlbum")}
+          </button>
+          <button
             onClick={() => setActiveTab("automation")}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "automation"
@@ -461,6 +473,9 @@ export default function FamilyDetail() {
         {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
         {/* Celebration Composer Section */}
         {activeTab === "celebration" && <FamilyCelebrationComposer familyGroupId={familyGroupId} />}
+
+        {/* Digest Album Section */}
+        {activeTab === "digest" && <FamilyDigestAlbum familyGroupId={familyGroupId} />}
 
         {/* Weekly AI Journal Section */}
         {activeTab === "automation" && <FamilyAutomationPanel familyGroupId={familyGroupId} />}

@@ -107,7 +107,16 @@ type TranslationKey =
   | "family.celebrationSend"
   | "family.celebrationBadge"
   | "family.celebrationEmpty"
-  | "family.celebrationSuccess";
+  | "family.celebrationSuccess"
+  | "family.trailTimeSlot"
+  | "family.timeSlotAll"
+  | "family.timeSlotDaytime"
+  | "family.timeSlotNight"
+  | "family.ttsReadAloud"
+  | "family.digestAlbum"
+  | "family.digestBadge"
+  | "family.selectMonth"
+  | "family.digestEmpty";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -166,6 +175,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.allMembers": "家族全員",
     "family.trailPointCount": "{count}地点",
     "family.trailPrivacy": "位置情報は家族グループ内だけで表示されます。",
+    "family.trailTimeSlot": "時間帯",
+    "family.timeSlotAll": "全時間帯",
+    "family.timeSlotDaytime": "日中 (6:00-18:00)",
+    "family.timeSlotNight": "夜間 (18:00-6:00)",
     "family.voiceCommandExamples": "例：「今日の予定を教えて」「公園の写真を探して」",
     "family.voiceCommandSchedule": "今日の予定を教えて",
     "family.voiceCommandPhotos": "公園の写真を探して",
@@ -180,6 +193,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.celebrationBadge": "お祝いスタンプ",
     "family.celebrationEmpty": "今日のお祝いはまだありません。",
     "family.celebrationSuccess": "お祝いスタンプを家族に届けました。",
+    "family.digestAlbum": "お祝いダイジェストアルバム",
+    "family.digestBadge": "月別アーカイブ",
+    "family.selectMonth": "表示月を選択",
+    "family.digestEmpty": "選択した月のお祝いメッセージはまだありません。",
     "family.shareFeeling": "今の気持ちをシェア",
     "family.moodSituation": "気持ち・状況",
     "family.moodPlaceholder": "例：今日は楽しかった！",
@@ -218,6 +235,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.eventEnd": "終了",
     "family.eventLocation": "場所",
     "family.applyChange": "変更を反映",
+    "family.ttsReadAloud": "AI音声を読み上げる",
   },
   en: {
     "common.loading": "Loading...",
@@ -273,6 +291,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.allMembers": "Everyone",
     "family.trailPointCount": "{count} locations",
     "family.trailPrivacy": "Location data is visible only inside this family group.",
+    "family.trailTimeSlot": "Time Slot",
+    "family.timeSlotAll": "All Hours",
+    "family.timeSlotDaytime": "Daytime (6:00-18:00)",
+    "family.timeSlotNight": "Night (18:00-6:00)",
     "family.voiceCommandExamples": "Try: “Tell me today’s schedule” or “Find park photos”.",
     "family.voiceCommandSchedule": "Tell me today’s schedule",
     "family.voiceCommandPhotos": "Find photos from the park",
@@ -287,6 +309,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.celebrationBadge": "Celebration sticker",
     "family.celebrationEmpty": "No celebrations yet today.",
     "family.celebrationSuccess": "Your celebration sticker was shared with the family.",
+    "family.digestAlbum": "Celebration Digest Album",
+    "family.digestBadge": "Monthly Archive",
+    "family.selectMonth": "Select month",
+    "family.digestEmpty": "No celebration messages found for this month.",
     "family.shareFeeling": "Share how you feel",
     "family.moodSituation": "Mood or situation",
     "family.moodPlaceholder": "e.g. I had a wonderful day!",
@@ -325,6 +351,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.eventEnd": "End",
     "family.eventLocation": "Location",
     "family.applyChange": "Apply changes",
+    "family.ttsReadAloud": "Read AI aloud",
   },
   zh: {
     "common.loading": "加载中...",
@@ -394,6 +421,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.celebrationBadge": "祝福贴纸",
     "family.celebrationEmpty": "今天还没有祝福。",
     "family.celebrationSuccess": "祝福贴纸已送达家人。",
+    "family.digestAlbum": "祝福文摘相册",
+    "family.digestBadge": "月度归档",
+    "family.selectMonth": "选择月份",
+    "family.digestEmpty": "所选月份暂无祝福消息。",
     "family.shareFeeling": "分享现在的心情",
     "family.moodSituation": "心情或状态",
     "family.moodPlaceholder": "例如：今天过得很开心！",
@@ -432,6 +463,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.eventEnd": "结束",
     "family.eventLocation": "地点",
     "family.applyChange": "应用更改",
+    "family.trailTimeSlot": "时间段",
+    "family.timeSlotAll": "全部时间",
+    "family.timeSlotDaytime": "白天 (6:00-18:00)",
+    "family.timeSlotNight": "夜间 (18:00-6:00)",
+    "family.ttsReadAloud": "朗读AI回复",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -501,6 +537,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.celebrationBadge": "축하 스티커",
     "family.celebrationEmpty": "오늘은 아직 축하 메시지가 없습니다.",
     "family.celebrationSuccess": "축하 스티커를 가족에게 보냈습니다.",
+    "family.digestAlbum": "축하 다이제스트 앨범",
+    "family.digestBadge": "월간 아카이브",
+    "family.selectMonth": "조회할 월 선택",
+    "family.digestEmpty": "선택한 월에 축하 메시지가 없습니다.",
     "family.shareFeeling": "지금 기분 공유하기",
     "family.moodSituation": "기분 또는 상황",
     "family.moodPlaceholder": "예: 오늘 정말 즐거웠어요!",
@@ -539,6 +579,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.eventEnd": "종료",
     "family.eventLocation": "장소",
     "family.applyChange": "변경 적용",
+    "family.trailTimeSlot": "시간대",
+    "family.timeSlotAll": "전체 시간",
+    "family.timeSlotDaytime": "주간 (6:00-18:00)",
+    "family.timeSlotNight": "야간 (18:00-6:00)",
+    "family.ttsReadAloud": "AI 답변 읽어주기",
   },
 };
 

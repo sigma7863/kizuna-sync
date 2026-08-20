@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Mic, MicOff, CalendarPlus, Sparkles } from "lucide-react";
+import { Mic, MicOff, CalendarPlus, Sparkles, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -65,6 +65,14 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
     onError: (error) => toast.error(error.message),
   });
 
+  const speakText = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language === "ja" ? "ja-JP" : language === "en" ? "en-US" : language === "zh" ? "zh-CN" : "ko-KR";
+    window.speechSynthesis.speak(utterance);
+  };
+
   const sendMessage = async (content: string) => {
     const nextMessages = [...messages, { role: "user" as const, content }];
     setMessages(nextMessages);
@@ -76,8 +84,10 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
     const searchText = result.searchResults.length > 0
       ? `\n\n${result.searchResults.map((entry) => `• ${entry.content}`).join("\n")}`
       : "";
-    setMessages((previous) => [...previous, { role: "assistant", content: `${result.message}${searchText}` }]);
+    const fullText = `${result.message}${searchText}`;
+    setMessages((previous) => [...previous, { role: "assistant", content: fullText }]);
     setPendingAction(result.action as ScheduleAction | null);
+    if (fullText) speakText(fullText);
   };
 
   const startRecording = async () => {
@@ -186,11 +196,26 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
         <div className="rounded-lg border border-purple-100 bg-purple-50/60 px-3 py-2 text-xs text-purple-800">
           {t("family.voiceCommandExamples")}
         </div>
+        <div className="flex items-center justify-end gap-2 px-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              const lastAssistantMsg = messages.slice().reverse().find((m) => m.role === "assistant");
+              if (lastAssistantMsg) speakText(lastAssistantMsg.content);
+            }}
+            className="gap-1.5 text-xs text-purple-700 hover:bg-purple-100"
+          >
+            <Volume2 className="h-4 w-4" />
+            {t("family.ttsReadAloud")}
+          </Button>
+        </div>
         <AIChatBox
           messages={messages}
           onSendMessage={sendMessage}
           isLoading={askMutation.isPending || transcribeMutation.isPending}
-          height="380px"
+          height="340px"
           placeholder={t("family.searchTimeline")}
           emptyStateMessage={t("family.assistant")}
           suggestedPrompts={[

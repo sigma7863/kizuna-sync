@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, Flame, MapPinned, Users } from "lucide-react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { CalendarDays, Clock, Flame, MapPinned, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { MapView } from "@/components/Map";
 import { trpc } from "@/lib/trpc";
@@ -10,11 +10,13 @@ interface FamilyTrailHeatmapProps {
 }
 
 const RANGE_OPTIONS = [7, 14, 30] as const;
+type TimeSlot = "all" | "daytime" | "night";
 
 export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
   const { t } = useI18n();
   const [rangeDays, setRangeDays] = useState<(typeof RANGE_OPTIONS)[number]>(7);
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>();
+  const [timeSlot, setTimeSlot] = useState<TimeSlot>("all");
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const heatmap = useRef<google.maps.visualization.HeatmapLayer | null>(null);
 
@@ -23,6 +25,7 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
     const from = new Date(to.getTime() - rangeDays * 24 * 60 * 60 * 1000);
     return { from, to };
   }, [rangeDays]);
+
   const queryInput = useMemo(
     () => ({ familyGroupId, from, to, userId: selectedUserId, limit: 5000 }),
     [familyGroupId, from, to, selectedUserId],
@@ -32,6 +35,15 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
     staleTime: 30_000,
   });
 
+  const filteredPoints = useMemo(() => {
+    if (timeSlot === "all") return points;
+    return points.filter((point) => {
+      const hour = new Date(point.timestamp).getHours();
+      if (timeSlot === "daytime") return hour >= 6 && hour < 18;
+      return hour < 6 || hour >= 18;
+    });
+  }, [points, timeSlot]);
+
   const members = useMemo(() => {
     const byUser = new Map<number, string>();
     points.forEach((point) => byUser.set(point.userId, point.userName));
@@ -39,18 +51,18 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
   }, [points]);
 
   const center = useMemo<google.maps.LatLngLiteral>(() => {
-    if (points.length === 0) return { lat: 35.681236, lng: 139.767125 };
-    const totals = points.reduce(
+    if (filteredPoints.length === 0) return { lat: 35.681236, lng: 139.767125 };
+    const totals = filteredPoints.reduce(
       (acc, point) => ({ lat: acc.lat + point.latitude, lng: acc.lng + point.longitude }),
       { lat: 0, lng: 0 },
     );
-    return { lat: totals.lat / points.length, lng: totals.lng / points.length };
-  }, [points]);
+    return { lat: totals.lat / filteredPoints.length, lng: totals.lng / filteredPoints.length };
+  }, [filteredPoints]);
 
   useEffect(() => {
     if (!map || !window.google?.maps?.visualization) return;
     heatmap.current?.setMap(null);
-    const data = points.map((point) => ({
+    const data = filteredPoints.map((point) => ({
       location: new window.google.maps.LatLng(point.latitude, point.longitude),
       weight: point.accuracy ? Math.max(0.5, Math.min(2.5, 40 / Math.max(point.accuracy, 1))) : 1,
     }));
@@ -71,7 +83,7 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
       heatmap.current?.setMap(null);
       heatmap.current = null;
     };
-  }, [map, points]);
+  }, [map, filteredPoints]);
 
   return (
     <Card className="overflow-hidden border-0 bg-white shadow-md">
@@ -91,6 +103,14 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
             </select>
           </label>
           <label className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2">
+            <Clock className="h-4 w-4 text-gray-500" />
+            <select value={timeSlot} onChange={(event) => setTimeSlot(event.target.value as TimeSlot)} aria-label={t("family.trailTimeSlot")}>
+              <option value="all">{t("family.timeSlotAll")}</option>
+              <option value="daytime">{t("family.timeSlotDaytime")}</option>
+              <option value="night">{t("family.timeSlotNight")}</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2">
             <Users className="h-4 w-4 text-gray-500" />
             <select value={selectedUserId ?? "all"} onChange={(event) => setSelectedUserId(event.target.value === "all" ? undefined : Number(event.target.value))} aria-label={t("family.trailMember")}>
               <option value="all">{t("family.allMembers")}</option>
@@ -102,7 +122,7 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
       <div className="relative h-[420px]">
         <MapView className="h-full" initialCenter={center} initialZoom={13} onMapReady={setMap} />
         <div className="absolute bottom-4 left-4 rounded-xl bg-white/90 px-3 py-2 text-xs text-gray-700 shadow-sm backdrop-blur">
-          <div className="flex items-center gap-2"><MapPinned className="h-3.5 w-3.5 text-pink-500" />{isLoading ? t("common.loading") : t("family.trailPointCount").replace("{count}", String(points.length))}</div>
+          <div className="flex items-center gap-2"><MapPinned className="h-3.5 w-3.5 text-pink-500" />{isLoading ? t("common.loading") : t("family.trailPointCount").replace("{count}", String(filteredPoints.length))}</div>
           <div className="mt-1 text-[11px] text-gray-500">{t("family.trailPrivacy")}</div>
         </div>
       </div>
