@@ -15,6 +15,7 @@ import {
   wearableHealthSnapshots,
   photoJournals,
   familyAlbumPhotos,
+  familyHelpRequests,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -273,6 +274,51 @@ export async function setFamilyAlbumPhotoFavorite(input: { photoId: number; fami
   return db.update(familyAlbumPhotos)
     .set({ isFavorite: input.isFavorite })
     .where(and(eq(familyAlbumPhotos.id, input.photoId), eq(familyAlbumPhotos.familyGroupId, input.familyGroupId)));
+}
+
+export async function createFamilyHelpRequest(input: {
+  familyGroupId: number;
+  requesterUserId: number;
+  title: string;
+  detail?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyHelpRequests).values({ ...input, detail: input.detail ?? null });
+  return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, status: "open" as const };
+}
+
+export async function getFamilyHelpRequests(familyGroupId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(familyHelpRequests)
+    .where(eq(familyHelpRequests.familyGroupId, familyGroupId))
+    .orderBy(desc(familyHelpRequests.updatedAt));
+}
+
+export async function acceptFamilyHelpRequest(input: { familyGroupId: number; requestId: number; helperUserId: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(familyHelpRequests)
+    .set({ helperUserId: input.helperUserId, status: "accepted" })
+    .where(and(
+      eq(familyHelpRequests.id, input.requestId),
+      eq(familyHelpRequests.familyGroupId, input.familyGroupId),
+      eq(familyHelpRequests.status, "open"),
+    ));
+}
+
+export async function completeFamilyHelpRequest(input: { familyGroupId: number; requestId: number; userId: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(familyHelpRequests)
+    .set({ status: "completed" })
+    .where(and(
+      eq(familyHelpRequests.id, input.requestId),
+      eq(familyHelpRequests.familyGroupId, input.familyGroupId),
+      eq(familyHelpRequests.helperUserId, input.userId),
+      eq(familyHelpRequests.status, "accepted"),
+    ));
 }
 
 // Activity queries

@@ -1,0 +1,9 @@
+import { Footprints, HeartPulse, Image, Loader2, MessageCircle, ShieldCheck } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { trpc } from "@/lib/trpc";
+
+export function FamilyWeeklyPulse({ familyGroupId }: { familyGroupId: number }) {
+  const { data, isLoading } = trpc.pulse.weekly.useQuery({ familyGroupId }, { enabled: familyGroupId > 0, refetchInterval: 60_000 });
+  return <Card className="border-0 bg-gradient-to-br from-violet-50 via-white to-indigo-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base text-slate-800"><HeartPulse className="h-5 w-5 text-violet-500" />週間絆パルス</CardTitle><p className="text-xs text-slate-500">会話・安心・思い出から、今週のつながりを見つめます。</p></CardHeader><CardContent>{isLoading ? <div className="flex min-h-32 items-center justify-center text-xs text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />集計中…</div> : <><div className="rounded-2xl bg-white p-4 text-center shadow-sm"><p className="text-3xl font-bold text-violet-600">{data?.score ?? 0}</p><p className="text-xs text-slate-500">今週の絆スコア</p><Progress value={data?.score ?? 0} className="mt-3 h-2" /></div><div className="mt-3 grid grid-cols-2 gap-2 text-xs"><div className="rounded-xl bg-violet-50 p-2.5"><MessageCircle className="mb-1 h-4 w-4 text-violet-500" />投稿 {data?.posts ?? 0}</div><div className="rounded-xl bg-emerald-50 p-2.5"><ShieldCheck className="mb-1 h-4 w-4 text-emerald-500" />安心 {data?.checkIns ?? 0}</div><div className="rounded-xl bg-pink-50 p-2.5"><Image className="mb-1 h-4 w-4 text-pink-500" />写真 {data?.photos ?? 0}</div><div className="rounded-xl bg-amber-50 p-2.5"><Footprints className="mb-1 h-4 w-4 text-amber-500" />{(data?.totalSteps ?? 0).toLocaleString()}歩</div></div></>}</CardContent></Card>;
+}
