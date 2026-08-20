@@ -1,0 +1,17 @@
+import { useState } from "react";
+import { BookHeart, Camera, FileText, Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { bookmarkSourceLabels } from "@shared/familyGentleConnection";
+
+type BookmarkSource = keyof typeof bookmarkSourceLabels;
+const sourceIcons = { photo: Camera, post: FileText, other: BookHeart };
+
+export function FamilyMemoryBookmarkExchange({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [sourceType, setSourceType] = useState<BookmarkSource>("photo"); const [sourceLabel, setSourceLabel] = useState(""); const [reason, setReason] = useState("");
+  const { data: bookmarks = [], isLoading } = trpc.memoryBookmarks.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.memoryBookmarks.create.useMutation({ onSuccess: async () => { setSourceLabel(""); setReason(""); await utils.memoryBookmarks.list.invalidate({ familyGroupId }); } });
+  return <Card className="border-0 bg-gradient-to-br from-amber-50 via-white to-yellow-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><BookHeart className="h-5 w-5 text-amber-700"/>家族の思い出しおり交換</CardTitle><p className="text-xs text-slate-500">心に残った写真や投稿を、理由と一緒に渡し合おう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><div className="grid grid-cols-3 gap-1">{(Object.keys(bookmarkSourceLabels) as BookmarkSource[]).map((key) => { const Icon = sourceIcons[key]; return <button key={key} type="button" onClick={() => setSourceType(key)} className={`rounded-lg px-1 py-2 text-xs transition active:scale-95 ${sourceType === key ? "bg-amber-500 text-white" : "bg-amber-50 text-amber-800 hover:bg-amber-100"}`}><Icon className="mr-1 inline h-3.5 w-3.5"/>{bookmarkSourceLabels[key]}</button>; })}</div><Input value={sourceLabel} onChange={(event) => setSourceLabel(event.target.value)} placeholder="例：海で撮った夕焼けの写真" maxLength={160}/><div className="flex gap-2"><Input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="心に残った理由" maxLength={280}/><Button size="sm" disabled={!sourceLabel.trim() || !reason.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, sourceType, sourceLabel, reason })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>渡す</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-amber-700">しおりを読み込み中です…</p> : <div className="grid gap-2">{bookmarks.slice(0, 4).map((bookmark) => { const Icon = sourceIcons[bookmark.sourceType]; return <article key={bookmark.id} className="rounded-xl bg-white p-3 shadow-sm"><p className="flex items-center gap-1 text-[11px] font-medium text-amber-800"><Icon className="h-3.5 w-3.5"/>{bookmarkSourceLabels[bookmark.sourceType]}</p><p className="mt-1 text-sm font-semibold text-slate-800">{bookmark.sourceLabel}</p><p className="mt-1 text-xs text-slate-600">{bookmark.reason}</p></article>; })}{bookmarks.length === 0 && <p className="rounded-xl border border-dashed border-amber-200 p-3 text-center text-xs text-slate-500">大切に思った一枚や投稿を、最初のしおりにしてみましょう。</p>}</div>}</CardContent></Card>;
+}

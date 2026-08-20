@@ -174,6 +174,13 @@ import {
   createFamilyHelpGuide,
   getFamilyHelpGuides,
   updateFamilyHelpGuidePinned,
+  createFamilyWeeklyPromise,
+  getFamilyWeeklyPromises,
+  updateFamilyWeeklyPromise,
+  createFamilyTalkTiming,
+  getFamilyTalkTimings,
+  createFamilyMemoryBookmark,
+  getFamilyMemoryBookmarks,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -805,6 +812,19 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyHelpGuides(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), category: z.enum(["housework", "device", "health", "other"]), title: z.string().trim().min(1).max(160), steps: z.string().trim().min(1).max(600) })).mutation(({ ctx, input }) => createFamilyHelpGuide({ ...input, userId: ctx.user.id })),
     updatePinned: protectedProcedure.input(z.object({ familyGroupId: z.number(), guideId: z.number(), isPinned: z.boolean() })).mutation(({ input }) => updateFamilyHelpGuidePinned(input)),
+  }),
+  weeklyPromises: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getFamilyWeeklyPromises(input.familyGroupId, input.weekKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), title: z.string().trim().min(1).max(160), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyWeeklyPromise({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), promiseId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => updateFamilyWeeklyPromise(input)),
+  }),
+  talkTimings: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTalkTimings(input.familyGroupId)),
+    share: protectedProcedure.input(z.object({ familyGroupId: z.number(), state: z.enum(["available", "later", "quiet"]), note: z.string().trim().max(160).optional() })).mutation(({ ctx, input }) => createFamilyTalkTiming({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+  }),
+  memoryBookmarks: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyMemoryBookmarks(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), sourceType: z.enum(["photo", "post", "other"]), sourceLabel: z.string().trim().min(1).max(160), reason: z.string().trim().min(1).max(280) })).mutation(({ ctx, input }) => createFamilyMemoryBookmark({ ...input, userId: ctx.user.id })),
   }),
 
   activity: router({

@@ -898,6 +898,42 @@ export const familyHelpGuides = mysqlTable("family_help_guides", {
 }, (table) => [index("family_help_guides_group_pinned_idx").on(table.familyGroupId, table.isPinned)]);
 export type FamilyHelpGuide = typeof familyHelpGuides.$inferSelect;
 
+/** A small, voluntary family promise for the current week, with a low-pressure completion state. */
+export const familyWeeklyPromises = mysqlTable("family_weekly_promises", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  weekKey: varchar("week_key", { length: 10 }).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_weekly_promises_group_week_idx").on(table.familyGroupId, table.weekKey)]);
+export type FamilyWeeklyPromise = typeof familyWeeklyPromises.$inferSelect;
+
+/** A voluntary signal that helps family members choose a respectful time to start a conversation. */
+export const familyTalkTimings = mysqlTable("family_talk_timings", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  state: mysqlEnum("state", ["available", "later", "quiet"]).notNull(),
+  note: varchar("note", { length: 160 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_talk_timings_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyTalkTiming = typeof familyTalkTimings.$inferSelect;
+
+/** A short note that gives a family photo or post a rereadable personal reason. */
+export const familyMemoryBookmarks = mysqlTable("family_memory_bookmarks", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  sourceType: mysqlEnum("source_type", ["photo", "post", "other"]).notNull(),
+  sourceLabel: varchar("source_label", { length: 160 }).notNull(),
+  reason: varchar("reason", { length: 280 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_memory_bookmarks_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyMemoryBookmark = typeof familyMemoryBookmarks.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
