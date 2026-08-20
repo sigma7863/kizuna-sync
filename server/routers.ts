@@ -236,6 +236,14 @@ import {
   createFamilyGoodFindMemo,
   getFamilyGoodFindMemos,
   updateFamilyGoodFindMemo,
+  createFamilyWeekStartDeclaration,
+  getFamilyWeekStartDeclarations,
+  createFamilyCalmMoment,
+  getFamilyCalmMoments,
+  updateFamilyCalmMoment,
+  createFamilyTomorrowPreparationRelay,
+  getFamilyTomorrowPreparationRelays,
+  updateFamilyTomorrowPreparationRelay,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -973,6 +981,20 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyGoodFindMemos(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), goodThing: z.string().trim().min(1).max(240), tag: z.string().trim().max(80).optional() })).mutation(({ ctx, input }) => createFamilyGoodFindMemo({ ...input, tag: input.tag || undefined, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isSaved: z.boolean() })).mutation(({ input }) => updateFamilyGoodFindMemo(input)),
+  }),
+  weekStartDeclarations: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getFamilyWeekStartDeclarations(input.familyGroupId, input.weekKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), declaration: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyWeekStartDeclaration({ ...input, userId: ctx.user.id })),
+  }),
+  calmMoments: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyCalmMoments(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), moment: z.string().trim().min(1).max(240) })).mutation(({ ctx, input }) => createFamilyCalmMoment({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), momentId: z.number(), isKept: z.boolean() })).mutation(({ input }) => updateFamilyCalmMoment(input)),
+  }),
+  tomorrowPreparationRelays: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTomorrowPreparationRelays(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), preparation: z.string().trim().min(1).max(180), relayNote: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyTomorrowPreparationRelay({ ...input, relayNote: input.relayNote || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), relayId: z.number(), isReady: z.boolean() })).mutation(({ input }) => updateFamilyTomorrowPreparationRelay(input)),
   }),
 
   activity: router({
