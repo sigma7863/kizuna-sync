@@ -1,0 +1,23 @@
+import { useState } from "react";
+import { CheckCircle2, HandHeart, Loader2, Plus, UsersRound } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { countJoinResponses, togetherKindLabels } from "@shared/familyTogetherComfort";
+
+type TogetherKind = keyof typeof togetherKindLabels;
+
+function InvitationRow({ invitation, familyGroupId }: { invitation: { id: number; kind: TogetherKind; title: string; note: string | null; isClosed: boolean }; familyGroupId: number }) {
+  const utils = trpc.useUtils(); const { data: responses = [] } = trpc.togetherInvitations.responses.useQuery({ invitationId: invitation.id });
+  const respond = trpc.togetherInvitations.respond.useMutation({ onSuccess: () => utils.togetherInvitations.responses.invalidate({ invitationId: invitation.id }) });
+  const update = trpc.togetherInvitations.update.useMutation({ onSuccess: () => utils.togetherInvitations.list.invalidate({ familyGroupId }) });
+  return <article className={`rounded-xl p-3 shadow-sm ${invitation.isClosed ? "bg-slate-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className="text-[11px] font-medium text-rose-700">{togetherKindLabels[invitation.kind]} · 参加：{countJoinResponses(responses)}人</p><p className={`mt-1 text-sm font-semibold ${invitation.isClosed ? "text-slate-500 line-through" : "text-slate-800"}`}>{invitation.title}</p>{invitation.note && <p className="mt-1 text-xs text-slate-600">{invitation.note}</p>}</div><button type="button" aria-label={invitation.isClosed ? "募集を再開する" : "募集を閉じる"} onClick={() => update.mutate({ familyGroupId, invitationId: invitation.id, isClosed: !invitation.isClosed })} className={invitation.isClosed ? "text-emerald-600" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div>{!invitation.isClosed && <div className="mt-2 flex gap-2"><Button size="sm" variant="outline" disabled={respond.isPending} onClick={() => respond.mutate({ invitationId: invitation.id, response: "join" })}>一緒にやる</Button><Button size="sm" variant="ghost" disabled={respond.isPending} onClick={() => respond.mutate({ invitationId: invitation.id, response: "maybe" })}>気になる</Button></div>}</article>;
+}
+
+export function FamilyTogetherInvitation({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [kind, setKind] = useState<TogetherKind>("chore"); const [title, setTitle] = useState(""); const [note, setNote] = useState("");
+  const { data: invitations = [], isLoading } = trpc.togetherInvitations.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.togetherInvitations.create.useMutation({ onSuccess: async () => { setTitle(""); setNote(""); await utils.togetherInvitations.list.invalidate({ familyGroupId }); } });
+  return <Card className="border-0 bg-gradient-to-br from-rose-50 via-white to-orange-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><HandHeart className="h-5 w-5 text-rose-600"/>家族の一緒にやろうカード</CardTitle><p className="text-xs text-slate-500">小さな誘いを出して、参加の返事を気軽に集めよう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><select value={kind} onChange={(event) => setKind(event.target.value as TogetherKind)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="chore">家事</option><option value="hobby">趣味</option><option value="other">そのほか</option></select><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：夕食のあとに散歩しない？" maxLength={160}/><div className="flex gap-2"><Input value={note} onChange={(event) => setNote(event.target.value)} placeholder="ひとこと（任意）" maxLength={240}/><Button size="sm" disabled={!title.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, kind, title, note })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>誘う</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-rose-700">誘いを読み込み中です…</p> : <div className="grid gap-2">{invitations.map((invitation) => <InvitationRow key={invitation.id} invitation={invitation} familyGroupId={familyGroupId}/>)}{invitations.length === 0 && <p className="rounded-xl border border-dashed border-rose-200 p-3 text-center text-xs text-slate-500"><UsersRound className="mr-1 inline h-4 w-4"/>家族と一緒にやりたい小さなことを、まず一つ誘ってみましょう。</p>}</div>}</CardContent></Card>;
+}
