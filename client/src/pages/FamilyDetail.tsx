@@ -83,6 +83,9 @@ import { FamilyCareReplies } from "@/components/FamilyCareReplies";
 import { FamilyDailyQuestion } from "@/components/FamilyDailyQuestion";
 import { FamilyHomePreparation } from "@/components/FamilyHomePreparation";
 import { FamilyEncouragementStamps } from "@/components/FamilyEncouragementStamps";
+import { FamilyWeekendReflection } from "@/components/FamilyWeekendReflection";
+import { FamilySupportMap } from "@/components/FamilySupportMap";
+import { FamilyGentleReminders } from "@/components/FamilyGentleReminders";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -413,6 +416,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMonthlyGoals familyGroupId={familyGroupId}/><FamilyPhotoCaption familyGroupId={familyGroupId}/><FamilyQuietTimeSignal familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyConsultationCard familyGroupId={familyGroupId}/><FamilySeasonalIdeas familyGroupId={familyGroupId}/><FamilyCareReplies familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyQuestion familyGroupId={familyGroupId}/><FamilyHomePreparation familyGroupId={familyGroupId}/><FamilyEncouragementStamps familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeekendReflection familyGroupId={familyGroupId}/><FamilySupportMap familyGroupId={familyGroupId}/><FamilyGentleReminders familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

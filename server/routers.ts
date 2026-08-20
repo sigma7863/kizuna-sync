@@ -155,6 +155,11 @@ import {
   updateFamilyHomePreparationItem,
   createFamilyEncouragementStamp,
   getFamilyEncouragementStamps,
+  createFamilyWeekendReflection,
+  getFamilyWeekendReflections,
+  createFamilyGentleReminder,
+  getFamilyGentleReminders,
+  updateFamilyGentleReminder,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -751,6 +756,15 @@ export const appRouter = router({
   encouragementStamps: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyEncouragementStamps(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), stamp: z.enum(["sun", "heart", "clap", "rainbow"]), message: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyEncouragementStamp({ ...input, message: input.message || undefined, userId: ctx.user.id })),
+  }),
+  weekendReflections: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getFamilyWeekendReflections(input.familyGroupId, input.weekKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), goodThing: z.string().trim().min(1).max(280), nextHope: z.string().trim().max(280).optional() })).mutation(({ ctx, input }) => createFamilyWeekendReflection({ ...input, nextHope: input.nextHope || undefined, userId: ctx.user.id })),
+  }),
+  gentleReminders: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyGentleReminders(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), note: z.string().trim().max(240).optional(), dueAt: z.date().optional() })).mutation(({ ctx, input }) => createFamilyGentleReminder({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), reminderId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => updateFamilyGentleReminder(input)),
   }),
 
   activity: router({
