@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock } from "lucide-react";
+import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock, Images } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
@@ -22,6 +22,8 @@ import { WearableHealthSimulator } from "@/components/WearableHealthSimulator";
 import { FamilyTrailHeatmap } from "@/components/FamilyTrailHeatmap";
 import { FamilyCelebrationComposer } from "@/components/FamilyCelebrationComposer";
 import { FamilyDigestAlbum } from "@/components/FamilyDigestAlbum";
+import { FamilyCloudAlbum } from "@/components/FamilyCloudAlbum";
+import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -33,7 +35,7 @@ export default function FamilyDetail() {
 
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "trail" | "ai" | "assistant" | "celebration" | "digest" | "stats" | "automation" | "health">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "trail" | "ai" | "assistant" | "celebration" | "digest" | "album" | "stats" | "automation" | "health">("timeline");
 
   useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
     setRippleNotifications((previous) => [
@@ -272,6 +274,15 @@ export default function FamilyDetail() {
           </Card>
         )}
 
+        <div className="mb-6">
+          <FamilyQuickWidget
+            familyGroupId={familyGroupId}
+            onOpenSafety={() => setActiveTab("safety")}
+            onOpenAssistant={() => setActiveTab("assistant")}
+            onOpenAlbum={() => setActiveTab("album")}
+          />
+        </div>
+
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
           <button
@@ -350,6 +361,17 @@ export default function FamilyDetail() {
           >
             <Sparkles className="w-4 h-4 inline mr-2" />
             {t("family.digestAlbum")}
+          </button>
+          <button
+            onClick={() => setActiveTab("album")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "album"
+                ? "border-sky-500 text-sky-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Images className="w-4 h-4 inline mr-2" />
+            家族アルバム
           </button>
           <button
             onClick={() => setActiveTab("automation")}
@@ -476,6 +498,9 @@ export default function FamilyDetail() {
 
         {/* Digest Album Section */}
         {activeTab === "digest" && <FamilyDigestAlbum familyGroupId={familyGroupId} />}
+
+        {/* Family Cloud Album Section */}
+        {activeTab === "album" && <FamilyCloudAlbum familyGroupId={familyGroupId} />}
 
         {/* Weekly AI Journal Section */}
         {activeTab === "automation" && <FamilyAutomationPanel familyGroupId={familyGroupId} />}

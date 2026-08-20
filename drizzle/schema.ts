@@ -107,6 +107,31 @@ export type TimelineEntry = typeof timelineEntries.$inferSelect;
 export type InsertTimelineEntry = typeof timelineEntries.$inferInsert;
 
 /**
+ * Family album photos - original files live in S3 while this table stores
+ * family ownership, AI-generated metadata, and the favorite state.
+ */
+export const familyAlbumPhotos = mysqlTable("family_album_photos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  fileKey: varchar("file_key", { length: 512 }).notNull(),
+  imageUrl: varchar("image_url", { length: 512 }).notNull(),
+  fileName: varchar("file_name", { length: 255 }).notNull(),
+  mimeType: varchar("mime_type", { length: 100 }).notNull(),
+  description: text("description"),
+  tags: json("tags"),
+  isFavorite: boolean("is_favorite").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+  index("family_album_photos_group_created_idx").on(table.familyGroupId, table.createdAt),
+  index("family_album_photos_group_favorite_idx").on(table.familyGroupId, table.isFavorite),
+]);
+
+export type FamilyAlbumPhoto = typeof familyAlbumPhotos.$inferSelect;
+export type InsertFamilyAlbumPhoto = typeof familyAlbumPhotos.$inferInsert;
+
+/**
  * Photo journal - AI-generated photo stories
  */
 export const photoJournals = mysqlTable("photo_journals", {

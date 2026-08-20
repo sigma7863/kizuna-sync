@@ -18,6 +18,9 @@ import {
   getFamilyTimeline,
   getFamilyDigestAlbumEntries,
   getFamilyDigestAvailableMonths,
+  createFamilyAlbumPhoto,
+  getFamilyAlbumPhotos,
+  setFamilyAlbumPhotoFavorite,
   logUserActivity,
   saveLocationHistory,
   createGeofence,
@@ -31,6 +34,7 @@ import {
   getRecentPhotoJournals,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
+import { analyzePhotoWithAI } from "./familyAlbum";
 import { getFamilyStats } from "./statistics";
 import {
   createFamilyNotification,
@@ -57,6 +61,7 @@ import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_c
 import { cancelWearableSimulation, clearWearableSimulationCancellation, generateWearableSnapshot, isWearableSimulationCancelled, persistWearableSnapshot, WearableSimulationCancelledError } from "./wearable-simulator";
 import { broadcastFamilyLocationUpdate, broadcastRippleNotification } from "./websocket-integration";
 import { buildCelebrationMetadata, CelebrationOccasion } from "./celebration";
+import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension } from "../shared/album";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -173,6 +178,48 @@ export const appRouter = router({
           input.metadata
         );
       }),
+  }),
+
+  album: router({
+    list: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), favoritesOnly: z.boolean().optional() }))
+      .query(({ input }) => getFamilyAlbumPhotos(input.familyGroupId, input.favoritesOnly ?? false)),
+
+    upload: protectedProcedure
+      .input(z.object({
+        familyGroupId: z.number(),
+        dataUrl: z.string().min(1),
+        fileName: z.string().min(1).max(255),
+        mimeType: z.enum(SUPPORTED_ALBUM_MIME_TYPES),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const match = input.dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/);
+        if (!match) throw new TRPCError({ code: "BAD_REQUEST", message: "Unsupported image data" });
+        const imageBuffer = Buffer.from(match[2], "base64");
+        if (imageBuffer.byteLength > MAX_ALBUM_PHOTO_BYTES) {
+          throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Image must be 8MB or smaller" });
+        }
+
+        const extension = albumFileExtension(input.mimeType);
+        const fileKey = `family-albums/${input.familyGroupId}/${ctx.user.id}/${nanoid()}.${extension}`;
+        const { key, url } = await storagePut(fileKey, imageBuffer, input.mimeType);
+        const analysis = await analyzePhotoWithAI(url);
+        await createFamilyAlbumPhoto({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          fileKey: key,
+          imageUrl: url,
+          fileName: input.fileName,
+          mimeType: input.mimeType,
+          description: analysis.description,
+          tags: analysis.tags.slice(0, 8),
+        });
+        return { url, description: analysis.description, tags: analysis.tags.slice(0, 8) };
+      }),
+
+    setFavorite: protectedProcedure
+      .input(z.object({ familyGroupId: z.number(), photoId: z.number(), isFavorite: z.boolean() }))
+      .mutation(({ input }) => setFamilyAlbumPhotoFavorite(input)),
   }),
 
   activity: router({

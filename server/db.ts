@@ -14,6 +14,7 @@ import {
   photoJournalSchedules,
   wearableHealthSnapshots,
   photoJournals,
+  familyAlbumPhotos,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -222,6 +223,50 @@ export async function getFamilyDigestAvailableMonths(familyGroupId: number) {
     }
   });
   return Array.from(monthsSet).sort().reverse();
+}
+
+// Family cloud album queries. Image binaries are kept in S3; this table only
+// contains searchable metadata and favorite state.
+export async function createFamilyAlbumPhoto(input: {
+  familyGroupId: number;
+  userId: number;
+  fileKey: string;
+  imageUrl: string;
+  fileName: string;
+  mimeType: string;
+  description?: string;
+  tags?: string[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(familyAlbumPhotos).values({
+    familyGroupId: input.familyGroupId,
+    userId: input.userId,
+    fileKey: input.fileKey,
+    imageUrl: input.imageUrl,
+    fileName: input.fileName,
+    mimeType: input.mimeType,
+    description: input.description ?? null,
+    tags: input.tags ?? [],
+  });
+  return result;
+}
+
+export async function getFamilyAlbumPhotos(familyGroupId: number, favoritesOnly = false) {
+  const db = await getDb();
+  if (!db) return [];
+  const condition = favoritesOnly
+    ? and(eq(familyAlbumPhotos.familyGroupId, familyGroupId), eq(familyAlbumPhotos.isFavorite, true))
+    : eq(familyAlbumPhotos.familyGroupId, familyGroupId);
+  return db.select().from(familyAlbumPhotos).where(condition).orderBy(desc(familyAlbumPhotos.createdAt));
+}
+
+export async function setFamilyAlbumPhotoFavorite(input: { photoId: number; familyGroupId: number; isFavorite: boolean }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(familyAlbumPhotos)
+    .set({ isFavorite: input.isFavorite })
+    .where(and(eq(familyAlbumPhotos.id, input.photoId), eq(familyAlbumPhotos.familyGroupId, input.familyGroupId)));
 }
 
 // Activity queries
