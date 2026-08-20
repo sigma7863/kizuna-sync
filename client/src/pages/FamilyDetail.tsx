@@ -24,6 +24,8 @@ import { FamilyCelebrationComposer } from "@/components/FamilyCelebrationCompose
 import { FamilyDigestAlbum } from "@/components/FamilyDigestAlbum";
 import { FamilyCloudAlbum } from "@/components/FamilyCloudAlbum";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
+import { FamilyCheckIn } from "@/components/FamilyCheckIn";
+import { TodayKizunaHighlights } from "@/components/TodayKizunaHighlights";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -289,6 +291,11 @@ export default function FamilyDetail() {
             onOpenAssistant={() => setActiveTab("assistant")}
             onOpenAlbum={() => setActiveTab("album")}
           />
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-2">
+          <FamilyCheckIn familyGroupId={familyGroupId} />
+          <TodayKizunaHighlights familyGroupId={familyGroupId} />
         </div>
 
         {/* Tabs */}
