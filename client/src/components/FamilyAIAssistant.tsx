@@ -183,6 +183,9 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
             </div>
           )}
         </div>
+        <div className="rounded-lg border border-purple-100 bg-purple-50/60 px-3 py-2 text-xs text-purple-800">
+          {t("family.voiceCommandExamples")}
+        </div>
         <AIChatBox
           messages={messages}
           onSendMessage={sendMessage}
@@ -190,7 +193,13 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
           height="380px"
           placeholder={t("family.searchTimeline")}
           emptyStateMessage={t("family.assistant")}
-          suggestedPrompts={[t("family.searchTimeline"), t("family.scheduleProposal")]}
+          suggestedPrompts={[
+            t("family.searchTimeline"),
+            t("family.scheduleProposal"),
+            t("family.voiceCommandSchedule"),
+            t("family.voiceCommandPhotos"),
+            t("family.voiceCommandTasks"),
+          ]}
         />
         <Button
           type="button"
@@ -200,7 +209,7 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
           className="w-full gap-2"
         >
           {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          {isRecording ? t("family.stopRecording") : t("family.voiceInput")}
+          {isRecording ? t("family.stopRecording") : t("family.voiceCommandStart")}
         </Button>
         {pendingAction && (
           <div className="rounded-xl border border-purple-100 bg-purple-50 p-4">

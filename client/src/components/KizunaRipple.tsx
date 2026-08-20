@@ -6,6 +6,8 @@ interface RippleNotification {
   type: "mood" | "photo" | "music" | "location" | "message" | "activity";
   userName: string;
   timestamp: Date;
+  stamp?: string;
+  occasion?: string;
 }
 
 interface KizunaRippleProps {
@@ -114,12 +116,14 @@ export function KizunaRipple({ notifications, onNotificationDismiss }: KizunaRip
               }}
               title={`${notification.userName}が${notification.type}をシェア`}
             >
-              {getActivityIcon(notification.type)}
+              {notification.stamp ? (
+                <span className="text-3xl animate-bounce" aria-label={notification.occasion ?? "celebration"}>{notification.stamp}</span>
+              ) : getActivityIcon(notification.type)}
             </div>
 
             {/* ユーザー名ラベル */}
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs text-gray-700 font-medium bg-white px-2 py-1 rounded-full shadow-md">
-              {notification.userName}
+              {notification.stamp ? `${notification.userName} · ${notification.stamp}` : notification.userName}
             </div>
           </div>
         </div>

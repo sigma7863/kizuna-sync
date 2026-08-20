@@ -21,6 +21,7 @@ import {
   createGeofence,
   getFamilyGeofences,
   getFamilyLatestLocations,
+  getFamilyLocationHistory,
   acknowledgeGeofenceAlert,
   getPhotoJournalSchedule,
   upsertPhotoJournalSchedule,
@@ -53,6 +54,7 @@ import { buildWeeklyCron } from "./photo-journal-scheduler";
 import { createHeartbeatJob, deleteHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { cancelWearableSimulation, clearWearableSimulationCancellation, generateWearableSnapshot, isWearableSimulationCancelled, persistWearableSnapshot, WearableSimulationCancelledError } from "./wearable-simulator";
 import { broadcastFamilyLocationUpdate, broadcastRippleNotification } from "./websocket-integration";
+import { buildCelebrationMetadata, CelebrationOccasion } from "./celebration";
 // Chat, Memory, and Routine features are imported but not yet fully integrated
 // import { sendChatMessage, getChatHistory } from "./family-chat";
 // import { createMemoryArchive, getMemoriesByDateRange, createTimeCapsule, getTimeCapsules } from "./memory-archive";
@@ -225,6 +227,23 @@ export const appRouter = router({
     latestByFamily: protectedProcedure
       .input(z.object({ familyGroupId: z.number() }))
       .query(async ({ input }) => getFamilyLatestLocations(input.familyGroupId)),
+
+    history: protectedProcedure
+      .input(z.object({
+        familyGroupId: z.number(),
+        from: z.coerce.date(),
+        to: z.coerce.date(),
+        userId: z.number().optional(),
+        limit: z.number().int().min(1).max(5000).default(5000),
+      }))
+      .query(async ({ input }) => {
+        if (input.from >= input.to) throw new TRPCError({ code: "BAD_REQUEST", message: "from must be before to" });
+        const maxRangeMs = 31 * 24 * 60 * 60 * 1000;
+        if (input.to.getTime() - input.from.getTime() > maxRangeMs) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Location history range is limited to 31 days" });
+        }
+        return getFamilyLocationHistory(input);
+      }),
   }),
 
   geofence: router({
@@ -310,6 +329,36 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const { getLatestWearableHealthSnapshot } = await import("./db");
         return getLatestWearableHealthSnapshot(input.familyGroupId, ctx.user.id);
+      }),
+  }),
+
+  celebration: router({
+    send: protectedProcedure
+      .input(z.object({
+        familyGroupId: z.number(),
+        message: z.string().trim().min(1).max(1000),
+        occasion: z.enum(["birthday", "achievement", "welcome", "thanks", "encouragement", "general"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const metadata = buildCelebrationMetadata(input.message, input.occasion as CelebrationOccasion | undefined);
+        await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", input.message, undefined, metadata);
+        await createFamilyNotification({
+          familyGroupId: input.familyGroupId,
+          type: "celebration",
+          title: "お祝いメッセージ",
+          message: input.message,
+          payload: metadata,
+          quiet: true,
+        });
+        broadcastRippleNotification({
+          familyGroupId: input.familyGroupId,
+          userId: ctx.user.id,
+          activityType: "message",
+          userName: ctx.user.name ?? "Family member",
+          timestamp: Date.now(),
+          metadata,
+        });
+        return { success: true, metadata };
       }),
   }),
 

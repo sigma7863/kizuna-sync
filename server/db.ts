@@ -1,4 +1,4 @@
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -306,6 +306,40 @@ export async function getFamilyLatestLocations(familyGroupId: number, limit = 10
     if (!latestByUser.has(row.location.userId)) latestByUser.set(row.location.userId, row);
   }
   return Array.from(latestByUser.values()).map(({ location, user }) => ({
+    userId: location.userId,
+    userName: user.name ?? "Family member",
+    latitude: Number(location.latitude),
+    longitude: Number(location.longitude),
+    accuracy: location.accuracy ?? undefined,
+    locationName: location.locationName ?? undefined,
+    timestamp: location.createdAt,
+  }));
+}
+
+export async function getFamilyLocationHistory(input: {
+  familyGroupId: number;
+  from: Date;
+  to: Date;
+  userId?: number;
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [
+    eq(locationHistory.familyGroupId, input.familyGroupId),
+    gte(locationHistory.createdAt, input.from),
+    lte(locationHistory.createdAt, input.to),
+  ];
+  if (input.userId !== undefined) conditions.push(eq(locationHistory.userId, input.userId));
+  const rows = await db
+    .select({ location: locationHistory, user: users })
+    .from(locationHistory)
+    .innerJoin(users, eq(locationHistory.userId, users.id))
+    .where(and(...conditions))
+    .orderBy(locationHistory.createdAt)
+    .limit(input.limit ?? 5000);
+  return rows.map(({ location, user }) => ({
+    id: location.id,
     userId: location.userId,
     userName: user.name ?? "Family member",
     latitude: Number(location.latitude),

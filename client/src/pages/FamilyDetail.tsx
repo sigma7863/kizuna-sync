@@ -19,6 +19,8 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
 import { FamilyAutomationPanel } from "@/components/FamilyAutomationPanel";
 import { WearableHealthSimulator } from "@/components/WearableHealthSimulator";
+import { FamilyTrailHeatmap } from "@/components/FamilyTrailHeatmap";
+import { FamilyCelebrationComposer } from "@/components/FamilyCelebrationComposer";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -30,7 +32,7 @@ export default function FamilyDetail() {
 
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "ai" | "assistant" | "stats" | "automation" | "health">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "trail" | "ai" | "assistant" | "celebration" | "stats" | "automation" | "health">("timeline");
 
   useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
     setRippleNotifications((previous) => [
@@ -40,6 +42,8 @@ export default function FamilyDetail() {
         type: update.activityType,
         userName: update.userName,
         timestamp: new Date(update.timestamp),
+        stamp: typeof update.metadata?.stamp === "string" ? update.metadata.stamp : undefined,
+        occasion: typeof update.metadata?.occasion === "string" ? update.metadata.occasion : undefined,
       },
     ]);
   });
@@ -292,6 +296,17 @@ export default function FamilyDetail() {
             {t("family.safety")}
           </button>
           <button
+            onClick={() => setActiveTab("trail")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "trail"
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <MapPin className="w-4 h-4 inline mr-2" />
+            {t("family.trailHeatmap")}
+          </button>
+          <button
             onClick={() => setActiveTab("ai")}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "ai"
@@ -312,6 +327,17 @@ export default function FamilyDetail() {
           >
             <Sparkles className="w-4 h-4 inline mr-2" />
             {t("family.assistant")}
+          </button>
+          <button
+            onClick={() => setActiveTab("celebration")}
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "celebration"
+                ? "border-pink-500 text-pink-600"
+                : "border-transparent text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            <Sparkles className="w-4 h-4 inline mr-2" />
+            {t("family.celebration")}
           </button>
           <button
             onClick={() => setActiveTab("automation")}
@@ -417,6 +443,9 @@ export default function FamilyDetail() {
           />
         )}
 
+        {/* Family Trail Heatmap Section */}
+        {activeTab === "trail" && <FamilyTrailHeatmap familyGroupId={familyGroupId} />}
+
         {/* AI Features Section */}
         {activeTab === "ai" && (
           <AIFeatures
@@ -430,6 +459,9 @@ export default function FamilyDetail() {
 
         {/* Family AI Assistant Section */}
         {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
+        {/* Celebration Composer Section */}
+        {activeTab === "celebration" && <FamilyCelebrationComposer familyGroupId={familyGroupId} />}
+
         {/* Weekly AI Journal Section */}
         {activeTab === "automation" && <FamilyAutomationPanel familyGroupId={familyGroupId} />}
 
