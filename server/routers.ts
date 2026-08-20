@@ -61,6 +61,14 @@ import {
   getFamilyWeekendPlans,
   getFamilyWeekendPlan,
   setFamilyWeekendPlanShared,
+  getFamilyRoleProfiles,
+  upsertFamilyRoleProfile,
+  createFamilyBookshelfItem,
+  getFamilyBookshelfItems,
+  createFamilyOuting,
+  getFamilyOutingsWithChecklist,
+  createFamilyOutingChecklistItem,
+  toggleFamilyOutingChecklistItem,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -471,6 +479,26 @@ export const appRouter = router({
       await setFamilyWeekendPlanShared({ familyGroupId: input.familyGroupId, planId: plan.id, sharedPollId: createdPoll.id });
       return { pollId: createdPoll.id, alreadyShared: false as const };
     }),
+  }),
+  roleMap: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ input }) => {
+      const [members, profiles] = await Promise.all([getFamilyMembers(input.familyGroupId), getFamilyRoleProfiles(input.familyGroupId)]);
+      return members.map(({ family_members, users }) => {
+        const profile = profiles.find((item) => item.userId === users.id);
+        return { userId: users.id, name: users.name ?? "家族", memberRole: family_members.memberRole, strengths: Array.isArray(profile?.strengths) ? profile.strengths.filter((skill): skill is string => typeof skill === "string") : [], supportNote: profile?.supportNote ?? null };
+      });
+    }),
+    saveMine: protectedProcedure.input(z.object({ familyGroupId: z.number(), strengths: z.array(z.string().trim().min(1).max(32)).max(8), supportNote: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => upsertFamilyRoleProfile({ familyGroupId: input.familyGroupId, userId: ctx.user.id, strengths: input.strengths, supportNote: input.supportNote })),
+  }),
+  bookshelf: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyBookshelfItems(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(180), resourceType: z.enum(["book", "video", "article"]), theme: z.string().trim().min(1).max(80), resourceUrl: z.string().url().max(512).optional().or(z.literal("")), note: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => createFamilyBookshelfItem({ ...input, resourceUrl: input.resourceUrl || undefined, note: input.note || undefined, createdByUserId: ctx.user.id })),
+  }),
+  outingPrep: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyOutingsWithChecklist(input.familyGroupId)),
+    createOuting: protectedProcedure.input(z.object({ familyGroupId: z.number(), title: z.string().trim().min(1).max(160), meetingAt: z.string().datetime(), meetingPlace: z.string().trim().max(180).optional(), notes: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => createFamilyOuting({ familyGroupId: input.familyGroupId, createdByUserId: ctx.user.id, title: input.title, meetingAt: new Date(input.meetingAt), meetingPlace: input.meetingPlace || undefined, notes: input.notes || undefined })),
+    addItem: protectedProcedure.input(z.object({ outingId: z.number(), label: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyOutingChecklistItem({ ...input, createdByUserId: ctx.user.id })),
+    toggleItem: protectedProcedure.input(z.object({ outingId: z.number(), itemId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => toggleFamilyOutingChecklistItem(input)),
   }),
 
   activity: router({

@@ -41,6 +41,9 @@ import { FamilyWordBaton } from "@/components/FamilyWordBaton";
 import { FamilyContactsPanel } from "@/components/FamilyContactsPanel";
 import { FamilyGentleRules } from "@/components/FamilyGentleRules";
 import { FamilyWeekendPlanner } from "@/components/FamilyWeekendPlanner";
+import { FamilyRoleMap } from "@/components/FamilyRoleMap";
+import { FamilyBookshelf } from "@/components/FamilyBookshelf";
+import { FamilyOutingPrep } from "@/components/FamilyOutingPrep";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 
 export default function FamilyDetail() {
@@ -337,6 +340,7 @@ export default function FamilyDetail() {
           <FamilyWordBaton familyGroupId={familyGroupId} />
         </div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyContactsPanel familyGroupId={familyGroupId} userRole={members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian"}/><FamilyGentleRules familyGroupId={familyGroupId}/><FamilyWeekendPlanner familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyRoleMap familyGroupId={familyGroupId}/><FamilyBookshelf familyGroupId={familyGroupId}/><FamilyOutingPrep familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

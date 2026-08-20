@@ -285,6 +285,57 @@ export const familyWeekendPlans = mysqlTable("family_weekend_plans", {
 
 export type FamilyWeekendPlan = typeof familyWeekendPlans.$inferSelect;
 
+/** A member-maintained map of strengths and ways their family can rely on them. */
+export const familyRoleProfiles = mysqlTable("family_role_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  strengths: json("strengths").notNull(),
+  supportNote: varchar("support_note", { length: 240 }),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_role_profiles_group_user_idx").on(table.familyGroupId, table.userId)]);
+
+export type FamilyRoleProfile = typeof familyRoleProfiles.$inferSelect;
+
+/** Theme-organized recommendations shared within a family. */
+export const familyBookshelfItems = mysqlTable("family_bookshelf_items", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  resourceType: mysqlEnum("resource_type", ["book", "video", "article"]).notNull(),
+  theme: varchar("theme", { length: 80 }).notNull(),
+  resourceUrl: varchar("resource_url", { length: 512 }),
+  note: text("note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_bookshelf_items_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+
+export type FamilyBookshelfItem = typeof familyBookshelfItems.$inferSelect;
+
+/** Shared outing details and their collaborative preparation checklists. */
+export const familyOutings = mysqlTable("family_outings", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  meetingAt: timestamp("meeting_at").notNull(),
+  meetingPlace: varchar("meeting_place", { length: 180 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_outings_group_meeting_idx").on(table.familyGroupId, table.meetingAt)]);
+
+export const familyOutingChecklistItems = mysqlTable("family_outing_checklist_items", {
+  id: int("id").autoincrement().primaryKey(),
+  outingId: int("outing_id").notNull(),
+  createdByUserId: int("created_by_user_id").notNull(),
+  label: varchar("label", { length: 180 }).notNull(),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_outing_checklist_items_outing_done_idx").on(table.outingId, table.isCompleted)]);
+
+export type FamilyOuting = typeof familyOutings.$inferSelect;
+export type FamilyOutingChecklistItem = typeof familyOutingChecklistItems.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
