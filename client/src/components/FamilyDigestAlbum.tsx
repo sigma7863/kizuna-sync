@@ -20,7 +20,7 @@ export function FamilyDigestAlbum({ familyGroupId }: { familyGroupId: number }) 
   const digestItems = useMemo(() => {
     return timeline.filter((entry) => {
       const metadata = entry.metadata as any;
-      const isCelebration = metadata?.isCelebration === true || entry.entryType === "message";
+      const isCelebration = metadata?.isCelebration === true || metadata?.occasion !== undefined;
       if (!isCelebration) return false;
       const date = new Date(entry.createdAt);
       const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -32,7 +32,7 @@ export function FamilyDigestAlbum({ familyGroupId }: { familyGroupId: number }) 
     const set = new Set<string>();
     timeline.forEach((entry) => {
       const metadata = entry.metadata as any;
-      if (metadata?.isCelebration === true || entry.entryType === "message") {
+      if (metadata?.isCelebration === true || metadata?.occasion !== undefined) {
         const date = new Date(entry.createdAt);
         set.add(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
       }

@@ -10,7 +10,7 @@ interface FamilyTrailHeatmapProps {
 }
 
 const RANGE_OPTIONS = [7, 14, 30] as const;
-type TimeSlot = "all" | "daytime" | "night";
+type TimeSlot = "all" | "morning" | "daytime" | "night";
 
 export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
   const { t } = useI18n();
@@ -39,8 +39,9 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
     if (timeSlot === "all") return points;
     return points.filter((point) => {
       const hour = new Date(point.timestamp).getHours();
-      if (timeSlot === "daytime") return hour >= 6 && hour < 18;
-      return hour < 6 || hour >= 18;
+      if (timeSlot === "morning") return hour >= 5 && hour < 10;
+      if (timeSlot === "daytime") return hour >= 10 && hour < 18;
+      return hour < 5 || hour >= 18;
     });
   }, [points, timeSlot]);
 
@@ -106,8 +107,9 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
             <Clock className="h-4 w-4 text-gray-500" />
             <select value={timeSlot} onChange={(event) => setTimeSlot(event.target.value as TimeSlot)} aria-label={t("family.trailTimeSlot")}>
               <option value="all">{t("family.timeSlotAll")}</option>
-              <option value="daytime">{t("family.timeSlotDaytime")}</option>
-              <option value="night">{t("family.timeSlotNight")}</option>
+              <option value="morning">朝 (5:00-10:00)</option>
+              <option value="daytime">昼 (10:00-18:00)</option>
+              <option value="night">夜 (18:00-5:00)</option>
             </select>
           </label>
           <label className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2">
