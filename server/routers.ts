@@ -219,6 +219,15 @@ import {
   createFamilyOutingCharmMemo,
   getFamilyOutingCharmMemos,
   updateFamilyOutingCharmMemo,
+  createFamilyWeeklyCheerTheme,
+  getFamilyWeeklyCheerThemes,
+  updateFamilyWeeklyCheerTheme,
+  createFamilyTinyAchievementBadge,
+  getFamilyTinyAchievementBadges,
+  updateFamilyTinyAchievementBadge,
+  createFamilyBedtimePreparationMemo,
+  getFamilyBedtimePreparationMemos,
+  updateFamilyBedtimePreparationMemo,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -927,6 +936,21 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyOutingCharmMemos(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), kind: z.enum(["item", "caution", "cheer"]), memo: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyOutingCharmMemo({ ...input, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isChecked: z.boolean() })).mutation(({ input }) => updateFamilyOutingCharmMemo(input)),
+  }),
+  weeklyCheerThemes: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getFamilyWeeklyCheerThemes(input.familyGroupId, input.weekKey)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), theme: z.string().trim().min(1).max(120), support: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyWeeklyCheerTheme({ ...input, support: input.support || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), themeId: z.number(), isActive: z.boolean() })).mutation(({ input }) => updateFamilyWeeklyCheerTheme(input)),
+  }),
+  tinyAchievementBadges: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTinyAchievementBadges(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), kind: z.enum(["kindness", "effort", "bravery", "care"]), title: z.string().trim().min(1).max(160) })).mutation(({ ctx, input }) => createFamilyTinyAchievementBadge({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), badgeId: z.number(), isCelebrated: z.boolean() })).mutation(({ input }) => updateFamilyTinyAchievementBadge(input)),
+  }),
+  bedtimePreparationMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyBedtimePreparationMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), kind: z.enum(["bag", "clothes", "plan", "care"]), memo: z.string().trim().min(1).max(180) })).mutation(({ ctx, input }) => createFamilyBedtimePreparationMemo({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isPrepared: z.boolean() })).mutation(({ input }) => updateFamilyBedtimePreparationMemo(input)),
   }),
 
   activity: router({

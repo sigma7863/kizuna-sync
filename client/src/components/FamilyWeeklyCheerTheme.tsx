@@ -1,0 +1,15 @@
+import { useState } from "react";
+import { CheckCircle2, Heart, Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { getMondayWeekKey } from "@shared/familyWeeklyCareRituals";
+
+export function FamilyWeeklyCheerTheme({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [weekKey] = useState(() => getMondayWeekKey()); const [theme, setTheme] = useState(""); const [support, setSupport] = useState("");
+  const { data: themes = [], isLoading } = trpc.weeklyCheerThemes.list.useQuery({ familyGroupId, weekKey }, { enabled: familyGroupId > 0 });
+  const create = trpc.weeklyCheerThemes.create.useMutation({ onSuccess: async () => { setTheme(""); setSupport(""); await utils.weeklyCheerThemes.list.invalidate({ familyGroupId, weekKey }); } });
+  const update = trpc.weeklyCheerThemes.update.useMutation({ onSuccess: () => utils.weeklyCheerThemes.list.invalidate({ familyGroupId, weekKey }) });
+  return <Card className="border-0 bg-gradient-to-br from-rose-50 via-white to-fuchsia-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Heart className="h-5 w-5 fill-rose-500 text-rose-500"/>家族の今週の応援テーマ</CardTitle><p className="text-xs text-slate-500">今週大事にしたい一言を決め、各自の応援を集めよう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><Input value={theme} onChange={(event) => setTheme(event.target.value)} placeholder="例：あせらず、自分のペースで" maxLength={120}/><div className="flex gap-2"><Input value={support} onChange={(event) => setSupport(event.target.value)} placeholder="応援のひとこと（任意）" maxLength={180}/><Button size="sm" disabled={!theme.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, weekKey, theme, support })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>決める</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-rose-700">応援テーマを読み込み中です…</p> : <div className="grid gap-2">{themes.map((entry) => <article key={entry.id} className={`rounded-xl p-3 shadow-sm ${entry.isActive ? "bg-white" : "bg-rose-50"}`}><div className="flex items-start justify-between gap-2"><div><p className={`text-sm font-semibold ${entry.isActive ? "text-slate-800" : "text-rose-700 line-through"}`}>{entry.theme}</p>{entry.support && <p className="mt-1 text-xs text-rose-700">{entry.support}</p>}</div><button type="button" aria-label={entry.isActive ? "応援テーマを終える" : "応援テーマを再開する"} onClick={() => update.mutate({ familyGroupId, themeId: entry.id, isActive: !entry.isActive })} className={entry.isActive ? "text-slate-400" : "text-emerald-600"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{themes.length === 0 && <p className="rounded-xl border border-dashed border-rose-200 p-3 text-center text-xs text-slate-500">今週、家族で大切にしたい一言を残してみましょう。</p>}</div>}</CardContent></Card>;
+}

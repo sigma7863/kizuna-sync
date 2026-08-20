@@ -1100,6 +1100,43 @@ export const familyOutingCharmMemos = mysqlTable("family_outing_charm_memos", {
 }, (table) => [index("family_outing_charm_memos_group_checked_idx").on(table.familyGroupId, table.isChecked)]);
 export type FamilyOutingCharmMemo = typeof familyOutingCharmMemos.$inferSelect;
 
+/** A gentle phrase a family chooses together for the current week. */
+export const familyWeeklyCheerThemes = mysqlTable("family_weekly_cheer_themes", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  weekKey: varchar("week_key", { length: 10 }).notNull(),
+  theme: varchar("theme", { length: 120 }).notNull(),
+  support: varchar("support", { length: 180 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_weekly_cheer_group_week_idx").on(table.familyGroupId, table.weekKey)]);
+export type FamilyWeeklyCheerTheme = typeof familyWeeklyCheerThemes.$inferSelect;
+
+/** A low-stakes badge for noticing an everyday achievement rather than scoring a person. */
+export const familyTinyAchievementBadges = mysqlTable("family_tiny_achievement_badges", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  kind: mysqlEnum("kind", ["kindness", "effort", "bravery", "care"]).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  isCelebrated: boolean("is_celebrated").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_tiny_badges_group_celebrated_idx").on(table.familyGroupId, table.isCelebrated)]);
+export type FamilyTinyAchievementBadge = typeof familyTinyAchievementBadges.$inferSelect;
+
+/** A one-step preparation memo that helps tomorrow morning start with less rush. */
+export const familyBedtimePreparationMemos = mysqlTable("family_bedtime_preparation_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  kind: mysqlEnum("kind", ["bag", "clothes", "plan", "care"]).notNull(),
+  memo: varchar("memo", { length: 180 }).notNull(),
+  isPrepared: boolean("is_prepared").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_bedtime_prep_group_prepared_idx").on(table.familyGroupId, table.isPrepared)]);
+export type FamilyBedtimePreparationMemo = typeof familyBedtimePreparationMemos.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

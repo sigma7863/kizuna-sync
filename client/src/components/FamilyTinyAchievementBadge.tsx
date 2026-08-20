@@ -1,0 +1,16 @@
+import { useState } from "react";
+import { Award, CheckCircle2, Loader2, Plus, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { tinyBadgeKindLabels } from "@shared/familyWeeklyCareRituals";
+
+type BadgeKind = keyof typeof tinyBadgeKindLabels;
+export function FamilyTinyAchievementBadge({ familyGroupId }: { familyGroupId: number }) {
+  const utils = trpc.useUtils(); const [kind, setKind] = useState<BadgeKind>("effort"); const [title, setTitle] = useState("");
+  const { data: badges = [], isLoading } = trpc.tinyAchievementBadges.list.useQuery({ familyGroupId }, { enabled: familyGroupId > 0 });
+  const create = trpc.tinyAchievementBadges.create.useMutation({ onSuccess: async () => { setTitle(""); await utils.tinyAchievementBadges.list.invalidate({ familyGroupId }); } });
+  const update = trpc.tinyAchievementBadges.update.useMutation({ onSuccess: () => utils.tinyAchievementBadges.list.invalidate({ familyGroupId }) });
+  return <Card className="border-0 bg-gradient-to-br from-amber-50 via-white to-yellow-50 shadow-md"><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Award className="h-5 w-5 text-amber-600"/>家族の小さな達成バッジ</CardTitle><p className="text-xs text-slate-500">日常の小さな達成を、静かに見つけてたたえよう。</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-2 rounded-xl bg-white/80 p-3"><select value={kind} onChange={(event) => setKind(event.target.value as BadgeKind)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="kindness">やさしさ</option><option value="effort">がんばり</option><option value="bravery">勇気</option><option value="care">気づかい</option></select><div className="flex gap-2"><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="例：苦手なことに少し挑戦できた" maxLength={160}/><Button size="sm" disabled={!title.trim() || create.isPending} onClick={() => create.mutate({ familyGroupId, kind, title })}>{create.isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <><Plus className="mr-1 h-4 w-4"/>贈る</>}</Button></div></div>{isLoading ? <p className="py-3 text-center text-xs text-amber-700">バッジを読み込み中です…</p> : <div className="grid gap-2">{badges.map((badge) => <article key={badge.id} className={`rounded-xl p-3 shadow-sm ${badge.isCelebrated ? "bg-amber-50" : "bg-white"}`}><div className="flex items-start justify-between gap-2"><div><p className="text-[11px] font-medium text-amber-800"><Sparkles className="mr-1 inline h-3.5 w-3.5"/>{tinyBadgeKindLabels[badge.kind]}</p><p className={`mt-1 text-sm ${badge.isCelebrated ? "text-amber-700 line-through" : "font-semibold text-slate-800"}`}>{badge.title}</p></div><button type="button" aria-label={badge.isCelebrated ? "未祝福に戻す" : "たたえた"} onClick={() => update.mutate({ familyGroupId, badgeId: badge.id, isCelebrated: !badge.isCelebrated })} className={badge.isCelebrated ? "text-emerald-600" : "text-slate-400"}><CheckCircle2 className="h-5 w-5"/></button></div></article>)}{badges.length === 0 && <p className="rounded-xl border border-dashed border-amber-200 p-3 text-center text-xs text-slate-500">今日見つけた小さながんばりを、最初のバッジにしましょう。</p>}</div>}</CardContent></Card>;
+}
