@@ -1172,6 +1172,40 @@ export const familyGoodFindMemos = mysqlTable("family_good_find_memos", {
 }, (table) => [index("family_good_find_group_saved_idx").on(table.familyGroupId, table.isSaved)]);
 export type FamilyGoodFindMemo = typeof familyGoodFindMemos.$inferSelect;
 
+/** A small statement of intention shared near the beginning of a week. */
+export const familyWeekStartDeclarations = mysqlTable("family_week_start_declarations", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  weekKey: varchar("week_key", { length: 10 }).notNull(),
+  declaration: varchar("declaration", { length: 180 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_week_start_group_week_idx").on(table.familyGroupId, table.weekKey)]);
+export type FamilyWeekStartDeclaration = typeof familyWeekStartDeclarations.$inferSelect;
+
+/** A reassuring moment that a family member wants to preserve from the day. */
+export const familyCalmMoments = mysqlTable("family_calm_moments", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  moment: varchar("moment", { length: 240 }).notNull(),
+  isKept: boolean("is_kept").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_calm_moments_group_kept_idx").on(table.familyGroupId, table.isKept)]);
+export type FamilyCalmMoment = typeof familyCalmMoments.$inferSelect;
+
+/** A handoff for a small task that will make the next day easier. */
+export const familyTomorrowPreparationRelays = mysqlTable("family_tomorrow_preparation_relays", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  preparation: varchar("preparation", { length: 180 }).notNull(),
+  relayNote: varchar("relay_note", { length: 180 }),
+  isReady: boolean("is_ready").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_tomorrow_relay_group_ready_idx").on(table.familyGroupId, table.isReady)]);
+export type FamilyTomorrowPreparationRelay = typeof familyTomorrowPreparationRelays.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

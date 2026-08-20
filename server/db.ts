@@ -96,6 +96,9 @@ import {
   familyWellbeingNotes,
   familyMonthlyJoyBoxes,
   familyGoodFindMemos,
+  familyWeekStartDeclarations,
+  familyCalmMoments,
+  familyTomorrowPreparationRelays,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -788,6 +791,17 @@ export async function updateFamilyMonthlyJoyBox(input: { familyGroupId: number; 
 export async function createFamilyGoodFindMemo(input: { familyGroupId: number; userId: number; goodThing: string; tag?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, tag: input.tag ?? null }; const result = await db.insert(familyGoodFindMemos).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isSaved: false }; }
 export async function getFamilyGoodFindMemos(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyGoodFindMemos).where(eq(familyGoodFindMemos.familyGroupId, familyGroupId)).orderBy(familyGoodFindMemos.isSaved, desc(familyGoodFindMemos.createdAt)).limit(30) : []; }
 export async function updateFamilyGoodFindMemo(input: { familyGroupId: number; memoId: number; isSaved: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyGoodFindMemos).set({ isSaved: input.isSaved }).where(and(eq(familyGoodFindMemos.id, input.memoId), eq(familyGoodFindMemos.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyWeekStartDeclaration(input: { familyGroupId: number; userId: number; weekKey: string; declaration: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyWeekStartDeclarations).values(input); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input }; }
+export async function getFamilyWeekStartDeclarations(familyGroupId: number, weekKey: string) { const db = await getDb(); return db ? db.select().from(familyWeekStartDeclarations).where(and(eq(familyWeekStartDeclarations.familyGroupId, familyGroupId), eq(familyWeekStartDeclarations.weekKey, weekKey))).orderBy(desc(familyWeekStartDeclarations.createdAt)).limit(20) : []; }
+
+export async function createFamilyCalmMoment(input: { familyGroupId: number; userId: number; moment: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyCalmMoments).values(input); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, isKept: false }; }
+export async function getFamilyCalmMoments(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyCalmMoments).where(eq(familyCalmMoments.familyGroupId, familyGroupId)).orderBy(familyCalmMoments.isKept, desc(familyCalmMoments.createdAt)).limit(30) : []; }
+export async function updateFamilyCalmMoment(input: { familyGroupId: number; momentId: number; isKept: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyCalmMoments).set({ isKept: input.isKept }).where(and(eq(familyCalmMoments.id, input.momentId), eq(familyCalmMoments.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyTomorrowPreparationRelay(input: { familyGroupId: number; userId: number; preparation: string; relayNote?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, relayNote: input.relayNote ?? null }; const result = await db.insert(familyTomorrowPreparationRelays).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isReady: false }; }
+export async function getFamilyTomorrowPreparationRelays(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyTomorrowPreparationRelays).where(eq(familyTomorrowPreparationRelays.familyGroupId, familyGroupId)).orderBy(familyTomorrowPreparationRelays.isReady, desc(familyTomorrowPreparationRelays.createdAt)).limit(30) : []; }
+export async function updateFamilyTomorrowPreparationRelay(input: { familyGroupId: number; relayId: number; isReady: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyTomorrowPreparationRelays).set({ isReady: input.isReady }).where(and(eq(familyTomorrowPreparationRelays.id, input.relayId), eq(familyTomorrowPreparationRelays.familyGroupId, input.familyGroupId))); }
 export async function advanceFamilyMonthlyChallenge(input: { familyGroupId: number; challengeId: number; delta: number }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const [current] = await db.select().from(familyMonthlyChallenges).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))).limit(1); if (!current) throw new Error("Challenge not found"); const nextProgress = Math.max(0, current.progressCount + input.delta); return db.update(familyMonthlyChallenges).set({ progressCount: nextProgress, isCompleted: nextProgress >= current.targetCount }).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))); }
 
 // Activity queries
