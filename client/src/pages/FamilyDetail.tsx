@@ -74,6 +74,9 @@ import { FamilyMemoryQuiz } from "@/components/FamilyMemoryQuiz";
 import { FamilyRoleQuickHub } from "@/components/FamilyRoleQuickHub";
 import { FamilyDisplaySettings } from "@/components/FamilyDisplaySettings";
 import { FamilyImportantShortcuts } from "@/components/FamilyImportantShortcuts";
+import { FamilyMonthlyGoals } from "@/components/FamilyMonthlyGoals";
+import { FamilyPhotoCaption } from "@/components/FamilyPhotoCaption";
+import { FamilyQuietTimeSignal } from "@/components/FamilyQuietTimeSignal";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -401,6 +404,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHomecomingNote familyGroupId={familyGroupId}/><FamilyReadingRelay familyGroupId={familyGroupId}/><FamilyWeatherMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyPlaylist familyGroupId={familyGroupId}/><FamilyForgottenItemRescue familyGroupId={familyGroupId}/><FamilyThankYouBookmarks familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMealRequest familyGroupId={familyGroupId}/><FamilyFunCountdown familyGroupId={familyGroupId}/><FamilyMemoryQuiz familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMonthlyGoals familyGroupId={familyGroupId}/><FamilyPhotoCaption familyGroupId={familyGroupId}/><FamilyQuietTimeSignal familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

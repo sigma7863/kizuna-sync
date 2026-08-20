@@ -683,6 +683,42 @@ export const familyMemoryQuizzes = mysqlTable("family_memory_quizzes", {
 }, (table) => [index("family_memory_quizzes_group_created_idx").on(table.familyGroupId, table.createdAt)]);
 export type FamilyMemoryQuiz = typeof familyMemoryQuizzes.$inferSelect;
 
+/** Monthly, family-visible personal goals and optional encouragement. */
+export const familyMonthlyGoals = mysqlTable("family_monthly_goals", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  monthKey: varchar("month_key", { length: 7 }).notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  encouragement: varchar("encouragement", { length: 240 }),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_monthly_goals_group_month_idx").on(table.familyGroupId, table.monthKey)]);
+export type FamilyMonthlyGoal = typeof familyMonthlyGoals.$inferSelect;
+
+/** Family members can add a human context caption to an existing shared photo. */
+export const familyPhotoCaptions = mysqlTable("family_photo_captions", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  photoId: int("photo_id").notNull(),
+  caption: varchar("caption", { length: 280 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_photo_captions_group_photo_idx").on(table.familyGroupId, table.photoId)]);
+export type FamilyPhotoCaption = typeof familyPhotoCaptions.$inferSelect;
+
+/** Voluntary signals that invite family members to respect focus, rest, or sleep time. */
+export const familyQuietTimeSignals = mysqlTable("family_quiet_time_signals", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  state: mysqlEnum("state", ["focus", "rest", "sleeping"]).notNull(),
+  note: varchar("note", { length: 180 }),
+  untilAt: timestamp("until_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_quiet_time_signals_group_created_idx").on(table.familyGroupId, table.createdAt)]);
+export type FamilyQuietTimeSignal = typeof familyQuietTimeSignals.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */
