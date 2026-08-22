@@ -129,6 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
+import { createFamilyDetailTabPath, getInitialFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -149,14 +150,14 @@ export default function FamilyDetail() {
 
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"timeline" | "safety" | "trail" | "ai" | "assistant" | "celebration" | "digest" | "album" | "stats" | "automation" | "health">("timeline");
+  const [activeTab, setActiveTab] = useState<FamilyDetailTab>("timeline");
 
   useEffect(() => {
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
-    const allowedTabs = ["timeline", "safety", "trail", "ai", "assistant", "celebration", "digest", "album", "stats", "automation", "health"] as const;
-    if (requestedTab && (allowedTabs as readonly string[]).includes(requestedTab)) {
-      setActiveTab(requestedTab as typeof activeTab);
-    }
+    const lastOpenedTab = window.localStorage.getItem("kizuna-sync-last-family-detail-tab");
+    const nextTab = getInitialFamilyDetailTab(requestedTab, lastOpenedTab);
+    setActiveTab(nextTab);
+    window.localStorage.setItem("kizuna-sync-last-family-detail-tab", nextTab);
   }, [location]);
 
   useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
@@ -233,12 +234,31 @@ export default function FamilyDetail() {
 
   const currentMemberRole: FamilyMemberRole = members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian";
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const changeActiveTab = (tab: FamilyDetailTab) => {
+    setActiveTab(tab);
+    window.localStorage.setItem("kizuna-sync-last-family-detail-tab", tab);
+    setLocation(createFamilyDetailTabPath(familyGroupId, tab));
+  };
   const handleQuickHubAction = (action: QuickHubAction) => {
-    if (action === "safety") setActiveTab("safety");
-    if (action === "assistant") setActiveTab("assistant");
-    if (action === "album") setActiveTab("album");
-    if (action === "stats") setActiveTab("stats");
+    if (action === "safety") changeActiveTab("safety");
+    if (action === "assistant") changeActiveTab("assistant");
+    if (action === "album") changeActiveTab("album");
+    if (action === "stats") changeActiveTab("stats");
     if (action === "shareMood") scrollToElement("share-feeling");
+  };
+
+  const activeTabLabel: Record<FamilyDetailTab, string> = {
+    timeline: t("family.timeline"),
+    safety: t("family.safety"),
+    trail: t("family.trailHeatmap"),
+    ai: t("family.aiProposal"),
+    assistant: t("family.assistant"),
+    celebration: t("family.celebration"),
+    digest: t("family.digestAlbum"),
+    album: "家族アルバム",
+    automation: "週次AI",
+    health: "ヘルス体験",
+    stats: t("family.stats"),
   };
 
   const getActivityIcon = (type: string) => {
@@ -409,16 +429,16 @@ export default function FamilyDetail() {
         <div className="mb-6">
           <FamilyQuickWidget
             familyGroupId={familyGroupId}
-            onOpenSafety={() => setActiveTab("safety")}
-            onOpenAssistant={() => setActiveTab("assistant")}
-            onOpenAlbum={() => setActiveTab("album")}
+            onOpenSafety={() => changeActiveTab("safety")}
+            onOpenAssistant={() => changeActiveTab("assistant")}
+            onOpenAlbum={() => changeActiveTab("album")}
           />
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-3">
           <FamilyRoleQuickHub role={currentMemberRole} onAction={handleQuickHubAction}/>
           <FamilyDisplaySettings />
-          <FamilyImportantShortcuts onSafety={() => setActiveTab("safety")} onMood={() => scrollToElement("share-feeling")} onDaily={() => scrollToElement("family-daily-cards")}/>
+          <FamilyImportantShortcuts onSafety={() => changeActiveTab("safety")} onMood={() => scrollToElement("share-feeling")} onDaily={() => scrollToElement("family-daily-cards")}/>
         </div>
         <FamilyCardNavigator onOpen={scrollToElement} role={currentMemberRole}/>
 
@@ -487,9 +507,10 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-household-tips" className="scroll-mt-4"><FamilyHouseholdTip familyGroupId={familyGroupId}/></div><div id="card-packing-checks" className="scroll-mt-4"><FamilyPackingCheck familyGroupId={familyGroupId}/></div><div id="card-together-picks" className="scroll-mt-4"><FamilyTogetherPick familyGroupId={familyGroupId}/></div></div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
+        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" aria-label="家族機能の切り替え">
           <button
-            onClick={() => setActiveTab("timeline")}
+            onClick={() => changeActiveTab("timeline")}
+            aria-pressed={activeTab === "timeline"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "timeline"
                 ? "border-pink-500 text-pink-600"
@@ -500,7 +521,8 @@ export default function FamilyDetail() {
             {t("family.timeline")}
           </button>
           <button
-            onClick={() => setActiveTab("safety")}
+            onClick={() => changeActiveTab("safety")}
+            aria-pressed={activeTab === "safety"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "safety"
                 ? "border-green-500 text-green-600"
@@ -511,7 +533,8 @@ export default function FamilyDetail() {
             {t("family.safety")}
           </button>
           <button
-            onClick={() => setActiveTab("trail")}
+            onClick={() => changeActiveTab("trail")}
+            aria-pressed={activeTab === "trail"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "trail"
                 ? "border-indigo-500 text-indigo-600"
@@ -522,7 +545,8 @@ export default function FamilyDetail() {
             {t("family.trailHeatmap")}
           </button>
           <button
-            onClick={() => setActiveTab("ai")}
+            onClick={() => changeActiveTab("ai")}
+            aria-pressed={activeTab === "ai"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "ai"
                 ? "border-yellow-500 text-yellow-600"
@@ -533,7 +557,8 @@ export default function FamilyDetail() {
             {t("family.aiProposal")}
           </button>
           <button
-            onClick={() => setActiveTab("assistant")}
+            onClick={() => changeActiveTab("assistant")}
+            aria-pressed={activeTab === "assistant"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "assistant"
                 ? "border-indigo-500 text-indigo-600"
@@ -544,7 +569,8 @@ export default function FamilyDetail() {
             {t("family.assistant")}
           </button>
           <button
-            onClick={() => setActiveTab("celebration")}
+            onClick={() => changeActiveTab("celebration")}
+            aria-pressed={activeTab === "celebration"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "celebration"
                 ? "border-pink-500 text-pink-600"
@@ -555,7 +581,8 @@ export default function FamilyDetail() {
             {t("family.celebration")}
           </button>
           <button
-            onClick={() => setActiveTab("digest")}
+            onClick={() => changeActiveTab("digest")}
+            aria-pressed={activeTab === "digest"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "digest"
                 ? "border-amber-500 text-amber-600"
@@ -566,7 +593,8 @@ export default function FamilyDetail() {
             {t("family.digestAlbum")}
           </button>
           <button
-            onClick={() => setActiveTab("album")}
+            onClick={() => changeActiveTab("album")}
+            aria-pressed={activeTab === "album"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "album"
                 ? "border-sky-500 text-sky-600"
@@ -577,7 +605,8 @@ export default function FamilyDetail() {
             家族アルバム
           </button>
           <button
-            onClick={() => setActiveTab("automation")}
+            onClick={() => changeActiveTab("automation")}
+            aria-pressed={activeTab === "automation"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "automation"
                 ? "border-amber-500 text-amber-600"
@@ -588,7 +617,8 @@ export default function FamilyDetail() {
             週次AI
           </button>
           <button
-            onClick={() => setActiveTab("health")}
+            onClick={() => changeActiveTab("health")}
+            aria-pressed={activeTab === "health"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "health"
                 ? "border-rose-500 text-rose-600"
@@ -599,7 +629,8 @@ export default function FamilyDetail() {
             ヘルス体験
           </button>
           <button
-            onClick={() => setActiveTab("stats")}
+            onClick={() => changeActiveTab("stats")}
+            aria-pressed={activeTab === "stats"}
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "stats"
                 ? "border-purple-500 text-purple-600"
@@ -610,6 +641,8 @@ export default function FamilyDetail() {
             {t("family.stats")}
           </button>
         </div>
+
+        <p className="sr-only" aria-live="polite">現在、家族の「{activeTabLabel[activeTab]}」を表示しています。</p>
 
         {/* Timeline Section */}
         {activeTab === "timeline" && (
@@ -681,7 +714,7 @@ export default function FamilyDetail() {
         )}
 
         {activeTab !== "timeline" && activeTab !== "safety" && (
-          <Suspense fallback={<div role="status" className="rounded-2xl border border-pink-100 bg-white p-6 text-center text-sm text-gray-600 shadow-sm">家族の機能を準備しています…</div>}>
+          <Suspense fallback={<div role="status" aria-live="polite" className="rounded-2xl border border-pink-100 bg-white p-6 text-center text-sm text-gray-600 shadow-sm">「{activeTabLabel[activeTab]}」を準備しています…</div>}>
             {activeTab === "trail" && <FamilyTrailHeatmap familyGroupId={familyGroupId} />}
             {activeTab === "ai" && <AIFeatures familyGroupId={familyGroupId} familyMembers={members?.map((m) => ({ id: m.users.id, name: m.users.name || "Unknown" })) || []} />}
             {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
