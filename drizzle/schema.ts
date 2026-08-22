@@ -1315,6 +1315,42 @@ export const familyAppreciationCards = mysqlTable("family_appreciation_cards", {
 }, (table) => [index("family_appreciation_cards_group_seen_idx").on(table.familyGroupId, table.isSeen)]);
 export type FamilyAppreciationCard = typeof familyAppreciationCards.$inferSelect;
 
+/** A small household responsibility that can be passed from one family member to another. */
+export const familyRoleBatons = mysqlTable("family_role_batons", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  task: varchar("task", { length: 180 }).notNull(),
+  nextPerson: varchar("next_person", { length: 80 }),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_role_batons_group_completed_idx").on(table.familyGroupId, table.isCompleted)]);
+export type FamilyRoleBaton = typeof familyRoleBatons.$inferSelect;
+
+/** Nearby places or events that the family may want to visit together. */
+export const familyPlaceCards = mysqlTable("family_place_cards", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  placeName: varchar("place_name", { length: 160 }).notNull(),
+  reason: varchar("reason", { length: 220 }),
+  isVisited: boolean("is_visited").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_place_cards_group_visited_idx").on(table.familyGroupId, table.isVisited)]);
+export type FamilyPlaceCard = typeof familyPlaceCards.$inferSelect;
+
+/** Brief family announcements that can be acknowledged once read. */
+export const familyNoticeBoards = mysqlTable("family_notice_boards", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  notice: varchar("notice", { length: 220 }).notNull(),
+  detail: varchar("detail", { length: 240 }),
+  isAcknowledged: boolean("is_acknowledged").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_notice_boards_group_ack_idx").on(table.familyGroupId, table.isAcknowledged)]);
+export type FamilyNoticeBoard = typeof familyNoticeBoards.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

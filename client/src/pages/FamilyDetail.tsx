@@ -126,6 +126,9 @@ import { FamilyHomecomingBreather } from "@/components/FamilyHomecomingBreather"
 import { FamilyJournalRelay } from "@/components/FamilyJournalRelay";
 import { FamilyConversationTopic } from "@/components/FamilyConversationTopic";
 import { FamilyAppreciationCard } from "@/components/FamilyAppreciationCard";
+import { FamilyRoleBaton } from "@/components/FamilyRoleBaton";
+import { FamilyPlaceCard } from "@/components/FamilyPlaceCard";
+import { FamilyNoticeBoard } from "@/components/FamilyNoticeBoard";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -470,6 +473,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHelpingHand familyGroupId={familyGroupId}/><FamilyDiscoveryShare familyGroupId={familyGroupId}/><FamilyWeekendCalmPlan familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyCareTheme familyGroupId={familyGroupId}/><FamilyTriedMemo familyGroupId={familyGroupId}/><FamilyHomecomingBreather familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyJournalRelay familyGroupId={familyGroupId}/><FamilyConversationTopic familyGroupId={familyGroupId}/><FamilyAppreciationCard familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyRoleBaton familyGroupId={familyGroupId}/><FamilyPlaceCard familyGroupId={familyGroupId}/><FamilyNoticeBoard familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
