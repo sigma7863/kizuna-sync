@@ -200,7 +200,15 @@ type TranslationKey =
   | "family.displayReducedMotion"
   | "family.displayEnabled"
   | "family.displayDisabled"
-  | "family.displayUpdated";
+  | "family.displayUpdated"
+  | "family.checkInTitle"
+  | "family.checkInDescription"
+  | "family.checkInNote"
+  | "family.checkInSubmit"
+  | "family.checkInSubmitting"
+  | "family.checkInShared"
+  | "family.checkInSharedAt"
+  | "family.checkInFailed";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -404,6 +412,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.displayEnabled": "オン",
     "family.displayDisabled": "オフ",
     "family.displayUpdated": "{setting}を{value}にしました。",
+    "family.checkInTitle": "安心チェックイン",
+    "family.checkInDescription": "ひとタップで「大丈夫」を共有し、保護者へ静かな通知を届けます。",
+    "family.checkInNote": "ひとこと添える（任意）",
+    "family.checkInSubmit": "大丈夫を家族に知らせる",
+    "family.checkInSubmitting": "家族へ届けています…",
+    "family.checkInShared": "家族へ「大丈夫」を届けました",
+    "family.checkInSharedAt": "{time}に共有済み",
+    "family.checkInFailed": "チェックインを送信できませんでした。もう一度お試しください。",
   },
   en: {
     "common.loading": "Loading...",
@@ -604,6 +620,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.displayEnabled": "On",
     "family.displayDisabled": "Off",
     "family.displayUpdated": "{setting} is now {value}.",
+    "family.checkInTitle": "Safety check-in",
+    "family.checkInDescription": "Share that you are okay with one tap and quietly notify a guardian.",
+    "family.checkInNote": "A short note (optional)",
+    "family.checkInSubmit": "Let my family know I am okay",
+    "family.checkInSubmitting": "Sending to your family…",
+    "family.checkInShared": "Your “I’m okay” check-in was sent to family",
+    "family.checkInSharedAt": "Shared at {time}",
+    "family.checkInFailed": "Your check-in could not be sent. Please try again.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -804,6 +828,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.displayEnabled": "开启",
     "family.displayDisabled": "关闭",
     "family.displayUpdated": "{setting}已设为{value}。",
+    "family.checkInTitle": "安心报到",
+    "family.checkInDescription": "轻点一下即可分享“我没事”，并安静地通知监护人。",
+    "family.checkInNote": "一句话（可选）",
+    "family.checkInSubmit": "告诉家人我没事",
+    "family.checkInSubmitting": "正在发送给家人…",
+    "family.checkInShared": "已向家人发送“我没事”",
+    "family.checkInSharedAt": "已于{time}分享",
+    "family.checkInFailed": "无法发送报到，请再试一次。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -1004,6 +1036,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.displayEnabled": "켜기",
     "family.displayDisabled": "끄기",
     "family.displayUpdated": "{setting}을(를) {value}(으)로 설정했습니다.",
+    "family.checkInTitle": "안심 체크인",
+    "family.checkInDescription": "한 번의 탭으로 “괜찮아요”를 공유하고 보호자에게 조용히 알립니다.",
+    "family.checkInNote": "한마디 (선택 사항)",
+    "family.checkInSubmit": "가족에게 괜찮다고 알리기",
+    "family.checkInSubmitting": "가족에게 보내는 중…",
+    "family.checkInShared": "가족에게 “괜찮아요”를 전했습니다",
+    "family.checkInSharedAt": "{time}에 공유됨",
+    "family.checkInFailed": "체크인을 보낼 수 없습니다. 다시 시도해 주세요.",
   },
 };
 
