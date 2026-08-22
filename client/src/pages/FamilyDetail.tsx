@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -339,6 +339,7 @@ export default function FamilyDetail() {
     health: t("family.healthExperience"),
     stats: t("family.stats"),
   };
+  const activeTabPosition = getFamilyDetailTabPosition(activeTab);
 
   const handleShareActiveTab = async () => {
     const url = new URL(createFamilyDetailTabPath(familyGroupId, activeTab), window.location.origin).toString();
@@ -613,7 +614,7 @@ export default function FamilyDetail() {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-sm font-medium text-gray-700">{t("family.switchFeatures")}</p>
-            <p id="family-current-feature" tabIndex={-1} className="mt-1 text-xs font-semibold text-pink-700"><span className="mr-1 rounded-full bg-pink-100 px-1.5 py-0.5">{t("family.showingNow")}</span>{activeTabLabel[activeTab]}</p>
+            <p id="family-current-feature" tabIndex={-1} className="mt-1 text-xs font-semibold text-pink-700"><span className="mr-1 rounded-full bg-pink-100 px-1.5 py-0.5">{t("family.showingNow")}</span>{activeTabLabel[activeTab]} <span className="ml-1 text-pink-600">{t("family.currentFeaturePosition").replace("{current}", String(activeTabPosition.current)).replace("{total}", String(activeTabPosition.total))}</span></p>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Button
@@ -647,7 +648,7 @@ export default function FamilyDetail() {
             </Button>
           </div>
         </div>
-        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" role="tablist" aria-label={t("family.switchFeatures")} aria-describedby="family-tab-keyboard-help" aria-keyshortcuts="Alt+T ArrowLeft ArrowRight Home End Escape" onKeyDown={handleFamilyTabKeyDown}>
+        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" role="tablist" aria-orientation="horizontal" aria-label={t("family.switchFeatures")} aria-describedby="family-tab-keyboard-help" aria-keyshortcuts="Alt+T ArrowLeft ArrowRight Home End Escape" onKeyDown={handleFamilyTabKeyDown}>
           <button
             onClick={() => changeActiveTab("timeline")}
             role="tab"

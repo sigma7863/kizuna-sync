@@ -1,4 +1,4 @@
-import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab } from "../shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -32,5 +32,10 @@ describe("family detail tab navigation phase 74", () => {
   it("動きを抑える設定では即時スクロールを選ぶ", () => {
     expect(getFamilyNavigationScrollBehavior(false)).toBe("smooth");
     expect(getFamilyNavigationScrollBehavior(true)).toBe("auto");
+  });
+
+  it("選択中タブの位置と総数を返す", () => {
+    expect(getFamilyDetailTabPosition("timeline")).toEqual({ current: 1, total: 11 });
+    expect(getFamilyDetailTabPosition("health")).toEqual({ current: 11, total: 11 });
   });
 });
