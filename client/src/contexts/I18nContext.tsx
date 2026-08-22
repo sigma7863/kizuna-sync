@@ -261,6 +261,11 @@ type TranslationKey =
   | "family.careMessageMarkRead"
   | "family.careMessageReadUpdated"
   | "family.careMessageReadFailed"
+  | "family.careMessageLater"
+  | "family.careMessageDefer"
+  | "family.careMessageDeferred"
+  | "family.careMessageDeferFailed"
+  | "family.careMessageDeferHelp"
   | "family.careMessageEmpty"
   | "family.additionalDailyToolsTitle"
   | "family.additionalDailyToolsDescription"
@@ -546,6 +551,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageMarkRead": "タップで既読にする",
     "family.careMessageReadUpdated": "既読にしました",
     "family.careMessageReadFailed": "既読にできませんでした。もう一度お試しください。",
+    "family.careMessageLater": "今は返信しない",
+    "family.careMessageDefer": "あとで確認する",
+    "family.careMessageDeferred": "あとで確認することにしました。返信を急ぐ必要はありません。",
+    "family.careMessageDeferFailed": "後回しの状態を保存できませんでした。もう一度お試しください。",
+    "family.careMessageDeferHelp": "今すぐ返信しなくて大丈夫です。準備ができたときに確認できます。",
     "family.careMessageEmpty": "今日の気づかいを、ひとこと残してみましょう。",
     "family.additionalDailyToolsTitle": "もっと家族の毎日を整えるツール",
     "family.additionalDailyToolsDescription": "必要なときだけ開くことで、最初の表示を軽く保ちます。",
@@ -828,6 +838,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageMarkRead": "Tap to mark as read",
     "family.careMessageReadUpdated": "Marked as read",
     "family.careMessageReadFailed": "Could not mark as read. Please try again.",
+    "family.careMessageLater": "Not replying now",
+    "family.careMessageDefer": "Review later",
+    "family.careMessageDeferred": "Saved to review later. There is no need to reply right away.",
+    "family.careMessageDeferFailed": "Could not save the later state. Please try again.",
+    "family.careMessageDeferHelp": "You do not need to reply right away. Review it when you feel ready.",
     "family.careMessageEmpty": "Leave a small caring note for today.",
     "family.additionalDailyToolsTitle": "More tools for family life",
     "family.additionalDailyToolsDescription": "Open these only when needed to keep the first view lightweight.",
@@ -1110,6 +1125,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageMarkRead": "轻点标记为已读",
     "family.careMessageReadUpdated": "已标记为已读",
     "family.careMessageReadFailed": "无法标记为已读，请再试一次。",
+    "family.careMessageLater": "暂不回复",
+    "family.careMessageDefer": "稍后查看",
+    "family.careMessageDeferred": "已保存为稍后查看。无需马上回复。",
+    "family.careMessageDeferFailed": "无法保存稍后状态，请再试一次。",
+    "family.careMessageDeferHelp": "您不需要马上回复。准备好时再查看即可。",
     "family.careMessageEmpty": "今天也留下简短的一句关心吧。",
     "family.additionalDailyToolsTitle": "更多家庭日常工具",
     "family.additionalDailyToolsDescription": "仅在需要时打开，以减轻首次显示的负担。",
@@ -1392,6 +1412,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageMarkRead": "눌러서 읽음으로 표시",
     "family.careMessageReadUpdated": "읽음으로 표시했어요",
     "family.careMessageReadFailed": "읽음으로 표시할 수 없습니다. 다시 시도해 주세요.",
+    "family.careMessageLater": "지금은 답장하지 않음",
+    "family.careMessageDefer": "나중에 확인하기",
+    "family.careMessageDeferred": "나중에 확인하도록 저장했어요. 바로 답장하지 않아도 괜찮아요.",
+    "family.careMessageDeferFailed": "나중 상태를 저장할 수 없습니다. 다시 시도해 주세요.",
+    "family.careMessageDeferHelp": "바로 답장하지 않아도 됩니다. 준비되었을 때 확인하세요.",
     "family.careMessageEmpty": "오늘의 따뜻한 한마디를 남겨 보세요.",
     "family.additionalDailyToolsTitle": "가족의 일상을 돕는 더 많은 도구",
     "family.additionalDailyToolsDescription": "필요할 때만 열어 첫 화면을 가볍게 유지합니다.",

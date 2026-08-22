@@ -387,6 +387,8 @@ export const familyCareMessages = mysqlTable("family_care_messages", {
   message: varchar("message", { length: 180 }).notNull(),
   isRead: boolean("is_read").default(false).notNull(),
   readAt: timestamp("read_at"),
+  recipientResponse: mysqlEnum("recipient_response", ["unread", "read", "later"]).default("unread").notNull(),
+  responseAt: timestamp("response_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [index("family_care_messages_group_read_idx").on(table.familyGroupId, table.isRead)]);
 

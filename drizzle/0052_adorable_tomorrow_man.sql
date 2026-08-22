@@ -1,0 +1,2 @@
+ALTER TABLE `family_care_messages` ADD `recipient_response` enum('unread','read','later') DEFAULT 'unread' NOT NULL;--> statement-breakpoint
+ALTER TABLE `family_care_messages` ADD `response_at` timestamp;
