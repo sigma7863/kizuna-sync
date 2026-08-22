@@ -1,4 +1,4 @@
-import { createFamilyDetailTabPath, getInitialFamilyDetailTab, normalizeFamilyDetailTab } from "../shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, normalizeFamilyDetailTab } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -15,5 +15,10 @@ describe("family detail tab navigation phase 74", () => {
 
   it("家族IDとタブから共有可能な詳細URLを作る", () => {
     expect(createFamilyDetailTabPath(42, "assistant")).toBe("/family/42?tab=assistant");
+  });
+
+  it("再開するタブを家族ごとに別の保存キーへ分ける", () => {
+    expect(getFamilyDetailTabStorageKey(42)).toBe("kizuna-sync-last-family-detail-tab:42");
+    expect(getFamilyDetailTabStorageKey(43)).not.toBe(getFamilyDetailTabStorageKey(42));
   });
 });

@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, getInitialFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -151,14 +151,16 @@ export default function FamilyDetail() {
   const [moodText, setMoodText] = useState("");
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<FamilyDetailTab>("timeline");
+  const [tabShareStatus, setTabShareStatus] = useState<"idle" | "shared" | "copied" | "unavailable">("idle");
+  const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
 
   useEffect(() => {
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
-    const lastOpenedTab = window.localStorage.getItem("kizuna-sync-last-family-detail-tab");
+    const lastOpenedTab = window.localStorage.getItem(lastOpenedTabStorageKey);
     const nextTab = getInitialFamilyDetailTab(requestedTab, lastOpenedTab);
     setActiveTab(nextTab);
-    window.localStorage.setItem("kizuna-sync-last-family-detail-tab", nextTab);
-  }, [location]);
+    window.localStorage.setItem(lastOpenedTabStorageKey, nextTab);
+  }, [lastOpenedTabStorageKey, location]);
 
   useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
     setRippleNotifications((previous) => [
@@ -236,7 +238,8 @@ export default function FamilyDetail() {
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const changeActiveTab = (tab: FamilyDetailTab) => {
     setActiveTab(tab);
-    window.localStorage.setItem("kizuna-sync-last-family-detail-tab", tab);
+    setTabShareStatus("idle");
+    window.localStorage.setItem(lastOpenedTabStorageKey, tab);
     setLocation(createFamilyDetailTabPath(familyGroupId, tab));
   };
   const handleQuickHubAction = (action: QuickHubAction) => {
@@ -259,6 +262,30 @@ export default function FamilyDetail() {
     automation: "週次AI",
     health: "ヘルス体験",
     stats: t("family.stats"),
+  };
+
+  const handleShareActiveTab = async () => {
+    const url = new URL(createFamilyDetailTabPath(familyGroupId, activeTab), window.location.origin).toString();
+    const title = `${familyGroup?.name ?? "家族"}｜${activeTabLabel[activeTab]}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text: `KizunaSyncの「${activeTabLabel[activeTab]}」を開きます。`, url });
+        setTabShareStatus("shared");
+        return;
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        setTabShareStatus("copied");
+        return;
+      }
+
+      setTabShareStatus("unavailable");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setTabShareStatus("unavailable");
+    }
   };
 
   const getActivityIcon = (type: string) => {
@@ -507,6 +534,25 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-household-tips" className="scroll-mt-4"><FamilyHouseholdTip familyGroupId={familyGroupId}/></div><div id="card-packing-checks" className="scroll-mt-4"><FamilyPackingCheck familyGroupId={familyGroupId}/></div><div id="card-together-picks" className="scroll-mt-4"><FamilyTogetherPick familyGroupId={familyGroupId}/></div></div>
 
         {/* Tabs */}
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-medium text-gray-700">家族の機能を切り替える</p>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => changeActiveTab("timeline")}
+              disabled={activeTab === "timeline"}
+            >
+              <Heart className="mr-1.5 h-4 w-4" />
+              タイムラインへ戻る
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => void handleShareActiveTab()}>
+              <Share2 className="mr-1.5 h-4 w-4" />
+              この機能を共有
+            </Button>
+          </div>
+        </div>
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" aria-label="家族機能の切り替え">
           <button
             onClick={() => changeActiveTab("timeline")}
@@ -643,6 +689,13 @@ export default function FamilyDetail() {
         </div>
 
         <p className="sr-only" aria-live="polite">現在、家族の「{activeTabLabel[activeTab]}」を表示しています。</p>
+        {tabShareStatus !== "idle" && (
+          <p role="status" className="mb-4 text-sm text-gray-600">
+            {tabShareStatus === "shared" && "共有画面を開きました。"}
+            {tabShareStatus === "copied" && "この機能へのリンクをコピーしました。"}
+            {tabShareStatus === "unavailable" && "この端末では共有できませんでした。URLをコピーして家族へ送ってください。"}
+          </p>
+        )}
 
         {/* Timeline Section */}
         {activeTab === "timeline" && (
