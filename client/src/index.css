@@ -182,6 +182,11 @@ html.a11y-reduced-motion *::after {
   outline-offset: 3px;
 }
 
+:where(button, [role="button"]) {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
 @media (pointer: coarse) {
   :where(button, [role="button"], input[type="checkbox"], input[type="radio"], select) {
     min-height: 2.75rem;

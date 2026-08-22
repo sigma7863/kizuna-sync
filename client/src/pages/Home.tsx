@@ -52,7 +52,7 @@ export default function Home() {
         <div className="text-center">
           <div className="animate-pulse">
             <Heart className="w-12 h-12 text-pink-400 mx-auto mb-4" />
-            <p className="text-gray-600">読み込み中...</p>
+            <p className="text-gray-600">{t("home.loading")}</p>
           </div>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function Home() {
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-3 text-left">
                 <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0" />
-                <span className="text-gray-700">絆の波紋で家族の「今」を感じる</span>
+                <span className="text-gray-700">{t("home.featureRipple")}</span>
               </div>
               <div className="flex items-center gap-3 text-left">
                 <Share2 className="w-5 h-5 text-blue-500 flex-shrink-0" />

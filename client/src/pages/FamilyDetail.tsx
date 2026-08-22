@@ -32,6 +32,7 @@ import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, f
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 import { shouldLoadAdditionalFamilyTools } from "@shared/familyAdditionalDailyTools";
 import { shouldLoadFamilyDailyLifeTools } from "@shared/familyPerformance";
+import { formatFamilyDateTime } from "@shared/familyLocale";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -925,12 +926,7 @@ export default function FamilyDetail() {
                           {getActivityLabel(entry.entryType)}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {new Date(entry.createdAt).toLocaleTimeString('ja-JP', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {formatFamilyDateTime(entry.createdAt, language)}
                         </p>
                       </div>
                       {entry.content && (

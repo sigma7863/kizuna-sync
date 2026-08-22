@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useI18n } from "@/contexts/I18nContext";
 import { trpc } from "@/lib/trpc";
 import { composeFamilyCheckInNote, familyCheckInStatuses, type FamilyCheckInStatus } from "@shared/familyCheckIn";
+import { formatFamilyTime } from "@shared/familyLocale";
 
 const checkInStatusLabelKeys: Record<FamilyCheckInStatus, "family.checkInStatusOkay" | "family.checkInStatusRest" | "family.checkInStatusAvailable"> = {
   okay: "family.checkInStatusOkay",
@@ -66,9 +67,9 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
           {checkIn.isPending ? t("family.checkInSubmitting") : t("family.checkInSubmit")}
         </Button>
         <p id="family-checkin-status" className="min-h-5 text-center text-xs font-medium text-emerald-700" role="status" aria-live="polite">
-          {status}{completedAt && !checkIn.isPending ? ` ${t("family.checkInSharedAt").replace("{time}", completedAt.toLocaleTimeString(language, { hour: "2-digit", minute: "2-digit" }))}` : ""}
+          {status}{completedAt && !checkIn.isPending ? ` ${t("family.checkInSharedAt").replace("{time}", formatFamilyTime(completedAt, language))}` : ""}
         </p>
-        {completedAt && <p className="flex items-center justify-center gap-1 text-xs font-medium text-emerald-700"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />{t("family.checkInSharedAt").replace("{time}", completedAt.toLocaleTimeString(language, { hour: "2-digit", minute: "2-digit" }))}</p>}
+        {completedAt && <p className="flex items-center justify-center gap-1 text-xs font-medium text-emerald-700"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />{t("family.checkInSharedAt").replace("{time}", formatFamilyTime(completedAt, language))}</p>}
       </CardContent>
     </Card>
   );

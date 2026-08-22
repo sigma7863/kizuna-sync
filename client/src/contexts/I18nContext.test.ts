@@ -6,11 +6,25 @@ describe("KizunaSync localization", () => {
     expect(supportedLanguages).toEqual(["ja", "en", "zh", "ko"]);
   });
 
+  it("keeps the same translation keys in every supported language", () => {
+    const japaneseKeys = Object.keys(messages.ja).sort();
+    for (const language of supportedLanguages) {
+      expect(Object.keys(messages[language]).sort()).toEqual(japaneseKeys);
+    }
+  });
+
   it("contains the core assistant and notification labels in every language", () => {
     for (const language of supportedLanguages) {
       expect(messages[language]["family.assistant"]).toBeTruthy();
       expect(messages[language]["family.notifications"]).toBeTruthy();
       expect(messages[language]["common.language"]).toBeTruthy();
+    }
+  });
+
+  it("contains home loading and family-presence guidance in every language", () => {
+    for (const language of supportedLanguages) {
+      expect(messages[language]["home.loading"]).toBeTruthy();
+      expect(messages[language]["home.featureRipple"]).toBeTruthy();
     }
   });
 
