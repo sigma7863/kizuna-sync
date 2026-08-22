@@ -97,6 +97,10 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.additionalDailyToolsOpen"]).toBeTruthy();
       expect(messages[language]["family.additionalDailyToolsClose"]).toBeTruthy();
       expect(messages[language]["family.additionalDailyToolsLoading"]).toBeTruthy();
+      expect(messages[language]["family.sharingTitle"]).toBeTruthy();
+      expect(messages[language]["family.sharingLocation"]).toBeTruthy();
+      expect(messages[language]["family.sharingGuardianSummary"]).toBeTruthy();
+      expect(messages[language]["family.sharingSignalCount"]).toContain("{count}");
     }
   });
 });
