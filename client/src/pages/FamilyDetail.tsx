@@ -7,22 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock, Images } from "lucide-react";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
 import { SafetyGuardian } from "@/components/SafetyGuardian";
-import { AIFeatures } from "@/components/AIFeatures";
-import { FamilyStatsDashboard } from "@/components/FamilyStatsDashboard";
 import { FamilyNotificationCenter } from "@/components/FamilyNotificationCenter";
-import { FamilyAIAssistant } from "@/components/FamilyAIAssistant";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
-import { FamilyAutomationPanel } from "@/components/FamilyAutomationPanel";
-import { WearableHealthSimulator } from "@/components/WearableHealthSimulator";
-import { FamilyTrailHeatmap } from "@/components/FamilyTrailHeatmap";
-import { FamilyCelebrationComposer } from "@/components/FamilyCelebrationComposer";
-import { FamilyDigestAlbum } from "@/components/FamilyDigestAlbum";
-import { FamilyCloudAlbum } from "@/components/FamilyCloudAlbum";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { FamilyCheckIn } from "@/components/FamilyCheckIn";
 import { TodayKizunaHighlights } from "@/components/TodayKizunaHighlights";
@@ -138,6 +129,16 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
+
+const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
+const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
+const FamilyAIAssistant = lazy(() => import("@/components/FamilyAIAssistant").then((module) => ({ default: module.FamilyAIAssistant })));
+const FamilyAutomationPanel = lazy(() => import("@/components/FamilyAutomationPanel").then((module) => ({ default: module.FamilyAutomationPanel })));
+const WearableHealthSimulator = lazy(() => import("@/components/WearableHealthSimulator").then((module) => ({ default: module.WearableHealthSimulator })));
+const FamilyTrailHeatmap = lazy(() => import("@/components/FamilyTrailHeatmap").then((module) => ({ default: module.FamilyTrailHeatmap })));
+const FamilyCelebrationComposer = lazy(() => import("@/components/FamilyCelebrationComposer").then((module) => ({ default: module.FamilyCelebrationComposer })));
+const FamilyDigestAlbum = lazy(() => import("@/components/FamilyDigestAlbum").then((module) => ({ default: module.FamilyDigestAlbum })));
+const FamilyCloudAlbum = lazy(() => import("@/components/FamilyCloudAlbum").then((module) => ({ default: module.FamilyCloudAlbum })));
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
@@ -679,40 +680,18 @@ export default function FamilyDetail() {
           />
         )}
 
-        {/* Family Trail Heatmap Section */}
-        {activeTab === "trail" && <FamilyTrailHeatmap familyGroupId={familyGroupId} />}
-
-        {/* AI Features Section */}
-        {activeTab === "ai" && (
-          <AIFeatures
-            familyGroupId={familyGroupId}
-            familyMembers={members?.map((m) => ({
-              id: m.users.id,
-              name: m.users.name || "Unknown",
-            })) || []}
-          />
-        )}
-
-        {/* Family AI Assistant Section */}
-        {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
-        {/* Celebration Composer Section */}
-        {activeTab === "celebration" && <FamilyCelebrationComposer familyGroupId={familyGroupId} />}
-
-        {/* Digest Album Section */}
-        {activeTab === "digest" && <FamilyDigestAlbum familyGroupId={familyGroupId} />}
-
-        {/* Family Cloud Album Section */}
-        {activeTab === "album" && <FamilyCloudAlbum familyGroupId={familyGroupId} />}
-
-        {/* Weekly AI Journal Section */}
-        {activeTab === "automation" && <FamilyAutomationPanel familyGroupId={familyGroupId} />}
-
-        {/* Wearable Health Simulation Section */}
-        {activeTab === "health" && <WearableHealthSimulator familyGroupId={familyGroupId} />}
-
-        {/* Statistics Dashboard Section */}
-        {activeTab === "stats" && (
-          <FamilyStatsDashboard familyGroupId={familyGroupId} />
+        {activeTab !== "timeline" && activeTab !== "safety" && (
+          <Suspense fallback={<div role="status" className="rounded-2xl border border-pink-100 bg-white p-6 text-center text-sm text-gray-600 shadow-sm">家族の機能を準備しています…</div>}>
+            {activeTab === "trail" && <FamilyTrailHeatmap familyGroupId={familyGroupId} />}
+            {activeTab === "ai" && <AIFeatures familyGroupId={familyGroupId} familyMembers={members?.map((m) => ({ id: m.users.id, name: m.users.name || "Unknown" })) || []} />}
+            {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
+            {activeTab === "celebration" && <FamilyCelebrationComposer familyGroupId={familyGroupId} />}
+            {activeTab === "digest" && <FamilyDigestAlbum familyGroupId={familyGroupId} />}
+            {activeTab === "album" && <FamilyCloudAlbum familyGroupId={familyGroupId} />}
+            {activeTab === "automation" && <FamilyAutomationPanel familyGroupId={familyGroupId} />}
+            {activeTab === "health" && <WearableHealthSimulator familyGroupId={familyGroupId} />}
+            {activeTab === "stats" && <FamilyStatsDashboard familyGroupId={familyGroupId} />}
+          </Suspense>
         )}
       </main>
 
