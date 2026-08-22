@@ -214,7 +214,24 @@ type TranslationKey =
   | "family.checkInStatusRest"
   | "family.checkInStatusAvailable"
   | "family.checkInPreviewTitle"
-  | "family.checkInPrivacy";
+  | "family.checkInPrivacy"
+  | "family.checkInFollowUpTitle"
+  | "family.checkInFollowUpDescription"
+  | "family.checkInFollowUpLoading"
+  | "family.checkInFollowUpTarget"
+  | "family.checkInFollowUpFamily"
+  | "family.checkInFollowUpPrivacy"
+  | "family.checkInFollowUpNone"
+  | "family.checkInFollowUpSend"
+  | "family.checkInFollowUpSending"
+  | "family.checkInFollowUpSent"
+  | "family.checkInFollowUpFailed"
+  | "family.checkInFollowUpRestGuardian"
+  | "family.checkInFollowUpRestChild"
+  | "family.checkInFollowUpRestElderly"
+  | "family.checkInFollowUpAvailableGuardian"
+  | "family.checkInFollowUpAvailableChild"
+  | "family.checkInFollowUpAvailableElderly";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -432,6 +449,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusAvailable": "話せます",
     "family.checkInPreviewTitle": "家族へ共有する内容",
     "family.checkInPrivacy": "この欄に表示された内容だけを共有します。入力中の一言はこの端末に保存しません。",
+    "family.checkInFollowUpTitle": "安心のひとことを返す",
+    "family.checkInFollowUpDescription": "今、少し支えが必要そうな家族に、短い気づかいを届けます。",
+    "family.checkInFollowUpLoading": "最近の安心チェックインを確認しています…",
+    "family.checkInFollowUpTarget": "{name}さんへ",
+    "family.checkInFollowUpFamily": "家族",
+    "family.checkInFollowUpPrivacy": "チェックインに添えられた任意メモは表示しません。状態だけを手がかりに返信します。",
+    "family.checkInFollowUpNone": "今は返信が必要なチェックインはありません。いつもの声かけも大切に。",
+    "family.checkInFollowUpSend": "このひとことを届ける",
+    "family.checkInFollowUpSending": "家族へ届けています…",
+    "family.checkInFollowUpSent": "やさしいひとことを届けました",
+    "family.checkInFollowUpFailed": "返信を送信できませんでした。もう一度お試しください。",
+    "family.checkInFollowUpRestGuardian": "伝えてくれてありがとう。急がなくて大丈夫だよ。",
+    "family.checkInFollowUpRestChild": "教えてくれてありがとう。ゆっくり休んでね。",
+    "family.checkInFollowUpRestElderly": "ご無理なさらず、ゆっくりお休みください。",
+    "family.checkInFollowUpAvailableGuardian": "話せそうなら、今少し声をかけてもいい？",
+    "family.checkInFollowUpAvailableChild": "今なら少し話せるんだね。都合のよい時に声をかけるね。",
+    "family.checkInFollowUpAvailableElderly": "お話しできそうなのですね。ご都合のよい時にお声がけしますね。",
   },
   en: {
     "common.loading": "Loading...",
@@ -646,6 +680,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusAvailable": "I am available to talk",
     "family.checkInPreviewTitle": "What your family will receive",
     "family.checkInPrivacy": "Only the content shown here will be shared. Your draft note is not stored on this device.",
+    "family.checkInFollowUpTitle": "Send a caring reply",
+    "family.checkInFollowUpDescription": "Offer a short, gentle message to a family member who may need support now.",
+    "family.checkInFollowUpLoading": "Checking recent safety check-ins…",
+    "family.checkInFollowUpTarget": "For {name}",
+    "family.checkInFollowUpFamily": "Family member",
+    "family.checkInFollowUpPrivacy": "Optional notes from the check-in are not shown. This reply is guided only by the shared status.",
+    "family.checkInFollowUpNone": "There are no check-ins needing a reply right now. Everyday kind words still matter.",
+    "family.checkInFollowUpSend": "Send this caring message",
+    "family.checkInFollowUpSending": "Sending to your family…",
+    "family.checkInFollowUpSent": "Your caring message was sent",
+    "family.checkInFollowUpFailed": "Your reply could not be sent. Please try again.",
+    "family.checkInFollowUpRestGuardian": "Thank you for telling us. There is no need to rush.",
+    "family.checkInFollowUpRestChild": "Thank you for letting us know. Please take a gentle rest.",
+    "family.checkInFollowUpRestElderly": "Please do not overdo it and take your time to rest.",
+    "family.checkInFollowUpAvailableGuardian": "If you feel ready to talk, may I check in with you now?",
+    "family.checkInFollowUpAvailableChild": "You can talk a little now. I will reach out when it suits you.",
+    "family.checkInFollowUpAvailableElderly": "It sounds like you may be ready to talk. I will reach out at a convenient time.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -860,6 +911,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusAvailable": "我可以聊聊",
     "family.checkInPreviewTitle": "将与家人分享的内容",
     "family.checkInPrivacy": "只会分享此处显示的内容。正在输入的一句话不会保存在此设备上。",
+    "family.checkInFollowUpTitle": "送上一句关心",
+    "family.checkInFollowUpDescription": "向此刻可能需要支持的家人送上一句简短、温和的关心。",
+    "family.checkInFollowUpLoading": "正在查看最近的安心报到…",
+    "family.checkInFollowUpTarget": "发送给{name}",
+    "family.checkInFollowUpFamily": "家人",
+    "family.checkInFollowUpPrivacy": "不会显示报到时附加的可选留言。回复只根据已分享的状态生成。",
+    "family.checkInFollowUpNone": "现在没有需要回复的报到。平日的一句关心也很重要。",
+    "family.checkInFollowUpSend": "发送这句关心",
+    "family.checkInFollowUpSending": "正在发送给家人…",
+    "family.checkInFollowUpSent": "已送出温暖的关心",
+    "family.checkInFollowUpFailed": "无法发送回复，请再试一次。",
+    "family.checkInFollowUpRestGuardian": "谢谢你告诉我们。不必着急。",
+    "family.checkInFollowUpRestChild": "谢谢你告诉我们。请好好休息一下。",
+    "family.checkInFollowUpRestElderly": "请不要勉强自己，慢慢休息。",
+    "family.checkInFollowUpAvailableGuardian": "如果你现在想聊聊，我可以来问候你吗？",
+    "family.checkInFollowUpAvailableChild": "你现在可以聊一会儿。我会在合适的时候联系你。",
+    "family.checkInFollowUpAvailableElderly": "看来您现在可以聊聊。我会在方便的时候问候您。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -1074,6 +1142,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusAvailable": "이야기할 수 있어요",
     "family.checkInPreviewTitle": "가족에게 공유할 내용",
     "family.checkInPrivacy": "여기에 표시된 내용만 공유합니다. 작성 중인 한마디는 이 기기에 저장하지 않습니다.",
+    "family.checkInFollowUpTitle": "따뜻한 한마디 보내기",
+    "family.checkInFollowUpDescription": "지금 도움이 필요해 보이는 가족에게 짧고 다정한 마음을 전합니다.",
+    "family.checkInFollowUpLoading": "최근 안심 체크인을 확인하고 있어요…",
+    "family.checkInFollowUpTarget": "{name}님에게",
+    "family.checkInFollowUpFamily": "가족",
+    "family.checkInFollowUpPrivacy": "체크인에 덧붙인 선택 메모는 표시하지 않습니다. 공유된 상태만 바탕으로 답장을 보냅니다.",
+    "family.checkInFollowUpNone": "지금은 답장이 필요한 체크인이 없습니다. 평소의 다정한 말도 소중해요.",
+    "family.checkInFollowUpSend": "이 따뜻한 한마디 보내기",
+    "family.checkInFollowUpSending": "가족에게 보내는 중…",
+    "family.checkInFollowUpSent": "따뜻한 한마디를 전했어요",
+    "family.checkInFollowUpFailed": "답장을 보낼 수 없습니다. 다시 시도해 주세요.",
+    "family.checkInFollowUpRestGuardian": "알려줘서 고마워. 서두르지 않아도 괜찮아.",
+    "family.checkInFollowUpRestChild": "알려줘서 고마워. 천천히 쉬어도 돼.",
+    "family.checkInFollowUpRestElderly": "무리하지 마시고 천천히 쉬세요.",
+    "family.checkInFollowUpAvailableGuardian": "이야기할 수 있다면, 지금 잠시 안부를 물어도 될까?",
+    "family.checkInFollowUpAvailableChild": "지금은 조금 이야기할 수 있구나. 편할 때 연락할게.",
+    "family.checkInFollowUpAvailableElderly": "이야기하실 수 있을 것 같네요. 편하실 때 안부를 여쭐게요.",
   },
 };
 
