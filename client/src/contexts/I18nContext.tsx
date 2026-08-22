@@ -264,6 +264,8 @@ type TranslationKey =
   | "family.checkInShared"
   | "family.checkInSharedAt"
   | "family.checkInFailed"
+  | "family.checkInRetry"
+  | "family.checkInRecoveryHint"
   | "family.checkInStatusHelp"
   | "family.checkInStatusOkay"
   | "family.checkInStatusRest"
@@ -645,6 +647,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInShared": "家族へ「大丈夫」を届けました",
     "family.checkInSharedAt": "{time}に共有済み",
     "family.checkInFailed": "チェックインを送信できませんでした。もう一度お試しください。",
+    "family.checkInRetry": "同じ内容でもう一度送る",
+    "family.checkInRecoveryHint": "保存できませんでした。内容はこの画面に残っています。通信を確認して、もう一度送れます。",
     "family.checkInStatusHelp": "今の状態を選ぶ（任意）",
     "family.checkInStatusOkay": "大丈夫です",
     "family.checkInStatusRest": "少し休みたいです",
@@ -998,6 +1002,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInShared": "Your “I’m okay” check-in was sent to family",
     "family.checkInSharedAt": "Shared at {time}",
     "family.checkInFailed": "Your check-in could not be sent. Please try again.",
+    "family.checkInRetry": "Send the same check-in again",
+    "family.checkInRecoveryHint": "It could not be saved. Your content remains on this screen. Check the connection and try again.",
     "family.checkInStatusHelp": "Choose how you are feeling (optional)",
     "family.checkInStatusOkay": "I am okay",
     "family.checkInStatusRest": "I need a little rest",
@@ -1351,6 +1357,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInShared": "已向家人发送“我没事”",
     "family.checkInSharedAt": "已于{time}分享",
     "family.checkInFailed": "无法发送报到，请再试一次。",
+    "family.checkInRetry": "再次发送相同报到",
+    "family.checkInRecoveryHint": "无法保存。内容仍保留在此页面。请检查网络后重试。",
     "family.checkInStatusHelp": "选择现在的状态（可选）",
     "family.checkInStatusOkay": "我没事",
     "family.checkInStatusRest": "我想稍微休息一下",
@@ -1704,6 +1712,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInShared": "가족에게 “괜찮아요”를 전했습니다",
     "family.checkInSharedAt": "{time}에 공유됨",
     "family.checkInFailed": "체크인을 보낼 수 없습니다. 다시 시도해 주세요.",
+    "family.checkInRetry": "같은 내용으로 다시 보내기",
+    "family.checkInRecoveryHint": "저장하지 못했습니다. 내용은 이 화면에 남아 있습니다. 연결을 확인한 뒤 다시 시도하세요.",
     "family.checkInStatusHelp": "지금의 상태 선택하기 (선택 사항)",
     "family.checkInStatusOkay": "괜찮아요",
     "family.checkInStatusRest": "조금 쉬고 싶어요",

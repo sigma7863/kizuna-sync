@@ -33,6 +33,7 @@ import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 import { shouldLoadAdditionalFamilyTools } from "@shared/familyAdditionalDailyTools";
 import { shouldLoadFamilyDailyLifeTools } from "@shared/familyPerformance";
 import { formatFamilyDateTime } from "@shared/familyLocale";
+import { normalizeFamilyText } from "@shared/familyDataQuality";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -157,11 +158,12 @@ export default function FamilyDetail() {
   });
 
   const handlePostMood = async () => {
-    if (moodText.trim()) {
+    const content = normalizeFamilyText(moodText);
+    if (content) {
       await createTimelineEntryMutation.mutateAsync({
         familyGroupId,
         entryType: "mood",
-        content: moodText,
+        content,
       });
     }
   };
