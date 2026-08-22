@@ -321,6 +321,7 @@ import {
   ScheduleAction,
 } from "./family-assistant";
 import { getFamilySharingPreference, listFamilySharingPreferences, saveFamilySharingPreference } from "./family-sharing-preferences";
+import { createFamilyCheckInRecord, getOwnFamilyCheckInRecords, getSharedFamilyCheckInRecords } from "./family-checkin-history";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut, storageGetSignedUrl } from "./storage";
 import { evaluateGeofenceForLocation } from "./geofence-monitor";
@@ -332,6 +333,7 @@ import { buildCelebrationMetadata, CelebrationOccasion } from "./celebration";
 import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension } from "../shared/album";
 import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
 import { familyCheckInStatuses } from "../shared/familyCheckIn";
+import { getCheckInHistoryDisplayLimit, getLatestSharedCheckInByUser } from "../shared/familyCheckInHistory";
 import { canCreateCareMessage } from "../shared/familyCareMessages";
 import { getFamilyMemberRole, isFamilyMember } from "../shared/familyMembership";
 import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
@@ -535,10 +537,15 @@ export const appRouter = router({
     send: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), note: z.string().max(120).optional(), status: z.enum(familyCheckInStatuses) }))
       .mutation(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+        const preference = await getFamilySharingPreference(input.familyGroupId, ctx.user.id);
+        const isShared = preference?.shareCheckIn ?? true;
+        await createFamilyCheckInRecord({ familyGroupId: input.familyGroupId, userId: ctx.user.id, status: input.status, isShared });
+        if (!isShared) return { success: true, content: buildCheckInContent(input.note), isShared: false };
         const displayName = ctx.user.name ?? "家族";
         const content = buildCheckInContent(input.note);
         await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", content, undefined, buildCheckInMetadata(input.status));
-        const members = await getFamilyMembers(input.familyGroupId);
         const guardianIds = members
           .filter((member) => member.family_members.memberRole === "guardian")
           .map((member) => member.family_members.userId);
@@ -560,8 +567,19 @@ export const appRouter = router({
           timestamp: Date.now(),
           metadata: { isCheckIn: true, status: "okay" },
         });
-        return { success: true, content };
+        return { success: true, content, isShared: true };
       }),
+    getMine: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return getOwnFamilyCheckInRecords(input.familyGroupId, ctx.user.id, getCheckInHistoryDisplayLimit());
+    }),
+    getGuardianSummary: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (getFamilyMemberRole(members, ctx.user.id) !== "guardian") throw new TRPCError({ code: "FORBIDDEN", message: "Guardian role is required" });
+      const latest = getLatestSharedCheckInByUser(await getSharedFamilyCheckInRecords(input.familyGroupId, 100));
+      return members.map((member) => ({ userId: member.users.id, name: member.users.name ?? "家族", latest: latest.get(member.users.id) ?? null }));
+    }),
   }),
 
   highlights: router({
