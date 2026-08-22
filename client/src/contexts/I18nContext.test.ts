@@ -35,6 +35,9 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.skipToCurrentContent"]).toBeTruthy();
       expect(messages[language]["family.chooseFeature"]).toBeTruthy();
       expect(messages[language]["family.recentFeatures"]).toBeTruthy();
+      expect(messages[language]["family.pinnedFeatures"]).toBeTruthy();
+      expect(messages[language]["family.pinFeature"]).toBeTruthy();
+      expect(messages[language]["family.unpinFeature"]).toBeTruthy();
     }
   });
 });

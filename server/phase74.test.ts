@@ -1,4 +1,4 @@
-import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab } from "../shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -44,5 +44,12 @@ describe("family detail tab navigation phase 74", () => {
     expect(normalizeRecentFamilyDetailTabs(["ai", "unknown", "album", "ai"])).toEqual(["ai", "album"]);
     expect(recordRecentFamilyDetailTab(["ai", "album", "stats"], "album")).toEqual(["album", "ai", "stats"]);
     expect(recordRecentFamilyDetailTab(["ai", "album", "stats"], "health")).toEqual(["health", "ai", "album"]);
+  });
+
+  it("大切な機能を家族ごとに固定・固定解除できる", () => {
+    expect(getFamilyDetailTabPinsStorageKey(12)).toBe("kizuna-sync-family-detail-tab-pins-12");
+    expect(normalizePinnedFamilyDetailTabs(["safety", "unknown", "album", "safety"])).toEqual(["safety", "album"]);
+    expect(togglePinnedFamilyDetailTab(["safety"], "album")).toEqual(["safety", "album"]);
+    expect(togglePinnedFamilyDetailTab(["safety", "album"], "safety")).toEqual(["album"]);
   });
 });

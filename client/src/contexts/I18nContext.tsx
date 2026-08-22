@@ -145,7 +145,10 @@ type TranslationKey =
   | "family.currentFeaturePosition"
   | "family.skipToCurrentContent"
   | "family.chooseFeature"
-  | "family.recentFeatures";
+  | "family.recentFeatures"
+  | "family.pinnedFeatures"
+  | "family.pinFeature"
+  | "family.unpinFeature";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -294,6 +297,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.skipToCurrentContent": "表示中の内容へ",
     "family.chooseFeature": "表示する機能を選ぶ",
     "family.recentFeatures": "最近使った機能",
+    "family.pinnedFeatures": "固定した機能",
+    "family.pinFeature": "この機能を固定",
+    "family.unpinFeature": "この機能の固定を解除",
   },
   en: {
     "common.loading": "Loading...",
@@ -439,6 +445,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.skipToCurrentContent": "Skip to current content",
     "family.chooseFeature": "Choose a feature to view",
     "family.recentFeatures": "Recently used features",
+    "family.pinnedFeatures": "Pinned features",
+    "family.pinFeature": "Pin this feature",
+    "family.unpinFeature": "Unpin this feature",
   },
   zh: {
     "common.loading": "加载中...",
@@ -584,6 +593,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.skipToCurrentContent": "跳到当前内容",
     "family.chooseFeature": "选择要查看的功能",
     "family.recentFeatures": "最近使用的功能",
+    "family.pinnedFeatures": "已固定的功能",
+    "family.pinFeature": "固定此功能",
+    "family.unpinFeature": "取消固定此功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -729,6 +741,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.skipToCurrentContent": "현재 내용으로 건너뛰기",
     "family.chooseFeature": "볼 기능 선택",
     "family.recentFeatures": "최근 사용한 기능",
+    "family.pinnedFeatures": "고정한 기능",
+    "family.pinFeature": "이 기능 고정",
+    "family.unpinFeature": "이 기능 고정 해제",
   },
 };
 

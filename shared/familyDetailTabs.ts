@@ -39,6 +39,10 @@ export function getFamilyDetailTabRecentsStorageKey(familyGroupId: number) {
   return `kizuna-sync-family-detail-tab-recents-${familyGroupId}`;
 }
 
+export function getFamilyDetailTabPinsStorageKey(familyGroupId: number) {
+  return `kizuna-sync-family-detail-tab-pins-${familyGroupId}`;
+}
+
 export type FamilyDetailTabMove = "next" | "previous" | "first" | "last";
 
 export function getMovedFamilyDetailTab(currentTab: FamilyDetailTab, move: FamilyDetailTabMove): FamilyDetailTab {
@@ -68,4 +72,17 @@ export function normalizeRecentFamilyDetailTabs(value: unknown): FamilyDetailTab
 
 export function recordRecentFamilyDetailTab(existing: unknown, tab: FamilyDetailTab) {
   return [tab, ...normalizeRecentFamilyDetailTabs(existing).filter((candidate) => candidate !== tab)].slice(0, 3);
+}
+
+export function normalizePinnedFamilyDetailTabs(value: unknown): FamilyDetailTab[] {
+  if (!Array.isArray(value)) return [];
+  return value.reduce<FamilyDetailTab[]>((tabs, candidate) => {
+    const tab = normalizeFamilyDetailTab(candidate);
+    return tab && !tabs.includes(tab) ? [...tabs, tab] : tabs;
+  }, []).slice(0, 5);
+}
+
+export function togglePinnedFamilyDetailTab(existing: unknown, tab: FamilyDetailTab) {
+  const pins = normalizePinnedFamilyDetailTabs(existing);
+  return pins.includes(tab) ? pins.filter((candidate) => candidate !== tab) : [...pins, tab].slice(0, 5);
 }
