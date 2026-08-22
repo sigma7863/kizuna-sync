@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock, Images } from "lucide-react";
+import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock, Images, Star } from "lucide-react";
 import { lazy, Suspense, useEffect, useState, type KeyboardEvent } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -158,8 +158,10 @@ export default function FamilyDetail() {
   const [showTabHelp, setShowTabHelp] = useState(() => window.localStorage.getItem("kizuna-sync-show-family-tab-help") === "true");
   const [currentTabCentered, setCurrentTabCentered] = useState(false);
   const [recentTabs, setRecentTabs] = useState<FamilyDetailTab[]>([]);
+  const [pinnedTabs, setPinnedTabs] = useState<FamilyDetailTab[]>([]);
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
   const recentTabsStorageKey = getFamilyDetailTabRecentsStorageKey(familyGroupId);
+  const pinnedTabsStorageKey = getFamilyDetailTabPinsStorageKey(familyGroupId);
 
   useEffect(() => {
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
@@ -176,6 +178,14 @@ export default function FamilyDetail() {
       setRecentTabs([]);
     }
   }, [recentTabsStorageKey]);
+
+  useEffect(() => {
+    try {
+      setPinnedTabs(normalizePinnedFamilyDetailTabs(JSON.parse(window.localStorage.getItem(pinnedTabsStorageKey) ?? "[]")));
+    } catch {
+      setPinnedTabs([]);
+    }
+  }, [pinnedTabsStorageKey]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -322,6 +332,11 @@ export default function FamilyDetail() {
     });
     setLocation(createFamilyDetailTabPath(familyGroupId, tab));
   };
+  const toggleActiveTabPin = () => setPinnedTabs((previous) => {
+    const next = togglePinnedFamilyDetailTab(previous, activeTab);
+    window.localStorage.setItem(pinnedTabsStorageKey, JSON.stringify(next));
+    return next;
+  });
   const handleFamilyTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const sourceTab = normalizeFamilyDetailTab((event.target as HTMLElement).dataset.familyTab);
     const moveByKey: Record<string, "next" | "previous" | "first" | "last"> = {
@@ -664,6 +679,16 @@ export default function FamilyDetail() {
             >
               {Object.entries(activeTabLabel).map(([tab, label]) => <option key={tab} value={tab}>{label}</option>)}
             </select>
+            <Button type="button" size="sm" variant={pinnedTabs.includes(activeTab) ? "secondary" : "outline"} onClick={toggleActiveTabPin} aria-pressed={pinnedTabs.includes(activeTab)}>
+              <Star className="mr-1.5 h-4 w-4" fill={pinnedTabs.includes(activeTab) ? "currentColor" : "none"} />
+              {pinnedTabs.includes(activeTab) ? t("family.unpinFeature") : t("family.pinFeature")}
+            </Button>
+            {pinnedTabs.filter((tab) => tab !== activeTab).map((tab) => (
+              <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} aria-label={`${t("family.pinnedFeatures")}: ${activeTabLabel[tab]}`}>
+                <Star className="mr-1.5 h-4 w-4" fill="currentColor" />
+                {activeTabLabel[tab]}
+              </Button>
+            ))}
             {recentTabs.filter((tab) => tab !== activeTab).map((tab) => (
               <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} aria-label={`${t("family.recentFeatures")}: ${activeTabLabel[tab]}`}>
                 {activeTabLabel[tab]}
