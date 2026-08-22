@@ -88,6 +88,11 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.checkInFollowUpPrivacy"]).toBeTruthy();
       expect(messages[language]["family.checkInFollowUpRestGuardian"]).toBeTruthy();
       expect(messages[language]["family.checkInFollowUpAvailableElderly"]).toBeTruthy();
+      expect(messages[language]["family.careMessageTitle"]).toBeTruthy();
+      expect(messages[language]["family.careMessageAllHelp"]).toBeTruthy();
+      expect(messages[language]["family.careMessagePrivateHelp"]).toBeTruthy();
+      expect(messages[language]["family.careMessageFromTo"]).toContain("{sender}");
+      expect(messages[language]["family.careMessageFromTo"]).toContain("{recipient}");
     }
   });
 });
