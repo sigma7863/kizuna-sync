@@ -156,6 +156,7 @@ export default function FamilyDetail() {
   const [sharedCardOpened, setSharedCardOpened] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [showTabHelp, setShowTabHelp] = useState(() => window.localStorage.getItem("kizuna-sync-show-family-tab-help") === "true");
+  const [currentTabCentered, setCurrentTabCentered] = useState(false);
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
 
   useEffect(() => {
@@ -250,6 +251,10 @@ export default function FamilyDetail() {
   const getScrollBehavior = () => getFamilyNavigationScrollBehavior(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
   const focusCurrentFamilyTab = () => document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.focus({ preventScroll: true });
+  const centerCurrentFamilyTab = () => {
+    document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.scrollIntoView({ behavior: getScrollBehavior(), block: "nearest", inline: "center" });
+    setCurrentTabCentered(true);
+  };
   const toggleTabHelp = () => setShowTabHelp((previous) => {
     const next = !previous;
     window.localStorage.setItem("kizuna-sync-show-family-tab-help", String(next));
@@ -293,6 +298,7 @@ export default function FamilyDetail() {
   const changeActiveTab = (tab: FamilyDetailTab) => {
     setActiveTab(tab);
     setTabShareStatus("idle");
+    setCurrentTabCentered(false);
     window.localStorage.setItem(lastOpenedTabStorageKey, tab);
     setLocation(createFamilyDetailTabPath(familyGroupId, tab));
   };
@@ -623,6 +629,9 @@ export default function FamilyDetail() {
             <Button type="button" size="sm" variant="outline" onClick={focusCurrentFamilyTab}>
               {t("family.focusCurrentFeature")}
             </Button>
+            <Button type="button" size="sm" variant="outline" onClick={centerCurrentFamilyTab}>
+              {t("family.centerCurrentFeature")}
+            </Button>
             <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab("timeline")}>
               {t("family.jumpFirstFeature")}
             </Button>
@@ -809,6 +818,7 @@ export default function FamilyDetail() {
         <p id="family-tab-keyboard-help" className="sr-only" lang={language}>{t("family.tabKeyboardHelp")}</p>
         {showTabHelp && <p className="mb-4 rounded-xl bg-pink-50 px-3 py-2 text-sm text-pink-900" role="note" lang={language}>{t("family.tabHelpText")}</p>}
         <p className="sr-only" aria-live="polite" lang={language}>{t("family.currentFeature").replace("{tab}", activeTabLabel[activeTab])}</p>
+        {currentTabCentered && <p className="sr-only" role="status" aria-live="polite" lang={language}>{t("family.currentFeatureCentered")}</p>}
         {sharedCardOpened && <p className="sr-only" role="status" aria-live="polite" lang={language}>{t("family.sharedCardOpened")}</p>}
         {reducedMotion && <p className="sr-only" role="status" aria-live="polite" lang={language}>{t("family.motionReducedNavigation")}</p>}
         {tabShareStatus !== "idle" && (
