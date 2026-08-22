@@ -1326,7 +1326,11 @@ export const appRouter = router({
           radiusMeters: z.number(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (getFamilyMemberRole(members, ctx.user.id) !== "guardian") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Guardian role is required to create geofences" });
+        }
         return await createGeofence(
           input.familyGroupId,
           input.name,
@@ -1338,13 +1342,23 @@ export const appRouter = router({
 
     getByFamilyGroup: protectedProcedure
       .input(z.object({ familyGroupId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+        }
         return await getFamilyGeofences(input.familyGroupId);
       }),
 
     acknowledgeAlert: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), geofenceId: z.number() }))
-      .mutation(async ({ ctx, input }) => acknowledgeGeofenceAlert(ctx.user.id, input.familyGroupId, input.geofenceId)),
+      .mutation(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+        }
+        return acknowledgeGeofenceAlert(ctx.user.id, input.familyGroupId, input.geofenceId);
+      }),
   }),
 
   health: router({
