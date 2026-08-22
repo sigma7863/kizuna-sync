@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { composeFamilyCheckInNote, familyCheckInStatuses, type FamilyCheckInStatus } from "@shared/familyCheckIn";
 import { formatFamilyTime } from "@shared/familyLocale";
 import { normalizeFamilyText } from "@shared/familyDataQuality";
+import { FamilyFollowUpPlan } from "@/components/FamilyFollowUpPlan";
 
 const checkInStatusLabelKeys: Record<FamilyCheckInStatus, "family.checkInStatusOkay" | "family.checkInStatusRest" | "family.checkInStatusAvailable"> = {
   okay: "family.checkInStatusOkay",
@@ -66,6 +67,7 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
           <p className="mt-1 break-words font-medium">{preview}</p>
           <p className="mt-1.5 flex items-start gap-1.5 text-xs leading-relaxed text-slate-500"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />{t("family.checkInPrivacy")}</p>
         </section>
+        <FamilyFollowUpPlan familyGroupId={familyGroupId} />
         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-600" disabled={checkIn.isPending || familyGroupId <= 0} aria-describedby="family-checkin-selected family-checkin-preview family-checkin-status" onClick={sendCheckIn}>
           {checkIn.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="mr-2 h-4 w-4" aria-hidden="true" />}
           {checkIn.isPending ? t("family.checkInSubmitting") : t("family.checkInSubmit")}
