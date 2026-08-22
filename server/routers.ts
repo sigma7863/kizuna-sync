@@ -289,6 +289,15 @@ import {
   createFamilyNextStepCard,
   getFamilyNextStepCards,
   updateFamilyNextStepCard,
+  createFamilyHouseholdTip,
+  getFamilyHouseholdTips,
+  updateFamilyHouseholdTip,
+  createFamilyPackingCheck,
+  getFamilyPackingChecks,
+  updateFamilyPackingCheck,
+  createFamilyTogetherPick,
+  getFamilyTogetherPicks,
+  updateFamilyTogetherPick,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -1115,6 +1124,21 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyNextStepCards(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), step: z.string().trim().min(1).max(180), reason: z.string().trim().max(220).optional() })).mutation(({ ctx, input }) => createFamilyNextStepCard({ ...input, reason: input.reason || undefined, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), cardId: z.number(), isTaken: z.boolean() })).mutation(({ input }) => updateFamilyNextStepCard(input)),
+  }),
+  householdTips: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyHouseholdTips(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), tip: z.string().trim().min(1).max(180), category: z.string().trim().max(80).optional() })).mutation(({ ctx, input }) => createFamilyHouseholdTip({ ...input, category: input.category || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), tipId: z.number(), isHelpful: z.boolean() })).mutation(({ input }) => updateFamilyHouseholdTip(input)),
+  }),
+  packingChecks: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyPackingChecks(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), item: z.string().trim().min(1).max(140), occasion: z.string().trim().max(100).optional() })).mutation(({ ctx, input }) => createFamilyPackingCheck({ ...input, occasion: input.occasion || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), checkId: z.number(), isChecked: z.boolean() })).mutation(({ input }) => updateFamilyPackingCheck(input)),
+  }),
+  togetherPicks: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyTogetherPicks(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), pick: z.string().trim().min(1).max(180), kind: z.string().trim().max(80).optional() })).mutation(({ ctx, input }) => createFamilyTogetherPick({ ...input, kind: input.kind || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), pickId: z.number(), isEnjoyed: z.boolean() })).mutation(({ input }) => updateFamilyTogetherPick(input)),
   }),
 
   activity: router({

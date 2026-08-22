@@ -344,6 +344,13 @@
       "when": 1787378296031,
       "tag": "0048_spooky_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "5",
+      "when": 1787378579244,
+      "tag": "0049_handy_ma_gnuci",
+      "breakpoints": true
     }
   ]
 }
