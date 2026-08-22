@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock, Images } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, type KeyboardEvent } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
 import { SafetyGuardian } from "@/components/SafetyGuardian";
@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -241,6 +241,22 @@ export default function FamilyDetail() {
     setTabShareStatus("idle");
     window.localStorage.setItem(lastOpenedTabStorageKey, tab);
     setLocation(createFamilyDetailTabPath(familyGroupId, tab));
+  };
+  const handleFamilyTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const sourceTab = normalizeFamilyDetailTab((event.target as HTMLElement).dataset.familyTab);
+    const moveByKey: Record<string, "next" | "previous" | "first" | "last"> = {
+      ArrowRight: "next",
+      ArrowLeft: "previous",
+      Home: "first",
+      End: "last",
+    };
+    const move = moveByKey[event.key];
+    if (!sourceTab || !move) return;
+
+    event.preventDefault();
+    const nextTab = getMovedFamilyDetailTab(sourceTab, move);
+    changeActiveTab(nextTab);
+    requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(`[data-family-tab="${nextTab}"]`)?.focus());
   };
   const handleQuickHubAction = (action: QuickHubAction) => {
     if (action === "safety") changeActiveTab("safety");
@@ -553,10 +569,11 @@ export default function FamilyDetail() {
             </Button>
           </div>
         </div>
-        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" aria-label="家族機能の切り替え">
+        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" aria-label={t("family.switchFeatures")} aria-describedby="family-tab-keyboard-help" onKeyDown={handleFamilyTabKeyDown}>
           <button
             onClick={() => changeActiveTab("timeline")}
             aria-pressed={activeTab === "timeline"}
+            data-family-tab="timeline"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "timeline"
                 ? "border-pink-500 text-pink-600"
@@ -569,6 +586,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("safety")}
             aria-pressed={activeTab === "safety"}
+            data-family-tab="safety"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "safety"
                 ? "border-green-500 text-green-600"
@@ -581,6 +599,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("trail")}
             aria-pressed={activeTab === "trail"}
+            data-family-tab="trail"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "trail"
                 ? "border-indigo-500 text-indigo-600"
@@ -593,6 +612,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("ai")}
             aria-pressed={activeTab === "ai"}
+            data-family-tab="ai"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "ai"
                 ? "border-yellow-500 text-yellow-600"
@@ -605,6 +625,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("assistant")}
             aria-pressed={activeTab === "assistant"}
+            data-family-tab="assistant"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "assistant"
                 ? "border-indigo-500 text-indigo-600"
@@ -617,6 +638,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("celebration")}
             aria-pressed={activeTab === "celebration"}
+            data-family-tab="celebration"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "celebration"
                 ? "border-pink-500 text-pink-600"
@@ -629,6 +651,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("digest")}
             aria-pressed={activeTab === "digest"}
+            data-family-tab="digest"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "digest"
                 ? "border-amber-500 text-amber-600"
@@ -641,6 +664,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("album")}
             aria-pressed={activeTab === "album"}
+            data-family-tab="album"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "album"
                 ? "border-sky-500 text-sky-600"
@@ -653,6 +677,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("automation")}
             aria-pressed={activeTab === "automation"}
+            data-family-tab="automation"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "automation"
                 ? "border-amber-500 text-amber-600"
@@ -665,6 +690,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("health")}
             aria-pressed={activeTab === "health"}
+            data-family-tab="health"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "health"
                 ? "border-rose-500 text-rose-600"
@@ -677,6 +703,7 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("stats")}
             aria-pressed={activeTab === "stats"}
+            data-family-tab="stats"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "stats"
                 ? "border-purple-500 text-purple-600"
@@ -688,6 +715,7 @@ export default function FamilyDetail() {
           </button>
         </div>
 
+        <p id="family-tab-keyboard-help" className="sr-only" lang={language}>{t("family.tabKeyboardHelp")}</p>
         <p className="sr-only" aria-live="polite" lang={language}>{t("family.currentFeature").replace("{tab}", activeTabLabel[activeTab])}</p>
         {tabShareStatus !== "idle" && (
           <p role="status" className="mb-4 text-sm text-gray-600">

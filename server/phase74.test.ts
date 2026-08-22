@@ -1,4 +1,4 @@
-import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, normalizeFamilyDetailTab } from "../shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -20,5 +20,12 @@ describe("family detail tab navigation phase 74", () => {
   it("再開するタブを家族ごとに別の保存キーへ分ける", () => {
     expect(getFamilyDetailTabStorageKey(42)).toBe("kizuna-sync-last-family-detail-tab:42");
     expect(getFamilyDetailTabStorageKey(43)).not.toBe(getFamilyDetailTabStorageKey(42));
+  });
+
+  it("キーボード操作で前後・先頭・末尾のタブへ移動する", () => {
+    expect(getMovedFamilyDetailTab("timeline", "previous")).toBe("health");
+    expect(getMovedFamilyDetailTab("timeline", "next")).toBe("safety");
+    expect(getMovedFamilyDetailTab("assistant", "first")).toBe("timeline");
+    expect(getMovedFamilyDetailTab("assistant", "last")).toBe("health");
   });
 });
