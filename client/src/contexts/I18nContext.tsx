@@ -209,6 +209,9 @@ type TranslationKey =
   | "family.offlineRecoveryConflictTitle"
   | "family.offlineRecoveryConflictDescription"
   | "family.offlineRecoveryConflictReview"
+  | "family.performanceLowDataActive"
+  | "family.performanceLowDataEnable"
+  | "family.performanceLowDataDisable"
   | "family.dailyRhythm"
   | "family.dailyRhythmMorning"
   | "family.dailyRhythmDaytime"
@@ -583,6 +586,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.offlineRecoveryConflictTitle": "最新情報の確認が必要です",
     "family.offlineRecoveryConflictDescription": "{count}件の送信待ち操作は、家族の更新と重なったため自動再送を止めました。",
     "family.offlineRecoveryConflictReview": "最新情報を確認する",
+    "family.performanceLowDataActive": "省データ表示中です。日常ツールは必要なときに読み込めます。",
+    "family.performanceLowDataEnable": "省データ表示にする",
+    "family.performanceLowDataDisable": "通常表示に戻す",
     "family.dailyRhythm": "今の時間におすすめの機能",
     "family.dailyRhythmMorning": "朝の準備と見守りを整えましょう",
     "family.dailyRhythmDaytime": "日中の安心と体調をやさしく確認しましょう",
@@ -929,6 +935,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.offlineRecoveryConflictTitle": "Review the latest information",
     "family.offlineRecoveryConflictDescription": "{count} queued actions overlap with a family update, so automatic resend was stopped.",
     "family.offlineRecoveryConflictReview": "Review latest information",
+    "family.performanceLowDataActive": "Low-data mode is on. Daily tools can load when you need them.",
+    "family.performanceLowDataEnable": "Use low-data mode",
+    "family.performanceLowDataDisable": "Use standard display",
     "family.dailyRhythm": "Helpful for this time of day",
     "family.dailyRhythmMorning": "Prepare for the morning and stay connected",
     "family.dailyRhythmDaytime": "Gently check daytime safety and wellbeing",
@@ -1275,6 +1284,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.offlineRecoveryConflictTitle": "需要确认最新信息",
     "family.offlineRecoveryConflictDescription": "有 {count} 项待发送操作与家庭更新重叠，已停止自动重发。",
     "family.offlineRecoveryConflictReview": "查看最新信息",
+    "family.performanceLowDataActive": "已开启省流量模式。需要时可加载日常工具。",
+    "family.performanceLowDataEnable": "使用省流量模式",
+    "family.performanceLowDataDisable": "恢复标准显示",
     "family.dailyRhythm": "适合当前时段的功能",
     "family.dailyRhythmMorning": "准备早晨，并与家人保持联系",
     "family.dailyRhythmDaytime": "温和地确认日间安全与健康状况",
@@ -1621,6 +1633,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.offlineRecoveryConflictTitle": "최신 정보 확인이 필요합니다",
     "family.offlineRecoveryConflictDescription": "대기 중인 {count}개의 작업이 가족 업데이트와 겹쳐 자동 재전송을 중지했습니다.",
     "family.offlineRecoveryConflictReview": "최신 정보 확인",
+    "family.performanceLowDataActive": "저데이터 모드가 켜져 있습니다. 일상 도구는 필요할 때 불러올 수 있습니다.",
+    "family.performanceLowDataEnable": "저데이터 모드 사용",
+    "family.performanceLowDataDisable": "기본 표시로 돌아가기",
     "family.dailyRhythm": "지금 시간에 도움이 되는 기능",
     "family.dailyRhythmMorning": "아침 준비와 가족 연결을 챙겨보세요",
     "family.dailyRhythmDaytime": "낮 동안의 안전과 컨디션을 살펴보세요",
