@@ -133,7 +133,8 @@ type TranslationKey =
   | "family.sharedCardOpened"
   | "family.motionReducedNavigation"
   | "family.showingNow"
-  | "family.openFeature";
+  | "family.openFeature"
+  | "family.focusCurrentFeature";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -270,6 +271,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.motionReducedNavigation": "端末の設定に合わせて、画面の移動アニメーションを抑えています。",
     "family.showingNow": "表示中",
     "family.openFeature": "機能を開く",
+    "family.focusCurrentFeature": "表示中の機能へ移動",
   },
   en: {
     "common.loading": "Loading...",
@@ -403,6 +405,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.motionReducedNavigation": "Screen movement animations are reduced to match your device setting.",
     "family.showingNow": "Showing",
     "family.openFeature": "Open feature",
+    "family.focusCurrentFeature": "Focus current feature",
   },
   zh: {
     "common.loading": "加载中...",
@@ -536,6 +539,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.motionReducedNavigation": "已根据设备设置减少页面移动动画。",
     "family.showingNow": "正在显示",
     "family.openFeature": "打开功能",
+    "family.focusCurrentFeature": "定位到当前功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -669,6 +673,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.motionReducedNavigation": "기기 설정에 맞춰 화면 이동 애니메이션을 줄였습니다.",
     "family.showingNow": "표시 중",
     "family.openFeature": "기능 열기",
+    "family.focusCurrentFeature": "현재 기능으로 이동",
   },
 };
 

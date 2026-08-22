@@ -25,6 +25,7 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.motionReducedNavigation"]).toBeTruthy();
       expect(messages[language]["family.showingNow"]).toBeTruthy();
       expect(messages[language]["family.openFeature"]).toBeTruthy();
+      expect(messages[language]["family.focusCurrentFeature"]).toBeTruthy();
     }
   });
 });
