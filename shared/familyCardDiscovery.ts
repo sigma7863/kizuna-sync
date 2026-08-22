@@ -40,3 +40,14 @@ const roleCardIds: Record<FamilyDiscoveryRole, string[]> = {
 };
 export function getRoleCardRecommendations(role: FamilyDiscoveryRole, cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return getShortcutCards(roleCardIds[role], cards, limit); }
 export function getResumeCards(recentIds: string[], favoriteIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return getShortcutCards([...recentIds, ...favoriteIds.filter((id) => !recentIds.includes(id))], cards, limit); }
+export type DiscoverySortMode = "featured" | "recent" | "title";
+export const DISCOVERY_PURPOSE_SHORTCUTS = [
+  { label: "今日のこと", group: "注目" },
+  { label: "予定を整える", group: "予定" },
+  { label: "暮らしのこと", group: "暮らし" },
+  { label: "一緒に楽しむ", group: "楽しみ" },
+  { label: "支え合う", group: "支え合い" },
+] as const;
+export function getDiscoveryPurposeShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return DISCOVERY_PURPOSE_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
+export function createDiscoveryGroupSharePath(group: string) { return `?cardGroup=${encodeURIComponent(group)}#family-card-navigator`; }
+export function normalizeDiscoverySortMode(value: unknown): DiscoverySortMode { return value === "recent" || value === "title" ? value : "featured"; }
