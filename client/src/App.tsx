@@ -1,29 +1,33 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
+import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./contexts/I18nContext";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import Home from "./pages/Home";
-import FamilyDetail from "./pages/FamilyDetail";
 import InviteMembers from "./pages/InviteMembers";
 import JoinFamily from "./pages/JoinFamily";
+
+const FamilyDetail = lazy(() => import("./pages/FamilyDetail"));
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/family/:id"} component={FamilyDetail} />
-      <Route path={"/family/:id/invite"} component={InviteMembers} />
-      <Route path={"/join/:code"} component={JoinFamily} />
-      <Route path={"/join"} component={JoinFamily} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<main className="min-h-screen bg-slate-950 p-6 text-center text-sm text-slate-200">家族ハブを準備しています…</main>}>
+      <Switch>
+        <Route path={"/"} component={Home} />
+        <Route path={"/family/:id"} component={FamilyDetail} />
+        <Route path={"/family/:id/invite"} component={InviteMembers} />
+        <Route path={"/join/:code"} component={JoinFamily} />
+        <Route path={"/join"} component={JoinFamily} />
+        <Route path={"/404"} component={NotFound} />
+        {/* Final fallback route */}
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

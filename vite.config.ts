@@ -167,6 +167,16 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes(`${path.sep}client${path.sep}src${path.sep}components${path.sep}Family`)) {
+            const initial = path.basename(id).replace("Family", "").charAt(0).toLowerCase() || "core";
+            return `family-${initial}`;
+          }
+        },
+      },
+    },
   },
   server: {
     host: true,
