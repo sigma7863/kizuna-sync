@@ -45,3 +45,7 @@ export function getMovedFamilyDetailTab(currentTab: FamilyDetailTab, move: Famil
   if (move === "next") return familyDetailTabs[(currentIndex + 1) % familyDetailTabs.length];
   return familyDetailTabs[(currentIndex - 1 + familyDetailTabs.length) % familyDetailTabs.length];
 }
+
+export function getFamilyNavigationScrollBehavior(prefersReducedMotion: boolean): "smooth" | "auto" {
+  return prefersReducedMotion ? "auto" : "smooth";
+}
