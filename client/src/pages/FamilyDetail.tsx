@@ -62,6 +62,7 @@ import { FamilyFunCountdown } from "@/components/FamilyFunCountdown";
 import { FamilyMemoryQuiz } from "@/components/FamilyMemoryQuiz";
 import { FamilyRoleQuickHub } from "@/components/FamilyRoleQuickHub";
 import { FamilyDisplaySettings } from "@/components/FamilyDisplaySettings";
+import { FamilySharingControls } from "@/components/FamilySharingControls";
 import { FamilyImportantShortcuts } from "@/components/FamilyImportantShortcuts";
 import { FamilyWeekendReflection } from "@/components/FamilyWeekendReflection";
 import { FamilySupportMap } from "@/components/FamilySupportMap";
@@ -629,6 +630,7 @@ export default function FamilyDetail() {
           <FamilyDisplaySettings />
           <FamilyImportantShortcuts onSafety={() => changeActiveTab("safety")} onMood={() => scrollToElement("share-feeling")} onDaily={() => scrollToElement("family-daily-cards")}/>
         </div>
+        <div className="mb-6"><FamilySharingControls familyGroupId={familyGroupId} currentUserRole={currentMemberRole} /></div>
         <FamilyCardNavigator onOpen={scrollToElement} role={currentMemberRole}/>
 
         <div className="mb-6 grid gap-4 md:grid-cols-3">

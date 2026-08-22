@@ -258,7 +258,23 @@ type TranslationKey =
   | "family.additionalDailyToolsDescription"
   | "family.additionalDailyToolsOpen"
   | "family.additionalDailyToolsClose"
-  | "family.additionalDailyToolsLoading";
+  | "family.additionalDailyToolsLoading"
+  | "family.sharingTitle"
+  | "family.sharingDescription"
+  | "family.sharingLocation"
+  | "family.sharingLocationDetail"
+  | "family.sharingHealth"
+  | "family.sharingHealthDetail"
+  | "family.sharingCheckIn"
+  | "family.sharingCheckInDetail"
+  | "family.sharingActive"
+  | "family.sharingPaused"
+  | "family.sharingSaving"
+  | "family.sharingSaved"
+  | "family.sharingFailed"
+  | "family.sharingGuardianSummary"
+  | "family.sharingGuardianDescription"
+  | "family.sharingSignalCount";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -520,6 +536,22 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.additionalDailyToolsOpen": "追加ツールを開く",
     "family.additionalDailyToolsClose": "追加ツールを閉じる",
     "family.additionalDailyToolsLoading": "追加ツールを準備しています…",
+    "family.sharingTitle": "見守り共有の設定",
+    "family.sharingDescription": "共有する内容はいつでも自分で選べます。停止中の項目は家族の見守り画面に新しく反映されません。",
+    "family.sharingLocation": "位置情報",
+    "family.sharingLocationDetail": "現在地と安全地帯の見守りに使います。",
+    "family.sharingHealth": "健康の目安",
+    "family.sharingHealthDetail": "歩数など、日々の様子を穏やかに共有します。",
+    "family.sharingCheckIn": "安心チェックイン",
+    "family.sharingCheckInDetail": "大丈夫・休みたい・話せるという状態を共有します。",
+    "family.sharingActive": "共有中",
+    "family.sharingPaused": "一時停止中",
+    "family.sharingSaving": "共有設定を更新しています…",
+    "family.sharingSaved": "共有設定を更新しました",
+    "family.sharingFailed": "共有設定を更新できませんでした。もう一度お試しください。",
+    "family.sharingGuardianSummary": "家族の共有状態",
+    "family.sharingGuardianDescription": "内容そのものではなく、各家族が共有を選んでいる項目数だけを表示します。",
+    "family.sharingSignalCount": "{count} / 3 項目を共有中",
   },
   en: {
     "common.loading": "Loading...",
@@ -778,6 +810,22 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.additionalDailyToolsOpen": "Open more tools",
     "family.additionalDailyToolsClose": "Close more tools",
     "family.additionalDailyToolsLoading": "Preparing more tools…",
+    "family.sharingTitle": "Sharing settings for family care",
+    "family.sharingDescription": "You choose what to share at any time. Paused signals will not be newly reflected in family care views.",
+    "family.sharingLocation": "Location",
+    "family.sharingLocationDetail": "Used for current-location and safe-area care.",
+    "family.sharingHealth": "Wellbeing signals",
+    "family.sharingHealthDetail": "Gently shares daily signals such as step counts.",
+    "family.sharingCheckIn": "Reassurance check-in",
+    "family.sharingCheckInDetail": "Shares whether you are okay, need rest, or are available to talk.",
+    "family.sharingActive": "Sharing",
+    "family.sharingPaused": "Paused",
+    "family.sharingSaving": "Updating sharing settings…",
+    "family.sharingSaved": "Sharing settings updated",
+    "family.sharingFailed": "Could not update sharing settings. Please try again.",
+    "family.sharingGuardianSummary": "Family sharing status",
+    "family.sharingGuardianDescription": "This shows only the number of signals each family member chose to share, not their content.",
+    "family.sharingSignalCount": "Sharing {count} / 3 signals",
   },
   zh: {
     "common.loading": "加载中...",
@@ -1036,6 +1084,22 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.additionalDailyToolsOpen": "打开更多工具",
     "family.additionalDailyToolsClose": "关闭更多工具",
     "family.additionalDailyToolsLoading": "正在准备更多工具…",
+    "family.sharingTitle": "家人关怀共享设置",
+    "family.sharingDescription": "您可以随时选择要共享的内容。暂停的项目不会再显示在家人的关怀视图中。",
+    "family.sharingLocation": "位置信息",
+    "family.sharingLocationDetail": "用于当前位置和安全区域关怀。",
+    "family.sharingHealth": "健康提示",
+    "family.sharingHealthDetail": "温和地共享步数等日常提示。",
+    "family.sharingCheckIn": "安心报平安",
+    "family.sharingCheckInDetail": "分享您是否安好、想休息或可以聊天。",
+    "family.sharingActive": "共享中",
+    "family.sharingPaused": "已暂停",
+    "family.sharingSaving": "正在更新共享设置…",
+    "family.sharingSaved": "已更新共享设置",
+    "family.sharingFailed": "无法更新共享设置，请再试一次。",
+    "family.sharingGuardianSummary": "家人共享状态",
+    "family.sharingGuardianDescription": "这里只显示每位家人选择共享的项目数，不显示内容本身。",
+    "family.sharingSignalCount": "已共享 {count} / 3 项",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -1294,6 +1358,22 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.additionalDailyToolsOpen": "추가 도구 열기",
     "family.additionalDailyToolsClose": "추가 도구 닫기",
     "family.additionalDailyToolsLoading": "추가 도구를 준비하고 있어요…",
+    "family.sharingTitle": "가족 돌봄 공유 설정",
+    "family.sharingDescription": "공유할 내용은 언제든 직접 선택할 수 있어요. 일시 중지한 항목은 가족 돌봄 화면에 새로 반영되지 않습니다.",
+    "family.sharingLocation": "위치 정보",
+    "family.sharingLocationDetail": "현재 위치와 안전 구역 돌봄에 사용합니다.",
+    "family.sharingHealth": "건강 신호",
+    "family.sharingHealthDetail": "걸음 수 같은 일상 신호를 부드럽게 공유합니다.",
+    "family.sharingCheckIn": "안심 체크인",
+    "family.sharingCheckInDetail": "괜찮은지, 쉬고 싶은지, 이야기할 수 있는지 공유합니다.",
+    "family.sharingActive": "공유 중",
+    "family.sharingPaused": "일시 중지",
+    "family.sharingSaving": "공유 설정을 업데이트하는 중…",
+    "family.sharingSaved": "공유 설정을 업데이트했어요",
+    "family.sharingFailed": "공유 설정을 업데이트할 수 없습니다. 다시 시도해 주세요.",
+    "family.sharingGuardianSummary": "가족 공유 상태",
+    "family.sharingGuardianDescription": "내용이 아니라 각 가족이 공유를 선택한 신호 수만 표시합니다.",
+    "family.sharingSignalCount": "{count} / 3개 신호 공유 중",
   },
 };
 

@@ -1540,6 +1540,19 @@ export const notificationSettings = mysqlTable("notification_settings", {
 export type NotificationSetting = typeof notificationSettings.$inferSelect;
 export type InsertNotificationSetting = typeof notificationSettings.$inferInsert;
 
+/** A family member's explicit, per-family consent for sensitive wellbeing signals. */
+export const familySharingPreferences = mysqlTable("family_sharing_preferences", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  shareLocation: boolean("share_location").default(true).notNull(),
+  shareHealth: boolean("share_health").default(true).notNull(),
+  shareCheckIn: boolean("share_check_in").default(true).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_sharing_preferences_group_user_idx").on(table.familyGroupId, table.userId)]);
+export type FamilySharingPreference = typeof familySharingPreferences.$inferSelect;
+export type InsertFamilySharingPreference = typeof familySharingPreferences.$inferInsert;
+
 
 /**
  * Geofence alert state - deduplication, acknowledgement, and re-notification state

@@ -320,6 +320,7 @@ import {
   AssistantLanguage,
   ScheduleAction,
 } from "./family-assistant";
+import { getFamilySharingPreference, listFamilySharingPreferences, saveFamilySharingPreference } from "./family-sharing-preferences";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut, storageGetSignedUrl } from "./storage";
 import { evaluateGeofenceForLocation } from "./geofence-monitor";
@@ -576,6 +577,26 @@ export const appRouter = router({
         ]);
         return buildTodayKizunaHighlights({ timeline, locations, health });
       }),
+  }),
+
+  sharingPreferences: router({
+    getMine: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return getFamilySharingPreference(input.familyGroupId, ctx.user.id);
+    }),
+    updateMine: protectedProcedure.input(z.object({ familyGroupId: z.number(), shareLocation: z.boolean(), shareHealth: z.boolean(), shareCheckIn: z.boolean() })).mutation(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return saveFamilySharingPreference({ ...input, userId: ctx.user.id });
+    }),
+    getGuardianSummary: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (getFamilyMemberRole(members, ctx.user.id) !== "guardian") throw new TRPCError({ code: "FORBIDDEN", message: "Guardian role is required" });
+      const preferences = await listFamilySharingPreferences(input.familyGroupId);
+      const byUserId = new Map(preferences.map((preference) => [preference.userId, preference]));
+      return members.map((member) => ({ userId: member.users.id, name: member.users.name ?? "家族", role: member.family_members.memberRole, preferences: byUserId.get(member.users.id) }));
+    }),
   }),
 
   helpBoard: router({
