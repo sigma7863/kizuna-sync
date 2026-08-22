@@ -76,6 +76,10 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.checkInSubmitting"]).toBeTruthy();
       expect(messages[language]["family.checkInSharedAt"]).toContain("{time}");
       expect(messages[language]["family.checkInFailed"]).toBeTruthy();
+      expect(messages[language]["family.checkInStatusHelp"]).toBeTruthy();
+      expect(messages[language]["family.checkInStatusOkay"]).toBeTruthy();
+      expect(messages[language]["family.checkInStatusRest"]).toBeTruthy();
+      expect(messages[language]["family.checkInStatusAvailable"]).toBeTruthy();
     }
   });
 });
