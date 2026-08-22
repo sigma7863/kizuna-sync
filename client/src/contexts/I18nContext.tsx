@@ -267,6 +267,16 @@ type TranslationKey =
   | "family.careMessageDeferFailed"
   | "family.careMessageDeferHelp"
   | "family.careMessageEmpty"
+  | "family.dailySupportTitle"
+  | "family.dailySupportDescription"
+  | "family.dailySupportActionGuardian"
+  | "family.dailySupportActionChild"
+  | "family.dailySupportActionElderly"
+  | "family.dailySupportShopping"
+  | "family.dailySupportHelp"
+  | "family.dailySupportCompleted"
+  | "family.dailySupportCheckIn"
+  | "family.dailySupportCheckInHelp"
   | "family.additionalDailyToolsTitle"
   | "family.additionalDailyToolsDescription"
   | "family.additionalDailyToolsOpen"
@@ -557,6 +567,16 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageDeferFailed": "後回しの状態を保存できませんでした。もう一度お試しください。",
     "family.careMessageDeferHelp": "今すぐ返信しなくて大丈夫です。準備ができたときに確認できます。",
     "family.careMessageEmpty": "今日の気づかいを、ひとこと残してみましょう。",
+    "family.dailySupportTitle": "今日の小さな支え合い",
+    "family.dailySupportDescription": "買い物・おたすけ・達成をまとめて、今できることを穏やかに見つけます。",
+    "family.dailySupportActionGuardian": "家族の様子を見ながら、無理のない分担を整えましょう。",
+    "family.dailySupportActionChild": "できそうなことを一つ選んで、家族を少し助けてみましょう。",
+    "family.dailySupportActionElderly": "無理のない範囲で、できることだけを選べば大丈夫です。",
+    "family.dailySupportShopping": "買い物",
+    "family.dailySupportHelp": "おたすけ",
+    "family.dailySupportCompleted": "できたこと",
+    "family.dailySupportCheckIn": "予定の前後に安心を知らせる",
+    "family.dailySupportCheckInHelp": "外出・帰宅・予定の前後に、短いチェックインで家族へ安心を伝えられます。",
     "family.additionalDailyToolsTitle": "もっと家族の毎日を整えるツール",
     "family.additionalDailyToolsDescription": "必要なときだけ開くことで、最初の表示を軽く保ちます。",
     "family.additionalDailyToolsOpen": "追加ツールを開く",
@@ -844,6 +864,16 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageDeferFailed": "Could not save the later state. Please try again.",
     "family.careMessageDeferHelp": "You do not need to reply right away. Review it when you feel ready.",
     "family.careMessageEmpty": "Leave a small caring note for today.",
+    "family.dailySupportTitle": "Small ways to help today",
+    "family.dailySupportDescription": "Bring shopping, help requests, and achievements together to gently find what you can do now.",
+    "family.dailySupportActionGuardian": "Coordinate a manageable share while keeping an eye on how everyone is doing.",
+    "family.dailySupportActionChild": "Choose one thing you can do and give your family a little help.",
+    "family.dailySupportActionElderly": "Choose only what feels comfortable. That is more than enough.",
+    "family.dailySupportShopping": "Shopping",
+    "family.dailySupportHelp": "Help",
+    "family.dailySupportCompleted": "Done",
+    "family.dailySupportCheckIn": "Share reassurance around plans",
+    "family.dailySupportCheckInHelp": "Before or after going out, returning home, or a plan, a short check-in can reassure your family.",
     "family.additionalDailyToolsTitle": "More tools for family life",
     "family.additionalDailyToolsDescription": "Open these only when needed to keep the first view lightweight.",
     "family.additionalDailyToolsOpen": "Open more tools",
@@ -1131,6 +1161,16 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageDeferFailed": "无法保存稍后状态，请再试一次。",
     "family.careMessageDeferHelp": "您不需要马上回复。准备好时再查看即可。",
     "family.careMessageEmpty": "今天也留下简短的一句关心吧。",
+    "family.dailySupportTitle": "今天的小小互助",
+    "family.dailySupportDescription": "汇总购物、求助和完成事项，温和地找到现在能做的事。",
+    "family.dailySupportActionGuardian": "留意家人的状态，安排力所能及的分担吧。",
+    "family.dailySupportActionChild": "选择一件能做的事，给家人一点帮助吧。",
+    "family.dailySupportActionElderly": "只选择感觉舒适的事情就好，这已经足够了。",
+    "family.dailySupportShopping": "购物",
+    "family.dailySupportHelp": "帮忙",
+    "family.dailySupportCompleted": "已完成",
+    "family.dailySupportCheckIn": "在计划前后报平安",
+    "family.dailySupportCheckInHelp": "外出、回家或计划前后，可用简短报平安让家人放心。",
     "family.additionalDailyToolsTitle": "更多家庭日常工具",
     "family.additionalDailyToolsDescription": "仅在需要时打开，以减轻首次显示的负担。",
     "family.additionalDailyToolsOpen": "打开更多工具",
@@ -1418,6 +1458,16 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageDeferFailed": "나중 상태를 저장할 수 없습니다. 다시 시도해 주세요.",
     "family.careMessageDeferHelp": "바로 답장하지 않아도 됩니다. 준비되었을 때 확인하세요.",
     "family.careMessageEmpty": "오늘의 따뜻한 한마디를 남겨 보세요.",
+    "family.dailySupportTitle": "오늘의 작은 서로 돕기",
+    "family.dailySupportDescription": "장보기, 도움 요청, 완료한 일을 모아 지금 할 수 있는 일을 부드럽게 찾습니다.",
+    "family.dailySupportActionGuardian": "가족 상태를 살피며 무리 없는 분담을 정리해 보세요.",
+    "family.dailySupportActionChild": "할 수 있는 일 하나를 골라 가족을 조금 도와보세요.",
+    "family.dailySupportActionElderly": "편안한 일만 골라도 충분합니다.",
+    "family.dailySupportShopping": "장보기",
+    "family.dailySupportHelp": "도움",
+    "family.dailySupportCompleted": "완료",
+    "family.dailySupportCheckIn": "일정 전후 안심 알리기",
+    "family.dailySupportCheckInHelp": "외출, 귀가 또는 일정 전후에 짧은 체크인으로 가족을 안심시킬 수 있어요.",
     "family.additionalDailyToolsTitle": "가족의 일상을 돕는 더 많은 도구",
     "family.additionalDailyToolsDescription": "필요할 때만 열어 첫 화면을 가볍게 유지합니다.",
     "family.additionalDailyToolsOpen": "추가 도구 열기",

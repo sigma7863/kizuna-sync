@@ -105,6 +105,8 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.checkInHistoryPrivacy"]).toBeTruthy();
       expect(messages[language]["family.careMessageLater"]).toBeTruthy();
       expect(messages[language]["family.careMessageDeferHelp"]).toBeTruthy();
+      expect(messages[language]["family.dailySupportTitle"]).toBeTruthy();
+      expect(messages[language]["family.dailySupportCheckInHelp"]).toBeTruthy();
     }
   });
 });
