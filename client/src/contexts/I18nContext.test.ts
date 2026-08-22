@@ -48,6 +48,8 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.removeRecommendation"]).toBeTruthy();
       expect(messages[language]["family.resetRecommendations"]).toBeTruthy();
       expect(messages[language]["family.shareRecommendations"]).toBeTruthy();
+      expect(messages[language]["family.safetyLauncher"]).toBeTruthy();
+      expect(messages[language]["family.safetyLauncherDescription"]).toBeTruthy();
     }
   });
 });

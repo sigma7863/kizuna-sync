@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailRecommendationStorageKey, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailRecommendationStorageKey, getFamilyDetailSafetyTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -289,6 +289,7 @@ export default function FamilyDetail() {
   const focusCurrentFamilyTab = () => document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.focus({ preventScroll: true });
   const focusCurrentFamilyContent = () => document.getElementById("family-current-feature")?.focus({ preventScroll: true });
   const focusFamilyFeatureSearch = () => featureSearchInputRef.current?.focus({ preventScroll: true });
+  const focusFamilySafetyLauncher = () => document.getElementById("family-safety-launcher")?.focus({ preventScroll: true });
   const centerCurrentFamilyTab = () => {
     document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.scrollIntoView({ behavior: getScrollBehavior(), block: "nearest", inline: "center" });
     setCurrentTabCentered(true);
@@ -311,6 +312,10 @@ export default function FamilyDetail() {
       if (event.altKey && event.key.toLowerCase() === "f") {
         event.preventDefault();
         focusFamilyFeatureSearch();
+      }
+      if (event.altKey && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        focusFamilySafetyLauncher();
       }
       if (event.key === "Escape" && (event.target as HTMLElement).dataset.familyTab) {
         event.preventDefault();
@@ -407,6 +412,7 @@ export default function FamilyDetail() {
   const activeTabPosition = getFamilyDetailTabPosition(activeTab);
   const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel);
   const recommendedTabs = customRecommendedTabs ?? getRecommendedFamilyDetailTabs(currentMemberRole);
+  const safetyTabs = getFamilyDetailSafetyTabs();
 
   const shareFamilyTab = async (tab: FamilyDetailTab, path: string, text: string) => {
     const url = new URL(path, window.location.origin).toString();
@@ -744,6 +750,17 @@ export default function FamilyDetail() {
               <Share2 className="mr-1.5 h-4 w-4" />
               {t("family.shareFeature")}
             </Button>
+          </div>
+        </div>
+        <div id="family-safety-launcher" tabIndex={-1} className="mb-3 rounded-lg border border-emerald-100 bg-emerald-50/70 p-3" aria-keyshortcuts="Alt+S">
+          <p className="text-sm font-medium text-emerald-900">{t("family.safetyLauncher")}</p>
+          <p className="mt-1 text-xs text-emerald-800">{t("family.safetyLauncherDescription")}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {safetyTabs.map((tab) => (
+              <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} disabled={activeTab === tab}>
+                {activeTabLabel[tab]}
+              </Button>
+            ))}
           </div>
         </div>
         <div className="mb-3 rounded-lg border border-purple-100 bg-purple-50/70 p-3">
