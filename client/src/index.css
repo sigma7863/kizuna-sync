@@ -157,6 +157,37 @@ html.a11y-reduced-motion *::after {
   transition-duration: 0.01ms !important;
 }
 
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 50%;
+  transform: translate(-50%, -180%);
+  border-radius: 0.5rem;
+  background: oklch(0.22 0.08 260);
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  transition: transform 150ms ease-out;
+}
+
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  outline: 3px solid oklch(0.72 0.18 85);
+  outline-offset: 3px;
+}
+
+:where(a, button, input, select, textarea, [role="button"]):focus-visible {
+  outline: 3px solid oklch(0.52 0.19 260) !important;
+  outline-offset: 3px;
+}
+
+@media (pointer: coarse) {
+  :where(button, [role="button"], input[type="checkbox"], input[type="radio"], select) {
+    min-height: 2.75rem;
+  }
+}
+
 @layer components {
   /**
    * Custom container utility that centers content and adds responsive padding.

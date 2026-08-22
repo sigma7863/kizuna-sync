@@ -7,6 +7,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./contexts/I18nContext";
 import { OfflineIndicator } from "./components/OfflineIndicator";
+import { AccessibilityNavigation } from "./components/AccessibilityNavigation";
 import Home from "./pages/Home";
 import InviteMembers from "./pages/InviteMembers";
 import JoinFamily from "./pages/JoinFamily";
@@ -45,6 +46,7 @@ function App() {
           switchable
         >
           <TooltipProvider>
+            <AccessibilityNavigation />
             <Toaster />
             <OfflineIndicator />
             <Router />

@@ -443,7 +443,7 @@ export default function FamilyDetail() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main id="main-content" tabIndex={-1} className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
           <FamilyNotificationCenter familyGroupId={familyGroupId} />
         </div>

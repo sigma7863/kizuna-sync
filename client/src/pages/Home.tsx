@@ -131,7 +131,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main id="main-content" tabIndex={-1} className="max-w-6xl mx-auto px-4 py-8">
         {familyGroups?.[0] && (
           <div className="mb-6 md:hidden">
             <FamilyQuickWidget
