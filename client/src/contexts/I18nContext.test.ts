@@ -41,6 +41,8 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.searchFeatures"]).toBeTruthy();
       expect(messages[language]["family.searchFeaturesPlaceholder"]).toBeTruthy();
       expect(messages[language]["family.noMatchingFeatures"]).toBeTruthy();
+      expect(messages[language]["family.searchResultsCount"]).toContain("{count}");
+      expect(messages[language]["family.clearSearch"]).toBeTruthy();
     }
   });
 });

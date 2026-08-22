@@ -151,7 +151,9 @@ type TranslationKey =
   | "family.unpinFeature"
   | "family.searchFeatures"
   | "family.searchFeaturesPlaceholder"
-  | "family.noMatchingFeatures";
+  | "family.noMatchingFeatures"
+  | "family.searchResultsCount"
+  | "family.clearSearch";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -306,6 +308,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchFeatures": "機能を検索",
     "family.searchFeaturesPlaceholder": "例: 写真、安心、予定",
     "family.noMatchingFeatures": "一致する機能はありません",
+    "family.searchResultsCount": "{count}件の機能が見つかりました",
+    "family.clearSearch": "検索をクリア",
   },
   en: {
     "common.loading": "Loading...",
@@ -457,6 +461,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchFeatures": "Search features",
     "family.searchFeaturesPlaceholder": "For example: photos, safety, schedule",
     "family.noMatchingFeatures": "No matching features found",
+    "family.searchResultsCount": "{count} features found",
+    "family.clearSearch": "Clear search",
   },
   zh: {
     "common.loading": "加载中...",
@@ -608,6 +614,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchFeatures": "搜索功能",
     "family.searchFeaturesPlaceholder": "例如：照片、安全、日程",
     "family.noMatchingFeatures": "未找到匹配的功能",
+    "family.searchResultsCount": "找到 {count} 个功能",
+    "family.clearSearch": "清除搜索",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -759,6 +767,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchFeatures": "기능 검색",
     "family.searchFeaturesPlaceholder": "예: 사진, 안심, 일정",
     "family.noMatchingFeatures": "일치하는 기능이 없습니다",
+    "family.searchResultsCount": "{count}개의 기능을 찾았습니다",
+    "family.clearSearch": "검색 지우기",
   },
 };
 

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Heart, ArrowLeft, Plus, Users, MessageSquare, Camera, Music, MapPin, Smile, Sparkles, Share2, Activity, CalendarClock, Images, Star } from "lucide-react";
-import { lazy, Suspense, useEffect, useState, type KeyboardEvent } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { KizunaRipple } from "@/components/KizunaRipple";
 import { SafetyGuardian } from "@/components/SafetyGuardian";
@@ -160,6 +160,7 @@ export default function FamilyDetail() {
   const [recentTabs, setRecentTabs] = useState<FamilyDetailTab[]>([]);
   const [pinnedTabs, setPinnedTabs] = useState<FamilyDetailTab[]>([]);
   const [tabSearchQuery, setTabSearchQuery] = useState("");
+  const featureSearchInputRef = useRef<HTMLInputElement>(null);
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
   const recentTabsStorageKey = getFamilyDetailTabRecentsStorageKey(familyGroupId);
   const pinnedTabsStorageKey = getFamilyDetailTabPinsStorageKey(familyGroupId);
@@ -273,6 +274,7 @@ export default function FamilyDetail() {
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
   const focusCurrentFamilyTab = () => document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.focus({ preventScroll: true });
   const focusCurrentFamilyContent = () => document.getElementById("family-current-feature")?.focus({ preventScroll: true });
+  const focusFamilyFeatureSearch = () => featureSearchInputRef.current?.focus({ preventScroll: true });
   const centerCurrentFamilyTab = () => {
     document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.scrollIntoView({ behavior: getScrollBehavior(), block: "nearest", inline: "center" });
     setCurrentTabCentered(true);
@@ -291,6 +293,10 @@ export default function FamilyDetail() {
       if (event.altKey && event.key.toLowerCase() === "m") {
         event.preventDefault();
         focusCurrentFamilyContent();
+      }
+      if (event.altKey && event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        focusFamilyFeatureSearch();
       }
       if (event.key === "Escape" && (event.target as HTMLElement).dataset.familyTab) {
         event.preventDefault();
@@ -715,18 +721,25 @@ export default function FamilyDetail() {
           <Label htmlFor="family-feature-search" className="text-sm font-medium text-gray-700">{t("family.searchFeatures")}</Label>
           <Input
             id="family-feature-search"
+            ref={featureSearchInputRef}
             value={tabSearchQuery}
             onChange={(event) => setTabSearchQuery(event.target.value)}
             placeholder={t("family.searchFeaturesPlaceholder")}
+            aria-describedby="family-feature-search-results"
+            aria-keyshortcuts="Alt+F"
             className="mt-2 bg-white"
           />
           {tabSearchQuery.trim() && (
-            <div className="mt-2 flex flex-wrap gap-2" aria-live="polite">
-              {matchingTabs.length ? matchingTabs.map((tab) => (
+            <div id="family-feature-search-results" className="mt-2" aria-live="polite">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm text-gray-600">{t("family.searchResultsCount").replace("{count}", String(matchingTabs.length))}</p>
+                <Button type="button" size="sm" variant="ghost" onClick={() => setTabSearchQuery("")}>{t("family.clearSearch")}</Button>
+              </div>
+              {matchingTabs.length ? <div className="mt-2 flex flex-wrap gap-2">{matchingTabs.map((tab) => (
                 <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => { changeActiveTab(tab); setTabSearchQuery(""); }}>
                   {activeTabLabel[tab]}
                 </Button>
-              )) : <p className="text-sm text-gray-600">{t("family.noMatchingFeatures")}</p>}
+              ))}</div> : <p className="mt-2 text-sm text-gray-600">{t("family.noMatchingFeatures")}</p>}
             </div>
           )}
         </div>
