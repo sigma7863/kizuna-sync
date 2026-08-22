@@ -12,6 +12,8 @@ type TranslationKey =
   | "common.cancel"
   | "common.confirm"
   | "common.language"
+  | "a11y.skipMain"
+  | "a11y.routeChanged"
   | "home.tagline"
   | "home.description"
   | "home.loginHint"
@@ -389,6 +391,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "common.cancel": "キャンセル",
     "common.confirm": "確認",
     "common.language": "言語",
+    "a11y.skipMain": "メインコンテンツへ移動",
+    "a11y.routeChanged": "画面を更新しました。メインコンテンツへ移動できます。",
     "home.tagline": "家族を繋ぐ、絆の同期アプリ",
     "home.description": "家族全員が日常の小さな行動や気持ちをリアルタイムで共有・見守り合えるアプリです。",
     "home.loginHint": "Manus OAuthで安全にログインできます",
@@ -738,6 +742,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "common.cancel": "Cancel",
     "common.confirm": "Confirm",
     "common.language": "Language",
+    "a11y.skipMain": "Skip to main content",
+    "a11y.routeChanged": "Screen updated. You can move to the main content.",
     "home.tagline": "A gentle sync for family connection",
     "home.description": "Share small moments in real time and quietly look out for one another.",
     "home.loginHint": "Secure sign-in with Manus OAuth",
@@ -1087,6 +1093,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "common.cancel": "取消",
     "common.confirm": "确认",
     "common.language": "语言",
+    "a11y.skipMain": "跳至主要内容",
+    "a11y.routeChanged": "页面已更新。您可以前往主要内容。",
     "home.tagline": "连接家人，同步温暖时刻",
     "home.description": "实时分享日常的小事和心情，安静地守护彼此。",
     "home.loginHint": "使用 Manus OAuth 安全登录",
@@ -1436,6 +1444,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "common.cancel": "취소",
     "common.confirm": "확인",
     "common.language": "언어",
+    "a11y.skipMain": "주요 콘텐츠로 건너뛰기",
+    "a11y.routeChanged": "화면이 업데이트되었습니다. 주요 콘텐츠로 이동할 수 있습니다.",
     "home.tagline": "가족을 연결하고 따뜻한 순간을 동기화해요",
     "home.description": "일상의 작은 행동과 마음을 실시간으로 나누고 서로를 조용히 돌보는 앱입니다.",
     "home.loginHint": "Manus OAuth로 안전하게 로그인할 수 있습니다",
