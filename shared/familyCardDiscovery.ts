@@ -67,3 +67,11 @@ export function normalizeDiscoverySharedState(value: { query?: unknown; group?: 
 export function getDailyDiscoveryPick(recentIds: string[], favoriteIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS) { return cards.find((card) => favoriteIds.includes(card.id) && !recentIds.includes(card.id)) ?? getUnvisitedCardSuggestions(recentIds, cards, 1)[0] ?? cards[0]; }
 export function getDiscoveryStateSummary(total: number, visible: number, state: { query: string; group: string; favoritesOnly: boolean }) { if (visible === 0) return "条件に合うカードはありません。言葉や絞り込みを変えてみましょう。"; const filters = [state.query && `「${state.query}」`, state.group !== "すべて" && state.group, state.favoritesOnly && "お気に入り"].filter(Boolean); return filters.length ? `${filters.join("・")}で ${visible}/${total} 枚を表示中` : `${visible} 枚のカードを表示中`; }
 export function normalizeDailySuggestionVisibility(value: unknown) { return value !== false; }
+export const DISCOVERY_SCENE_SHORTCUTS = [
+  { label: "朝の準備", group: "注目", description: "今日の優先を確認" },
+  { label: "出かける前", group: "暮らし", description: "持ち物や予定を確認" },
+  { label: "夜のひととき", group: "楽しみ", description: "一緒に楽しむ時間を探す" },
+] as const;
+export function getDiscoverySceneShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return DISCOVERY_SCENE_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
+export function getRelatedDiscoveryCards(cardId: string | undefined, cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 2) { const source = cards.find((card) => card.id === cardId); return source ? cards.filter((card) => card.id !== source.id && card.group === source.group).slice(0, limit) : []; }
+export function normalizeSceneSuggestionVisibility(value: unknown) { return value !== false; }
