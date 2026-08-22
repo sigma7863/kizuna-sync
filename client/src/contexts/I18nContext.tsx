@@ -176,7 +176,20 @@ type TranslationKey =
   | "family.shareEnergy"
   | "family.energyLoading"
   | "family.energyNotShared"
-  | "family.energyPrivacy";
+  | "family.energyPrivacy"
+  | "family.widgetTitle"
+  | "family.widgetRealtime"
+  | "family.widgetLocation"
+  | "family.widgetHealth"
+  | "family.widgetRipple"
+  | "family.widgetLocationEmpty"
+  | "family.widgetHealthEmpty"
+  | "family.widgetRippleEmpty"
+  | "family.widgetRippleShared"
+  | "family.widgetOpenSafety"
+  | "family.widgetOpenAssistant"
+  | "family.widgetOpenAlbum"
+  | "family.widgetSteps";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -356,6 +369,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyLoading": "元気度を読み込み中です…",
     "family.energyNotShared": "未共有",
     "family.energyPrivacy": "医療情報ではなく、その日の余力を本人が選んで伝えるためのメーターです。",
+    "family.widgetTitle": "いまの家族",
+    "family.widgetRealtime": "リアルタイム",
+    "family.widgetLocation": "見守り",
+    "family.widgetHealth": "ヘルス",
+    "family.widgetRipple": "波紋・会話",
+    "family.widgetLocationEmpty": "位置情報を共有するとここに表示されます",
+    "family.widgetHealthEmpty": "ヘルス記録なし",
+    "family.widgetRippleEmpty": "新しい波紋を待っています",
+    "family.widgetRippleShared": "{name}さんが新しい更新を共有",
+    "family.widgetOpenSafety": "見守りと健康を開く",
+    "family.widgetOpenAssistant": "家族AIアシスタントを開く",
+    "family.widgetOpenAlbum": "家族の思い出を開く",
+    "family.widgetSteps": "歩",
   },
   en: {
     "common.loading": "Loading...",
@@ -532,6 +558,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyLoading": "Loading energy levels…",
     "family.energyNotShared": "Not shared yet",
     "family.energyPrivacy": "This is not medical information; it is a self-chosen way to share today's capacity.",
+    "family.widgetTitle": "Family now",
+    "family.widgetRealtime": "Live",
+    "family.widgetLocation": "Safety",
+    "family.widgetHealth": "Health",
+    "family.widgetRipple": "Ripple & chat",
+    "family.widgetLocationEmpty": "Shared location will appear here",
+    "family.widgetHealthEmpty": "No health record",
+    "family.widgetRippleEmpty": "Waiting for a new ripple",
+    "family.widgetRippleShared": "{name} shared a new update",
+    "family.widgetOpenSafety": "Open safety and health",
+    "family.widgetOpenAssistant": "Open family AI assistant",
+    "family.widgetOpenAlbum": "Open family memories",
+    "family.widgetSteps": " steps",
   },
   zh: {
     "common.loading": "加载中...",
@@ -708,6 +747,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyLoading": "正在读取精力状态…",
     "family.energyNotShared": "尚未分享",
     "family.energyPrivacy": "这不是医疗信息，而是本人选择分享当天精力状态的方式。",
+    "family.widgetTitle": "家人现在的状态",
+    "family.widgetRealtime": "实时",
+    "family.widgetLocation": "守护",
+    "family.widgetHealth": "健康",
+    "family.widgetRipple": "涟漪与对话",
+    "family.widgetLocationEmpty": "分享位置后会显示在这里",
+    "family.widgetHealthEmpty": "暂无健康记录",
+    "family.widgetRippleEmpty": "正在等待新的涟漪",
+    "family.widgetRippleShared": "{name} 分享了新的动态",
+    "family.widgetOpenSafety": "打开守护与健康",
+    "family.widgetOpenAssistant": "打开家庭 AI 助手",
+    "family.widgetOpenAlbum": "打开家庭回忆",
+    "family.widgetSteps": "步",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -884,6 +936,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyLoading": "에너지 상태를 불러오는 중…",
     "family.energyNotShared": "아직 공유하지 않음",
     "family.energyPrivacy": "의료 정보가 아니라, 오늘의 여유를 직접 선택해 전하는 미터입니다.",
+    "family.widgetTitle": "지금의 가족",
+    "family.widgetRealtime": "실시간",
+    "family.widgetLocation": "안전 돌봄",
+    "family.widgetHealth": "건강",
+    "family.widgetRipple": "물결과 대화",
+    "family.widgetLocationEmpty": "위치를 공유하면 여기에 표시됩니다",
+    "family.widgetHealthEmpty": "건강 기록 없음",
+    "family.widgetRippleEmpty": "새로운 물결을 기다리는 중",
+    "family.widgetRippleShared": "{name}님이 새 소식을 공유했습니다",
+    "family.widgetOpenSafety": "안전과 건강 열기",
+    "family.widgetOpenAssistant": "가족 AI 도우미 열기",
+    "family.widgetOpenAlbum": "가족 추억 열기",
+    "family.widgetSteps": "걸음",
   },
 };
 

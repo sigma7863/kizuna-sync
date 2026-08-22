@@ -60,6 +60,13 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.energyLevel5"]).toBeTruthy();
       expect(messages[language]["family.shareEnergy"]).toBeTruthy();
       expect(messages[language]["family.energyPrivacy"]).toBeTruthy();
+      expect(messages[language]["family.widgetTitle"]).toBeTruthy();
+      expect(messages[language]["family.widgetRealtime"]).toBeTruthy();
+      expect(messages[language]["family.widgetLocationEmpty"]).toBeTruthy();
+      expect(messages[language]["family.widgetRippleShared"]).toContain("{name}");
+      expect(messages[language]["family.widgetOpenSafety"]).toBeTruthy();
+      expect(messages[language]["family.widgetOpenAssistant"]).toBeTruthy();
+      expect(messages[language]["family.widgetOpenAlbum"]).toBeTruthy();
     }
   });
 });
