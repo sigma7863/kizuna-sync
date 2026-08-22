@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailRecommendationStorageKey, getFamilyDetailSafetyTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailDailyRhythmTabs, getFamilyDetailDayPeriod, getFamilyDetailRecommendationStorageKey, getFamilyDetailSafetyTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailDayPeriod, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -413,6 +413,13 @@ export default function FamilyDetail() {
   const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel);
   const recommendedTabs = customRecommendedTabs ?? getRecommendedFamilyDetailTabs(currentMemberRole);
   const safetyTabs = getFamilyDetailSafetyTabs();
+  const dayPeriod = getFamilyDetailDayPeriod(new Date().getHours());
+  const dailyRhythmTabs = getFamilyDetailDailyRhythmTabs(dayPeriod);
+  const dailyRhythmDescriptionKey: Record<FamilyDetailDayPeriod, "family.dailyRhythmMorning" | "family.dailyRhythmDaytime" | "family.dailyRhythmEvening"> = {
+    morning: "family.dailyRhythmMorning",
+    daytime: "family.dailyRhythmDaytime",
+    evening: "family.dailyRhythmEvening",
+  };
 
   const shareFamilyTab = async (tab: FamilyDetailTab, path: string, text: string) => {
     const url = new URL(path, window.location.origin).toString();
@@ -757,6 +764,17 @@ export default function FamilyDetail() {
           <p className="mt-1 text-xs text-emerald-800">{t("family.safetyLauncherDescription")}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {safetyTabs.map((tab) => (
+              <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} disabled={activeTab === tab}>
+                {activeTabLabel[tab]}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <div className="mb-3 rounded-lg border border-amber-100 bg-amber-50/70 p-3">
+          <p className="text-sm font-medium text-amber-900">{t("family.dailyRhythm")}</p>
+          <p className="mt-1 text-xs text-amber-800">{t(dailyRhythmDescriptionKey[dayPeriod])}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {dailyRhythmTabs.map((tab) => (
               <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} disabled={activeTab === tab}>
                 {activeTabLabel[tab]}
               </Button>

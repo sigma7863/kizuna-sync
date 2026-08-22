@@ -160,7 +160,11 @@ type TranslationKey =
   | "family.resetRecommendations"
   | "family.shareRecommendations"
   | "family.safetyLauncher"
-  | "family.safetyLauncherDescription";
+  | "family.safetyLauncherDescription"
+  | "family.dailyRhythm"
+  | "family.dailyRhythmMorning"
+  | "family.dailyRhythmDaytime"
+  | "family.dailyRhythmEvening";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -324,6 +328,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "おすすめを家族に共有",
     "family.safetyLauncher": "安心のためのクイックアクセス",
     "family.safetyLauncherDescription": "見守り、健康、家族への相談をすぐに開けます",
+    "family.dailyRhythm": "今の時間におすすめの機能",
+    "family.dailyRhythmMorning": "朝の準備と見守りを整えましょう",
+    "family.dailyRhythmDaytime": "日中の安心と体調をやさしく確認しましょう",
+    "family.dailyRhythmEvening": "今日の思い出と会話をゆっくり振り返りましょう",
   },
   en: {
     "common.loading": "Loading...",
@@ -484,6 +492,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "Share recommendations with family",
     "family.safetyLauncher": "Quick access for peace of mind",
     "family.safetyLauncherDescription": "Open safety, health, or family support right away",
+    "family.dailyRhythm": "Helpful for this time of day",
+    "family.dailyRhythmMorning": "Prepare for the morning and stay connected",
+    "family.dailyRhythmDaytime": "Gently check daytime safety and wellbeing",
+    "family.dailyRhythmEvening": "Reflect on today's memories and conversations",
   },
   zh: {
     "common.loading": "加载中...",
@@ -644,6 +656,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "与家人分享推荐",
     "family.safetyLauncher": "安心快捷访问",
     "family.safetyLauncherDescription": "立即打开安全、健康或家庭支持功能",
+    "family.dailyRhythm": "适合当前时段的功能",
+    "family.dailyRhythmMorning": "准备早晨，并与家人保持联系",
+    "family.dailyRhythmDaytime": "温和地确认日间安全与健康状况",
+    "family.dailyRhythmEvening": "回顾今天的回忆与交流",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -804,6 +820,10 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "가족과 추천 공유",
     "family.safetyLauncher": "안심을 위한 빠른 접근",
     "family.safetyLauncherDescription": "안전, 건강 또는 가족 지원을 바로 열 수 있습니다",
+    "family.dailyRhythm": "지금 시간에 도움이 되는 기능",
+    "family.dailyRhythmMorning": "아침 준비와 가족 연결을 챙겨보세요",
+    "family.dailyRhythmDaytime": "낮 동안의 안전과 컨디션을 살펴보세요",
+    "family.dailyRhythmEvening": "오늘의 추억과 대화를 돌아보세요",
   },
 };
 

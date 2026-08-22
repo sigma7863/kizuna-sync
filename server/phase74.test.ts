@@ -3,6 +3,7 @@ import { getRecommendedFamilyDetailTabs } from "../shared/familyDetailTabs";
 import { getFamilyDetailRecommendationStorageKey, normalizeRecommendedFamilyDetailTabs, toggleRecommendedFamilyDetailTab } from "../shared/familyDetailTabs";
 import { createFamilyDetailRecommendationSharePath } from "../shared/familyDetailTabs";
 import { getFamilyDetailSafetyTabs } from "../shared/familyDetailTabs";
+import { getFamilyDetailDailyRhythmTabs, getFamilyDetailDayPeriod } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -84,5 +85,14 @@ describe("family detail tab navigation phase 74", () => {
 
   it("安心ランチャーには見守り・健康・相談の機能を並べる", () => {
     expect(getFamilyDetailSafetyTabs()).toEqual(["safety", "health", "assistant"]);
+  });
+
+  it("時間帯に合わせて家族の生活リズム機能を提案する", () => {
+    expect(getFamilyDetailDayPeriod(6)).toBe("morning");
+    expect(getFamilyDetailDayPeriod(14)).toBe("daytime");
+    expect(getFamilyDetailDayPeriod(22)).toBe("evening");
+    expect(getFamilyDetailDailyRhythmTabs("morning")).toEqual(["safety", "assistant", "timeline"]);
+    expect(getFamilyDetailDailyRhythmTabs("daytime")).toEqual(["trail", "health", "assistant"]);
+    expect(getFamilyDetailDailyRhythmTabs("evening")).toEqual(["digest", "album", "celebration"]);
   });
 });

@@ -140,3 +140,17 @@ export function createFamilyDetailRecommendationSharePath(familyGroupId: number,
 export function getFamilyDetailSafetyTabs(): FamilyDetailTab[] {
   return ["safety", "health", "assistant"];
 }
+
+export type FamilyDetailDayPeriod = "morning" | "daytime" | "evening";
+
+export function getFamilyDetailDayPeriod(hour: number): FamilyDetailDayPeriod {
+  if (hour >= 5 && hour < 11) return "morning";
+  if (hour >= 11 && hour < 18) return "daytime";
+  return "evening";
+}
+
+export function getFamilyDetailDailyRhythmTabs(period: FamilyDetailDayPeriod): FamilyDetailTab[] {
+  if (period === "morning") return ["safety", "assistant", "timeline"];
+  if (period === "daytime") return ["trail", "health", "assistant"];
+  return ["digest", "album", "celebration"];
+}
