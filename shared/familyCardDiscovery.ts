@@ -15,3 +15,6 @@ export const FAMILY_CARD_DISCOVERY_ITEMS: FamilyCardDiscoveryItem[] = [
 export function searchFamilyCards(query: string, cards = FAMILY_CARD_DISCOVERY_ITEMS) { const normalized = query.trim().toLocaleLowerCase("ja-JP"); return normalized ? cards.filter((card) => `${card.title} ${card.description} ${card.group}`.toLocaleLowerCase("ja-JP").includes(normalized)) : cards; }
 export function orderCardsByRecent(cards: FamilyCardDiscoveryItem[], recentIds: string[]) { const positions = new Map(recentIds.map((id, index) => [id, index])); return [...cards].sort((a, b) => (positions.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (positions.get(b.id) ?? Number.MAX_SAFE_INTEGER)); }
 export function recordRecentCard(recentIds: string[], cardId: string, maxItems = 4) { return [cardId, ...recentIds.filter((id) => id !== cardId)].slice(0, maxItems); }
+export function getDiscoveryGroups(cards = FAMILY_CARD_DISCOVERY_ITEMS) { return ["すべて", ...Array.from(new Set(cards.map((card) => card.group)))]; }
+export function filterCardsByGroup(cards: FamilyCardDiscoveryItem[], group: string) { return group === "すべて" ? cards : cards.filter((card) => card.group === group); }
+export function toggleFavoriteCard(favoriteIds: string[], cardId: string) { return favoriteIds.includes(cardId) ? favoriteIds.filter((id) => id !== cardId) : [cardId, ...favoriteIds]; }
