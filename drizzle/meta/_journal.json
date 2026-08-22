@@ -330,6 +330,13 @@
       "when": 1787236810203,
       "tag": "0046_condemned_warbird",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "5",
+      "when": 1787238349390,
+      "tag": "0047_powerful_mephisto",
+      "breakpoints": true
     }
   ]
 }

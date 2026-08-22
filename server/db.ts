@@ -108,6 +108,9 @@ import {
   familyJournalRelayEntries,
   familyConversationTopics,
   familyAppreciationCards,
+  familyRoleBatons,
+  familyPlaceCards,
+  familyNoticeBoards,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -847,6 +850,18 @@ export async function updateFamilyConversationTopic(input: { familyGroupId: numb
 export async function createFamilyAppreciationCard(input: { familyGroupId: number; userId: number; recipientName: string; message: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const result = await db.insert(familyAppreciationCards).values(input); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...input, isSeen: false }; }
 export async function getFamilyAppreciationCards(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyAppreciationCards).where(eq(familyAppreciationCards.familyGroupId, familyGroupId)).orderBy(familyAppreciationCards.isSeen, desc(familyAppreciationCards.createdAt)).limit(30) : []; }
 export async function updateFamilyAppreciationCard(input: { familyGroupId: number; cardId: number; isSeen: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyAppreciationCards).set({ isSeen: input.isSeen }).where(and(eq(familyAppreciationCards.id, input.cardId), eq(familyAppreciationCards.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyRoleBaton(input: { familyGroupId: number; userId: number; task: string; nextPerson?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, nextPerson: input.nextPerson ?? null }; const result = await db.insert(familyRoleBatons).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isCompleted: false }; }
+export async function getFamilyRoleBatons(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyRoleBatons).where(eq(familyRoleBatons.familyGroupId, familyGroupId)).orderBy(familyRoleBatons.isCompleted, desc(familyRoleBatons.createdAt)).limit(30) : []; }
+export async function updateFamilyRoleBaton(input: { familyGroupId: number; batonId: number; isCompleted: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyRoleBatons).set({ isCompleted: input.isCompleted }).where(and(eq(familyRoleBatons.id, input.batonId), eq(familyRoleBatons.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyPlaceCard(input: { familyGroupId: number; userId: number; placeName: string; reason?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, reason: input.reason ?? null }; const result = await db.insert(familyPlaceCards).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isVisited: false }; }
+export async function getFamilyPlaceCards(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyPlaceCards).where(eq(familyPlaceCards.familyGroupId, familyGroupId)).orderBy(familyPlaceCards.isVisited, desc(familyPlaceCards.createdAt)).limit(30) : []; }
+export async function updateFamilyPlaceCard(input: { familyGroupId: number; placeId: number; isVisited: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyPlaceCards).set({ isVisited: input.isVisited }).where(and(eq(familyPlaceCards.id, input.placeId), eq(familyPlaceCards.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyNoticeBoard(input: { familyGroupId: number; userId: number; notice: string; detail?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, detail: input.detail ?? null }; const result = await db.insert(familyNoticeBoards).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isAcknowledged: false }; }
+export async function getFamilyNoticeBoards(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyNoticeBoards).where(eq(familyNoticeBoards.familyGroupId, familyGroupId)).orderBy(familyNoticeBoards.isAcknowledged, desc(familyNoticeBoards.createdAt)).limit(30) : []; }
+export async function updateFamilyNoticeBoard(input: { familyGroupId: number; noticeId: number; isAcknowledged: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyNoticeBoards).set({ isAcknowledged: input.isAcknowledged }).where(and(eq(familyNoticeBoards.id, input.noticeId), eq(familyNoticeBoards.familyGroupId, input.familyGroupId))); }
 export async function advanceFamilyMonthlyChallenge(input: { familyGroupId: number; challengeId: number; delta: number }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const [current] = await db.select().from(familyMonthlyChallenges).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))).limit(1); if (!current) throw new Error("Challenge not found"); const nextProgress = Math.max(0, current.progressCount + input.delta); return db.update(familyMonthlyChallenges).set({ progressCount: nextProgress, isCompleted: nextProgress >= current.targetCount }).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))); }
 
 // Activity queries

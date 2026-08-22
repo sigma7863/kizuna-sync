@@ -271,6 +271,15 @@ import {
   createFamilyAppreciationCard,
   getFamilyAppreciationCards,
   updateFamilyAppreciationCard,
+  createFamilyRoleBaton,
+  getFamilyRoleBatons,
+  updateFamilyRoleBaton,
+  createFamilyPlaceCard,
+  getFamilyPlaceCards,
+  updateFamilyPlaceCard,
+  createFamilyNoticeBoard,
+  getFamilyNoticeBoards,
+  updateFamilyNoticeBoard,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -1067,6 +1076,21 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyAppreciationCards(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), recipientName: z.string().trim().min(1).max(80), message: z.string().trim().min(1).max(220) })).mutation(({ ctx, input }) => createFamilyAppreciationCard({ ...input, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), cardId: z.number(), isSeen: z.boolean() })).mutation(({ input }) => updateFamilyAppreciationCard(input)),
+  }),
+  roleBatons: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyRoleBatons(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), task: z.string().trim().min(1).max(180), nextPerson: z.string().trim().max(80).optional() })).mutation(({ ctx, input }) => createFamilyRoleBaton({ ...input, nextPerson: input.nextPerson || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), batonId: z.number(), isCompleted: z.boolean() })).mutation(({ input }) => updateFamilyRoleBaton(input)),
+  }),
+  placeCards: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyPlaceCards(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), placeName: z.string().trim().min(1).max(160), reason: z.string().trim().max(220).optional() })).mutation(({ ctx, input }) => createFamilyPlaceCard({ ...input, reason: input.reason || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), placeId: z.number(), isVisited: z.boolean() })).mutation(({ input }) => updateFamilyPlaceCard(input)),
+  }),
+  noticeBoards: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyNoticeBoards(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), notice: z.string().trim().min(1).max(220), detail: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyNoticeBoard({ ...input, detail: input.detail || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), noticeId: z.number(), isAcknowledged: z.boolean() })).mutation(({ input }) => updateFamilyNoticeBoard(input)),
   }),
 
   activity: router({

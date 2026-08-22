@@ -1,0 +1,1 @@
+export function countOpenItems(items: Array<{ completed?: boolean; visited?: boolean; acknowledged?: boolean }>) { return items.filter((item) => !item.completed && !item.visited && !item.acknowledged).length; }
