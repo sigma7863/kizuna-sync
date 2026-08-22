@@ -647,10 +647,12 @@ export default function FamilyDetail() {
             </Button>
           </div>
         </div>
-        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" aria-label={t("family.switchFeatures")} aria-describedby="family-tab-keyboard-help" onKeyDown={handleFamilyTabKeyDown}>
+        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" role="tablist" aria-label={t("family.switchFeatures")} aria-describedby="family-tab-keyboard-help" aria-keyshortcuts="Alt+T ArrowLeft ArrowRight Home End Escape" onKeyDown={handleFamilyTabKeyDown}>
           <button
             onClick={() => changeActiveTab("timeline")}
+            role="tab"
             aria-pressed={activeTab === "timeline"}
+            aria-selected={activeTab === "timeline"}
             aria-current={activeTab === "timeline" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.timeline")}`}
             data-family-tab="timeline"
@@ -665,7 +667,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("safety")}
+            role="tab"
             aria-pressed={activeTab === "safety"}
+            aria-selected={activeTab === "safety"}
             aria-current={activeTab === "safety" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.safety")}`}
             data-family-tab="safety"
@@ -680,7 +684,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("trail")}
+            role="tab"
             aria-pressed={activeTab === "trail"}
+            aria-selected={activeTab === "trail"}
             aria-current={activeTab === "trail" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.trailHeatmap")}`}
             data-family-tab="trail"
@@ -695,7 +701,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("ai")}
+            role="tab"
             aria-pressed={activeTab === "ai"}
+            aria-selected={activeTab === "ai"}
             aria-current={activeTab === "ai" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.aiProposal")}`}
             data-family-tab="ai"
@@ -710,7 +718,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("assistant")}
+            role="tab"
             aria-pressed={activeTab === "assistant"}
+            aria-selected={activeTab === "assistant"}
             aria-current={activeTab === "assistant" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.assistant")}`}
             data-family-tab="assistant"
@@ -725,7 +735,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("celebration")}
+            role="tab"
             aria-pressed={activeTab === "celebration"}
+            aria-selected={activeTab === "celebration"}
             aria-current={activeTab === "celebration" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.celebration")}`}
             data-family-tab="celebration"
@@ -740,7 +752,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("digest")}
+            role="tab"
             aria-pressed={activeTab === "digest"}
+            aria-selected={activeTab === "digest"}
             aria-current={activeTab === "digest" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.digestAlbum")}`}
             data-family-tab="digest"
@@ -755,7 +769,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("album")}
+            role="tab"
             aria-pressed={activeTab === "album"}
+            aria-selected={activeTab === "album"}
             aria-current={activeTab === "album" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.album")}`}
             data-family-tab="album"
@@ -770,7 +786,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("automation")}
+            role="tab"
             aria-pressed={activeTab === "automation"}
+            aria-selected={activeTab === "automation"}
             aria-current={activeTab === "automation" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.weeklyAi")}`}
             data-family-tab="automation"
@@ -785,7 +803,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("health")}
+            role="tab"
             aria-pressed={activeTab === "health"}
+            aria-selected={activeTab === "health"}
             aria-current={activeTab === "health" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.healthExperience")}`}
             data-family-tab="health"
@@ -800,7 +820,9 @@ export default function FamilyDetail() {
           </button>
           <button
             onClick={() => changeActiveTab("stats")}
+            role="tab"
             aria-pressed={activeTab === "stats"}
+            aria-selected={activeTab === "stats"}
             aria-current={activeTab === "stats" ? "page" : undefined}
             aria-label={`${t("family.openFeature")}: ${t("family.stats")}`}
             data-family-tab="stats"
