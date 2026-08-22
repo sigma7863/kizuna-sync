@@ -67,6 +67,10 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.widgetOpenSafety"]).toBeTruthy();
       expect(messages[language]["family.widgetOpenAssistant"]).toBeTruthy();
       expect(messages[language]["family.widgetOpenAlbum"]).toBeTruthy();
+      expect(messages[language]["family.displaySettingsTitle"]).toBeTruthy();
+      expect(messages[language]["family.displayTextSize"]).toBeTruthy();
+      expect(messages[language]["family.displaySizeXLarge"]).toBeTruthy();
+      expect(messages[language]["family.displayUpdated"]).toContain("{setting}");
     }
   });
 });

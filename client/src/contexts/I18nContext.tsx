@@ -189,7 +189,18 @@ type TranslationKey =
   | "family.widgetOpenSafety"
   | "family.widgetOpenAssistant"
   | "family.widgetOpenAlbum"
-  | "family.widgetSteps";
+  | "family.widgetSteps"
+  | "family.displaySettingsTitle"
+  | "family.displaySettingsDescription"
+  | "family.displayTextSize"
+  | "family.displaySizeStandard"
+  | "family.displaySizeLarge"
+  | "family.displaySizeXLarge"
+  | "family.displayHighContrast"
+  | "family.displayReducedMotion"
+  | "family.displayEnabled"
+  | "family.displayDisabled"
+  | "family.displayUpdated";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -382,6 +393,17 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.widgetOpenAssistant": "家族AIアシスタントを開く",
     "family.widgetOpenAlbum": "家族の思い出を開く",
     "family.widgetSteps": "歩",
+    "family.displaySettingsTitle": "やさしい表示設定",
+    "family.displaySettingsDescription": "この端末で、見やすさと動きの量を選べます。",
+    "family.displayTextSize": "文字の大きさ",
+    "family.displaySizeStandard": "標準",
+    "family.displaySizeLarge": "大きめ",
+    "family.displaySizeXLarge": "最大",
+    "family.displayHighContrast": "高コントラスト",
+    "family.displayReducedMotion": "動きを控えめにする",
+    "family.displayEnabled": "オン",
+    "family.displayDisabled": "オフ",
+    "family.displayUpdated": "{setting}を{value}にしました。",
   },
   en: {
     "common.loading": "Loading...",
@@ -571,6 +593,17 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.widgetOpenAssistant": "Open family AI assistant",
     "family.widgetOpenAlbum": "Open family memories",
     "family.widgetSteps": " steps",
+    "family.displaySettingsTitle": "Gentle display settings",
+    "family.displaySettingsDescription": "Choose readability and motion for this device.",
+    "family.displayTextSize": "Text size",
+    "family.displaySizeStandard": "Standard",
+    "family.displaySizeLarge": "Large",
+    "family.displaySizeXLarge": "Extra large",
+    "family.displayHighContrast": "High contrast",
+    "family.displayReducedMotion": "Reduce motion",
+    "family.displayEnabled": "On",
+    "family.displayDisabled": "Off",
+    "family.displayUpdated": "{setting} is now {value}.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -760,6 +793,17 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.widgetOpenAssistant": "打开家庭 AI 助手",
     "family.widgetOpenAlbum": "打开家庭回忆",
     "family.widgetSteps": "步",
+    "family.displaySettingsTitle": "易读显示设置",
+    "family.displaySettingsDescription": "为此设备选择易读程度和动画效果。",
+    "family.displayTextSize": "文字大小",
+    "family.displaySizeStandard": "标准",
+    "family.displaySizeLarge": "较大",
+    "family.displaySizeXLarge": "最大",
+    "family.displayHighContrast": "高对比度",
+    "family.displayReducedMotion": "减少动画",
+    "family.displayEnabled": "开启",
+    "family.displayDisabled": "关闭",
+    "family.displayUpdated": "{setting}已设为{value}。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -949,6 +993,17 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.widgetOpenAssistant": "가족 AI 도우미 열기",
     "family.widgetOpenAlbum": "가족 추억 열기",
     "family.widgetSteps": "걸음",
+    "family.displaySettingsTitle": "편안한 표시 설정",
+    "family.displaySettingsDescription": "이 기기에서 가독성과 움직임의 정도를 선택하세요.",
+    "family.displayTextSize": "글자 크기",
+    "family.displaySizeStandard": "기본",
+    "family.displaySizeLarge": "크게",
+    "family.displaySizeXLarge": "가장 크게",
+    "family.displayHighContrast": "고대비",
+    "family.displayReducedMotion": "움직임 줄이기",
+    "family.displayEnabled": "켜기",
+    "family.displayDisabled": "끄기",
+    "family.displayUpdated": "{setting}을(를) {value}(으)로 설정했습니다.",
   },
 };
 
