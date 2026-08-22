@@ -1387,6 +1387,42 @@ export const familyNextStepCards = mysqlTable("family_next_step_cards", {
 }, (table) => [index("family_next_step_cards_group_taken_idx").on(table.familyGroupId, table.isTaken)]);
 export type FamilyNextStepCard = typeof familyNextStepCards.$inferSelect;
 
+/** Practical family tips for shared household routines. */
+export const familyHouseholdTips = mysqlTable("family_household_tips", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  tip: varchar("tip", { length: 180 }).notNull(),
+  category: varchar("category", { length: 80 }),
+  isHelpful: boolean("is_helpful").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_household_tips_group_helpful_idx").on(table.familyGroupId, table.isHelpful)]);
+export type FamilyHouseholdTip = typeof familyHouseholdTips.$inferSelect;
+
+/** Family items to check before leaving home. */
+export const familyPackingChecks = mysqlTable("family_packing_checks", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  item: varchar("item", { length: 140 }).notNull(),
+  occasion: varchar("occasion", { length: 100 }),
+  isChecked: boolean("is_checked").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_packing_checks_group_checked_idx").on(table.familyGroupId, table.isChecked)]);
+export type FamilyPackingCheck = typeof familyPackingChecks.$inferSelect;
+
+/** Things the family wants to watch, listen to, or play together. */
+export const familyTogetherPicks = mysqlTable("family_together_picks", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  pick: varchar("pick", { length: 180 }).notNull(),
+  kind: varchar("kind", { length: 80 }),
+  isEnjoyed: boolean("is_enjoyed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_together_picks_group_enjoyed_idx").on(table.familyGroupId, table.isEnjoyed)]);
+export type FamilyTogetherPick = typeof familyTogetherPicks.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

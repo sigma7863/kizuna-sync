@@ -132,6 +132,9 @@ import { FamilyNoticeBoard } from "@/components/FamilyNoticeBoard";
 import { FamilyPriorityMemo } from "@/components/FamilyPriorityMemo";
 import { FamilyPlanCheckin } from "@/components/FamilyPlanCheckin";
 import { FamilyNextStepCard } from "@/components/FamilyNextStepCard";
+import { FamilyHouseholdTip } from "@/components/FamilyHouseholdTip";
+import { FamilyPackingCheck } from "@/components/FamilyPackingCheck";
+import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -478,6 +481,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyJournalRelay familyGroupId={familyGroupId}/><FamilyConversationTopic familyGroupId={familyGroupId}/><FamilyAppreciationCard familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyRoleBaton familyGroupId={familyGroupId}/><FamilyPlaceCard familyGroupId={familyGroupId}/><FamilyNoticeBoard familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyPriorityMemo familyGroupId={familyGroupId}/><FamilyPlanCheckin familyGroupId={familyGroupId}/><FamilyNextStepCard familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHouseholdTip familyGroupId={familyGroupId}/><FamilyPackingCheck familyGroupId={familyGroupId}/><FamilyTogetherPick familyGroupId={familyGroupId}/></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">

@@ -1,0 +1,1 @@
+export function countPendingPicks(items: Array<{ isHelpful?: boolean; isChecked?: boolean; isEnjoyed?: boolean }>) { return items.filter((item) => !item.isHelpful && !item.isChecked && !item.isEnjoyed).length; }
