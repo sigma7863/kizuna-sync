@@ -90,3 +90,6 @@ export function normalizeDiscoveryGuideVisibility(value: unknown) { return value
 export type DiscoveryRecoveryView = { query: string; group: string; sortMode: DiscoverySortMode; favoritesOnly: boolean };
 export function getDiscoveryRecoveryLabel(view: DiscoveryRecoveryView) { const parts = [view.query && `「${view.query}」`, view.group !== "すべて" && view.group, view.favoritesOnly && "お気に入り", view.sortMode !== "featured" && (view.sortMode === "recent" ? "最近順" : "名前順")].filter(Boolean); return parts.length ? parts.join("・") : "すべてのカード"; }
 export function normalizeDiscoveryRecoveryVisibility(value: unknown) { return value !== false; }
+export const LIFE_BALANCE_GROUPS = ["予定", "暮らし", "楽しみ"] as const;
+export function getLifeBalanceSummary(recentIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS) { const entries = LIFE_BALANCE_GROUPS.map((group) => ({ group, count: cards.filter((card) => card.group === group && recentIds.includes(card.id)).length })); const next = [...entries].sort((a, b) => a.count - b.count)[0]; return { entries, nextGroup: next?.group ?? "予定", message: next ? `次は「${next.group}」を少し見て、暮らしのバランスを整えましょう。` : "気になる目的から、暮らしをゆっくり整えましょう。" }; }
+export function normalizeLifeBalanceSuggestionVisibility(value: unknown) { return value !== false; }
