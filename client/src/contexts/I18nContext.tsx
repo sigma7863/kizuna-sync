@@ -116,7 +116,19 @@ type TranslationKey =
   | "family.digestAlbum"
   | "family.digestBadge"
   | "family.selectMonth"
-  | "family.digestEmpty";
+  | "family.digestEmpty"
+  | "family.album"
+  | "family.weeklyAi"
+  | "family.healthExperience"
+  | "family.switchFeatures"
+  | "family.returnTimeline"
+  | "family.shareFeature"
+  | "family.currentFeature"
+  | "family.preparingFeature"
+  | "family.shareOpened"
+  | "family.shareCopied"
+  | "family.shareUnavailable"
+  | "family.shareText";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -236,6 +248,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.eventLocation": "場所",
     "family.applyChange": "変更を反映",
     "family.ttsReadAloud": "AI音声を読み上げる",
+    "family.album": "家族アルバム",
+    "family.weeklyAi": "週次AI",
+    "family.healthExperience": "ヘルス体験",
+    "family.switchFeatures": "家族の機能を切り替える",
+    "family.returnTimeline": "タイムラインへ戻る",
+    "family.shareFeature": "この機能を共有",
+    "family.currentFeature": "現在、家族の「{tab}」を表示しています。",
+    "family.preparingFeature": "「{tab}」を準備しています…",
+    "family.shareOpened": "共有画面を開きました。",
+    "family.shareCopied": "この機能へのリンクをコピーしました。",
+    "family.shareUnavailable": "この端末では共有できませんでした。URLをコピーして家族へ送ってください。",
+    "family.shareText": "KizunaSyncの「{tab}」を開きます。",
   },
   en: {
     "common.loading": "Loading...",
@@ -352,6 +376,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.eventLocation": "Location",
     "family.applyChange": "Apply changes",
     "family.ttsReadAloud": "Read AI aloud",
+    "family.album": "Family album",
+    "family.weeklyAi": "Weekly AI",
+    "family.healthExperience": "Health experience",
+    "family.switchFeatures": "Switch family features",
+    "family.returnTimeline": "Return to timeline",
+    "family.shareFeature": "Share this feature",
+    "family.currentFeature": "Now showing the family’s “{tab}”.",
+    "family.preparingFeature": "Preparing “{tab}”…",
+    "family.shareOpened": "The sharing panel is open.",
+    "family.shareCopied": "The link to this feature was copied.",
+    "family.shareUnavailable": "Sharing is unavailable on this device. Please copy the URL and send it to your family.",
+    "family.shareText": "Open KizunaSync’s “{tab}”.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -468,6 +504,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.timeSlotDaytime": "白天 (6:00-18:00)",
     "family.timeSlotNight": "夜间 (18:00-6:00)",
     "family.ttsReadAloud": "朗读AI回复",
+    "family.album": "家庭相册",
+    "family.weeklyAi": "每周AI",
+    "family.healthExperience": "健康体验",
+    "family.switchFeatures": "切换家庭功能",
+    "family.returnTimeline": "返回时间线",
+    "family.shareFeature": "分享此功能",
+    "family.currentFeature": "正在显示家庭的“{tab}”。",
+    "family.preparingFeature": "正在准备“{tab}”…",
+    "family.shareOpened": "已打开分享面板。",
+    "family.shareCopied": "已复制此功能的链接。",
+    "family.shareUnavailable": "此设备无法分享。请复制网址并发送给家人。",
+    "family.shareText": "打开 KizunaSync 的“{tab}”。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -584,6 +632,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.timeSlotDaytime": "주간 (6:00-18:00)",
     "family.timeSlotNight": "야간 (18:00-6:00)",
     "family.ttsReadAloud": "AI 답변 읽어주기",
+    "family.album": "가족 앨범",
+    "family.weeklyAi": "주간 AI",
+    "family.healthExperience": "건강 체험",
+    "family.switchFeatures": "가족 기능 전환",
+    "family.returnTimeline": "타임라인으로 돌아가기",
+    "family.shareFeature": "이 기능 공유",
+    "family.currentFeature": "현재 가족의 “{tab}”을 표시하고 있습니다.",
+    "family.preparingFeature": "“{tab}”을 준비하고 있습니다…",
+    "family.shareOpened": "공유 화면을 열었습니다.",
+    "family.shareCopied": "이 기능의 링크를 복사했습니다.",
+    "family.shareUnavailable": "이 기기에서는 공유할 수 없습니다. URL을 복사해 가족에게 보내 주세요.",
+    "family.shareText": "KizunaSync의 “{tab}”을 엽니다.",
   },
 };
 
