@@ -13,4 +13,13 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["common.language"]).toBeTruthy();
     }
   });
+
+  it("contains family tab sharing and status guidance in every language", () => {
+    for (const language of supportedLanguages) {
+      expect(messages[language]["family.album"]).toBeTruthy();
+      expect(messages[language]["family.shareFeature"]).toBeTruthy();
+      expect(messages[language]["family.preparingFeature"]).toContain("{tab}");
+      expect(messages[language]["family.shareText"]).toContain("{tab}");
+    }
+  });
 });

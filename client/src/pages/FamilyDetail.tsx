@@ -145,7 +145,7 @@ export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const familyGroupId = parseInt(params?.id || "0");
 
   const [moodText, setMoodText] = useState("");
@@ -258,9 +258,9 @@ export default function FamilyDetail() {
     assistant: t("family.assistant"),
     celebration: t("family.celebration"),
     digest: t("family.digestAlbum"),
-    album: "家族アルバム",
-    automation: "週次AI",
-    health: "ヘルス体験",
+    album: t("family.album"),
+    automation: t("family.weeklyAi"),
+    health: t("family.healthExperience"),
     stats: t("family.stats"),
   };
 
@@ -270,7 +270,7 @@ export default function FamilyDetail() {
 
     try {
       if (navigator.share) {
-        await navigator.share({ title, text: `KizunaSyncの「${activeTabLabel[activeTab]}」を開きます。`, url });
+        await navigator.share({ title, text: t("family.shareText").replace("{tab}", activeTabLabel[activeTab]), url });
         setTabShareStatus("shared");
         return;
       }
@@ -535,7 +535,7 @@ export default function FamilyDetail() {
 
         {/* Tabs */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-medium text-gray-700">家族の機能を切り替える</p>
+          <p className="text-sm font-medium text-gray-700">{t("family.switchFeatures")}</p>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Button
               type="button"
@@ -545,11 +545,11 @@ export default function FamilyDetail() {
               disabled={activeTab === "timeline"}
             >
               <Heart className="mr-1.5 h-4 w-4" />
-              タイムラインへ戻る
+              {t("family.returnTimeline")}
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={() => void handleShareActiveTab()}>
               <Share2 className="mr-1.5 h-4 w-4" />
-              この機能を共有
+              {t("family.shareFeature")}
             </Button>
           </div>
         </div>
@@ -648,7 +648,7 @@ export default function FamilyDetail() {
             }`}
           >
             <Images className="w-4 h-4 inline mr-2" />
-            家族アルバム
+            {t("family.album")}
           </button>
           <button
             onClick={() => changeActiveTab("automation")}
@@ -660,7 +660,7 @@ export default function FamilyDetail() {
             }`}
           >
             <CalendarClock className="w-4 h-4 inline mr-2" />
-            週次AI
+            {t("family.weeklyAi")}
           </button>
           <button
             onClick={() => changeActiveTab("health")}
@@ -672,7 +672,7 @@ export default function FamilyDetail() {
             }`}
           >
             <Activity className="w-4 h-4 inline mr-2" />
-            ヘルス体験
+            {t("family.healthExperience")}
           </button>
           <button
             onClick={() => changeActiveTab("stats")}
@@ -688,12 +688,12 @@ export default function FamilyDetail() {
           </button>
         </div>
 
-        <p className="sr-only" aria-live="polite">現在、家族の「{activeTabLabel[activeTab]}」を表示しています。</p>
+        <p className="sr-only" aria-live="polite" lang={language}>{t("family.currentFeature").replace("{tab}", activeTabLabel[activeTab])}</p>
         {tabShareStatus !== "idle" && (
           <p role="status" className="mb-4 text-sm text-gray-600">
-            {tabShareStatus === "shared" && "共有画面を開きました。"}
-            {tabShareStatus === "copied" && "この機能へのリンクをコピーしました。"}
-            {tabShareStatus === "unavailable" && "この端末では共有できませんでした。URLをコピーして家族へ送ってください。"}
+            {tabShareStatus === "shared" && t("family.shareOpened")}
+            {tabShareStatus === "copied" && t("family.shareCopied")}
+            {tabShareStatus === "unavailable" && t("family.shareUnavailable")}
           </p>
         )}
 
@@ -767,7 +767,7 @@ export default function FamilyDetail() {
         )}
 
         {activeTab !== "timeline" && activeTab !== "safety" && (
-          <Suspense fallback={<div role="status" aria-live="polite" className="rounded-2xl border border-pink-100 bg-white p-6 text-center text-sm text-gray-600 shadow-sm">「{activeTabLabel[activeTab]}」を準備しています…</div>}>
+          <Suspense fallback={<div role="status" aria-live="polite" lang={language} className="rounded-2xl border border-pink-100 bg-white p-6 text-center text-sm text-gray-600 shadow-sm">{t("family.preparingFeature").replace("{tab}", activeTabLabel[activeTab])}</div>}>
             {activeTab === "trail" && <FamilyTrailHeatmap familyGroupId={familyGroupId} />}
             {activeTab === "ai" && <AIFeatures familyGroupId={familyGroupId} familyMembers={members?.map((m) => ({ id: m.users.id, name: m.users.name || "Unknown" })) || []} />}
             {activeTab === "assistant" && <FamilyAIAssistant familyGroupId={familyGroupId} />}
