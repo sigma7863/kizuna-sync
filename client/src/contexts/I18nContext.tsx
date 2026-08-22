@@ -26,6 +26,8 @@ type TranslationKey =
   | "home.create"
   | "home.createdAt"
   | "home.createGroup"
+  | "home.loading"
+  | "home.featureRipple"
   | "family.members"
   | "family.invite"
   | "family.timeline"
@@ -405,6 +407,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.create": "作成",
     "home.createdAt": "に作成",
     "home.createGroup": "グループを作成",
+    "home.loading": "読み込み中…",
+    "home.featureRipple": "絆の波紋で家族の「今」を感じる",
     "family.members": "人のメンバー",
     "family.invite": "メンバーを招待",
     "family.timeline": "タイムライン",
@@ -756,6 +760,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.create": "Create",
     "home.createdAt": " created",
     "home.createGroup": "Create a group",
+    "home.loading": "Loading…",
+    "home.featureRipple": "Feel your family's present moment through Kizuna ripples",
     "family.members": " members",
     "family.invite": "Invite members",
     "family.timeline": "Timeline",
@@ -1107,6 +1113,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.create": "创建",
     "home.createdAt": "创建于",
     "home.createGroup": "创建群组",
+    "home.loading": "正在加载…",
+    "home.featureRipple": "通过羁绊波纹感受家人的此刻",
     "family.members": " 位成员",
     "family.invite": "邀请成员",
     "family.timeline": "时间线",
@@ -1458,6 +1466,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.create": "만들기",
     "home.createdAt": "에 생성",
     "home.createGroup": "그룹 만들기",
+    "home.loading": "불러오는 중…",
+    "home.featureRipple": "인연의 물결로 가족의 지금을 느껴 보세요",
     "family.members": "명의 멤버",
     "family.invite": "멤버 초대",
     "family.timeline": "타임라인",
