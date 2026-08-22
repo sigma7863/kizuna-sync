@@ -67,6 +67,19 @@ type TranslationKey =
   | "family.groupNotFound"
   | "family.unread"
   | "family.voiceUnavailable"
+  | "family.voicePermissionDenied"
+  | "family.voiceDeviceMissing"
+  | "family.voiceRecordingFailed"
+  | "family.voiceTranscriptEmpty"
+  | "family.voiceRecoveryHint"
+  | "family.voiceRate"
+  | "family.voiceRateSlow"
+  | "family.voiceRateStandard"
+  | "family.voiceRateFast"
+  | "family.voiceStopSpeech"
+  | "family.voiceReviewTitle"
+  | "family.voiceReviewDescription"
+  | "family.voiceReviewConfirm"
   | "family.stopRecording"
   | "family.events"
   | "family.noEvents"
@@ -445,6 +458,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.groupNotFound": "グループが見つかりません",
     "family.unread": "未読",
     "family.voiceUnavailable": "このブラウザでは音声入力を利用できません",
+    "family.voicePermissionDenied": "マイクの利用が許可されていません",
+    "family.voiceDeviceMissing": "使えるマイクが見つかりません",
+    "family.voiceRecordingFailed": "録音または文字起こしに失敗しました",
+    "family.voiceTranscriptEmpty": "音声を文字として受け取れませんでした",
+    "family.voiceRecoveryHint": "端末のマイク設定を確認してから、もう一度試してください。音声の内容は送信されていません。",
+    "family.voiceRate": "読み上げ速度",
+    "family.voiceRateSlow": "ゆっくり",
+    "family.voiceRateStandard": "標準",
+    "family.voiceRateFast": "少し速く",
+    "family.voiceStopSpeech": "読み上げを止める",
+    "family.voiceReviewTitle": "文字起こしを確認",
+    "family.voiceReviewDescription": "家族へ送る前に内容を確認し、必要なら修正できます。送信しなければ共有されません。",
+    "family.voiceReviewConfirm": "この内容で送信",
     "family.stopRecording": "録音を停止",
     "family.events": "家族の予定",
     "family.noEvents": "予定はありません",
@@ -765,6 +791,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.groupNotFound": "Family group not found",
     "family.unread": "Unread",
     "family.voiceUnavailable": "Voice input is not available in this browser",
+    "family.voicePermissionDenied": "Microphone access is not permitted",
+    "family.voiceDeviceMissing": "No microphone is available",
+    "family.voiceRecordingFailed": "Recording or transcription failed",
+    "family.voiceTranscriptEmpty": "We could not turn the audio into text",
+    "family.voiceRecoveryHint": "Check this device's microphone settings, then try again. Your voice content was not sent.",
+    "family.voiceRate": "Speech rate",
+    "family.voiceRateSlow": "Slower",
+    "family.voiceRateStandard": "Standard",
+    "family.voiceRateFast": "Faster",
+    "family.voiceStopSpeech": "Stop reading",
+    "family.voiceReviewTitle": "Review transcription",
+    "family.voiceReviewDescription": "Review and edit the text before sending it to family. Nothing is shared unless you send it.",
+    "family.voiceReviewConfirm": "Send this text",
     "family.stopRecording": "Stop recording",
     "family.events": "Family events",
     "family.noEvents": "No events yet",
@@ -1081,6 +1120,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.groupNotFound": "找不到家庭群组",
     "family.unread": "未读",
     "family.voiceUnavailable": "此浏览器不支持语音输入",
+    "family.voicePermissionDenied": "未获得麦克风使用许可",
+    "family.voiceDeviceMissing": "找不到可用的麦克风",
+    "family.voiceRecordingFailed": "录音或转写失败",
+    "family.voiceTranscriptEmpty": "无法将语音转换为文字",
+    "family.voiceRecoveryHint": "请检查设备的麦克风设置后重试。您的语音内容尚未发送。",
+    "family.voiceRate": "朗读速度",
+    "family.voiceRateSlow": "较慢",
+    "family.voiceRateStandard": "标准",
+    "family.voiceRateFast": "较快",
+    "family.voiceStopSpeech": "停止朗读",
+    "family.voiceReviewTitle": "确认转写内容",
+    "family.voiceReviewDescription": "发送给家人前可确认并修改文字。除非发送，否则不会共享。",
+    "family.voiceReviewConfirm": "按此内容发送",
     "family.stopRecording": "停止录音",
     "family.events": "家庭日程",
     "family.noEvents": "暂无日程",
@@ -1401,6 +1453,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.groupNotFound": "가족 그룹을 찾을 수 없습니다",
     "family.unread": "읽지 않음",
     "family.voiceUnavailable": "이 브라우저에서는 음성 입력을 사용할 수 없습니다",
+    "family.voicePermissionDenied": "마이크 사용이 허용되지 않았습니다",
+    "family.voiceDeviceMissing": "사용할 수 있는 마이크를 찾을 수 없습니다",
+    "family.voiceRecordingFailed": "녹음 또는 받아쓰기에 실패했습니다",
+    "family.voiceTranscriptEmpty": "음성을 텍스트로 받지 못했습니다",
+    "family.voiceRecoveryHint": "기기의 마이크 설정을 확인한 뒤 다시 시도하세요. 음성 내용은 전송되지 않았습니다.",
+    "family.voiceRate": "읽어주기 속도",
+    "family.voiceRateSlow": "느리게",
+    "family.voiceRateStandard": "기본",
+    "family.voiceRateFast": "조금 빠르게",
+    "family.voiceStopSpeech": "읽어주기 중지",
+    "family.voiceReviewTitle": "받아쓰기 확인",
+    "family.voiceReviewDescription": "가족에게 보내기 전에 내용을 확인하고 수정할 수 있습니다. 보내기 전에는 공유되지 않습니다.",
+    "family.voiceReviewConfirm": "이 내용으로 보내기",
     "family.stopRecording": "녹음 중지",
     "family.events": "가족 일정",
     "family.noEvents": "일정이 없습니다",

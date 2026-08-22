@@ -1,14 +1,15 @@
 import { useRef, useState } from "react";
-import { Mic, MicOff, CalendarPlus, Sparkles, Volume2 } from "lucide-react";
+import { Mic, MicOff, CalendarPlus, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
 import { trpc } from "@/lib/trpc";
 import { useI18n, type Language } from "@/contexts/I18nContext";
-import { speechLanguageFor, type VoiceTurnStatus } from "@/lib/voiceConversation";
+import { getVoiceInputErrorKind, normalizeSpeechRate, speechLanguageFor, type VoiceInputErrorKind, type VoiceTurnStatus } from "@/lib/voiceConversation";
 import { toast } from "sonner";
 
 export type ScheduleAction = {
@@ -43,6 +44,9 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
   const [pendingAction, setPendingAction] = useState<ScheduleAction | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [voiceTurnStatus, setVoiceTurnStatus] = useState<VoiceTurnStatus>("ready");
+  const [speechRate, setSpeechRate] = useState(1);
+  const [voiceInputError, setVoiceInputError] = useState<VoiceInputErrorKind | null>(null);
+  const [pendingTranscription, setPendingTranscription] = useState("");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -72,10 +76,16 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = speechLanguageFor(language);
+    utterance.rate = normalizeSpeechRate(speechRate);
     utterance.onstart = () => setVoiceTurnStatus("speaking");
     utterance.onend = () => setVoiceTurnStatus("ready");
     utterance.onerror = () => setVoiceTurnStatus("ready");
     window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeaking = () => {
+    window.speechSynthesis?.cancel();
+    setVoiceTurnStatus("ready");
   };
 
   const sendMessage = async (content: string) => {
@@ -103,37 +113,52 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
 
   const startRecording = async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
+      setVoiceInputError("unavailable");
       toast.error(t("family.voiceUnavailable"));
       return;
     }
-    window.speechSynthesis?.cancel();
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-    chunksRef.current = [];
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) chunksRef.current.push(event.data);
-    };
-    recorder.onstop = async () => {
-      stream.getTracks().forEach((track) => track.stop());
-      const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      setVoiceTurnStatus("transcribing");
-      try {
-        const audioData = await blobToDataUrl(blob);
-        const result = await transcribeMutation.mutateAsync({
-          audioData,
-          mimeType: "audio/webm",
-          language: language as Language,
-        });
-        if (result.text.trim()) await sendMessage(result.text.trim());
-        else setVoiceTurnStatus("ready");
-      } catch {
-        setVoiceTurnStatus("ready");
-      }
-    };
-    recorderRef.current = recorder;
-    recorder.start();
-    setIsRecording(true);
-    setVoiceTurnStatus("listening");
+    try {
+      stopSpeaking();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      chunksRef.current = [];
+      setVoiceInputError(null);
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunksRef.current.push(event.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        if (blob.size === 0) {
+          setVoiceInputError("recording");
+          setVoiceTurnStatus("ready");
+          return;
+        }
+        setVoiceTurnStatus("transcribing");
+        try {
+          const audioData = await blobToDataUrl(blob);
+          const result = await transcribeMutation.mutateAsync({
+            audioData,
+            mimeType: "audio/webm",
+            language: language as Language,
+          });
+          const transcript = result.text.trim();
+          if (transcript) setPendingTranscription(transcript);
+          else setVoiceInputError("emptyTranscript");
+        } catch {
+          setVoiceInputError("recording");
+        } finally {
+          setVoiceTurnStatus("ready");
+        }
+      };
+      recorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+      setVoiceTurnStatus("listening");
+    } catch (error) {
+      setVoiceInputError(getVoiceInputErrorKind(error));
+      setVoiceTurnStatus("ready");
+    }
   };
 
   const stopRecording = () => {
@@ -149,6 +174,13 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
     thinking: "家族AIが考えています…",
     speaking: "AIが読み上げています…",
   }[voiceTurnStatus];
+  const voiceInputErrorLabel = voiceInputError ? {
+    unavailable: t("family.voiceUnavailable"),
+    permission: t("family.voicePermissionDenied"),
+    missingDevice: t("family.voiceDeviceMissing"),
+    recording: t("family.voiceRecordingFailed"),
+    emptyTranscript: t("family.voiceTranscriptEmpty"),
+  }[voiceInputError] : null;
 
   return (
     <Card className="border-0 bg-white/90 shadow-md">
@@ -165,6 +197,7 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
           <span className="font-medium">音声対話</span>
           <span className="ml-auto">{voiceStatusLabel}</span>
         </div>
+        {voiceInputErrorLabel && <div className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950" role="alert"><p className="font-semibold">{voiceInputErrorLabel}</p><p className="mt-1 text-xs leading-relaxed">{t("family.voiceRecoveryHint")}</p></div>}
         <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-indigo-900">{t("family.events")}</h3>
@@ -228,7 +261,13 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
         <div className="rounded-lg border border-purple-100 bg-purple-50/60 px-3 py-2 text-xs text-purple-800">
           {t("family.voiceCommandExamples")}
         </div>
-        <div className="flex items-center justify-end gap-2 px-1">
+        <div className="flex flex-wrap items-center justify-end gap-2 rounded-xl bg-slate-50 px-2 py-2">
+          <label className="text-xs font-medium text-slate-700" htmlFor="assistant-speech-rate">{t("family.voiceRate")}</label>
+          <select id="assistant-speech-rate" value={speechRate} onChange={(event) => setSpeechRate(normalizeSpeechRate(Number(event.target.value)))} className="h-9 rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-900">
+            <option value="0.8">{t("family.voiceRateSlow")}</option>
+            <option value="1">{t("family.voiceRateStandard")}</option>
+            <option value="1.2">{t("family.voiceRateFast")}</option>
+          </select>
           <Button
             type="button"
             variant="ghost"
@@ -241,6 +280,9 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
           >
             <Volume2 className="h-4 w-4" />
             {t("family.ttsReadAloud")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={stopSpeaking} disabled={voiceTurnStatus !== "speaking"} className="gap-1.5 text-xs">
+            <VolumeX className="h-4 w-4" />{t("family.voiceStopSpeech")}
           </Button>
         </div>
         <AIChatBox
@@ -337,6 +379,13 @@ export function FamilyAIAssistant({ familyGroupId }: { familyGroupId: number }) 
             </div>
           </div>
         )}
+        <Dialog open={Boolean(pendingTranscription)} onOpenChange={(open) => !open && setPendingTranscription("")}>
+          <DialogContent aria-describedby="voice-transcript-review-description">
+            <DialogHeader><DialogTitle>{t("family.voiceReviewTitle")}</DialogTitle><DialogDescription id="voice-transcript-review-description">{t("family.voiceReviewDescription")}</DialogDescription></DialogHeader>
+            <Textarea value={pendingTranscription} onChange={(event) => setPendingTranscription(event.target.value)} rows={6} className="resize-none" aria-label={t("family.voiceReviewTitle")} />
+            <DialogFooter><Button type="button" variant="outline" onClick={() => setPendingTranscription("")}>{t("common.cancel")}</Button><Button type="button" disabled={!pendingTranscription.trim() || askMutation.isPending} onClick={() => { const transcript = pendingTranscription.trim(); setPendingTranscription(""); void sendMessage(transcript); }} className="bg-purple-700 text-white hover:bg-purple-800">{t("family.voiceReviewConfirm")}</Button></DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
