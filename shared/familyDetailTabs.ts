@@ -30,3 +30,7 @@ export function getInitialFamilyDetailTab(
 export function createFamilyDetailTabPath(familyGroupId: number, tab: FamilyDetailTab): string {
   return `/family/${familyGroupId}?tab=${tab}`;
 }
+
+export function getFamilyDetailTabStorageKey(familyGroupId: number): string {
+  return `kizuna-sync-last-family-detail-tab:${familyGroupId}`;
+}
