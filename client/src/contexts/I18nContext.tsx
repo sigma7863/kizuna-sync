@@ -131,7 +131,9 @@ type TranslationKey =
   | "family.shareText"
   | "family.tabKeyboardHelp"
   | "family.sharedCardOpened"
-  | "family.motionReducedNavigation";
+  | "family.motionReducedNavigation"
+  | "family.showingNow"
+  | "family.openFeature";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -266,6 +268,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabKeyboardHelp": "左右の矢印キーで前後の機能へ移動します。Homeキーで最初、Endキーで最後の機能を開きます。",
     "family.sharedCardOpened": "共有された家族カードを開きました。",
     "family.motionReducedNavigation": "端末の設定に合わせて、画面の移動アニメーションを抑えています。",
+    "family.showingNow": "表示中",
+    "family.openFeature": "機能を開く",
   },
   en: {
     "common.loading": "Loading...",
@@ -397,6 +401,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabKeyboardHelp": "Use the left and right arrow keys to move between features. Press Home for the first feature or End for the last one.",
     "family.sharedCardOpened": "Opened the shared family card.",
     "family.motionReducedNavigation": "Screen movement animations are reduced to match your device setting.",
+    "family.showingNow": "Showing",
+    "family.openFeature": "Open feature",
   },
   zh: {
     "common.loading": "加载中...",
@@ -528,6 +534,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabKeyboardHelp": "使用左右方向键切换功能。按 Home 键打开第一个功能，按 End 键打开最后一个功能。",
     "family.sharedCardOpened": "已打开共享的家庭卡片。",
     "family.motionReducedNavigation": "已根据设备设置减少页面移动动画。",
+    "family.showingNow": "正在显示",
+    "family.openFeature": "打开功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -659,6 +667,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabKeyboardHelp": "왼쪽 및 오른쪽 화살표 키로 기능 사이를 이동합니다. Home 키를 누르면 첫 기능으로, End 키를 누르면 마지막 기능으로 이동합니다.",
     "family.sharedCardOpened": "공유된 가족 카드를 열었습니다.",
     "family.motionReducedNavigation": "기기 설정에 맞춰 화면 이동 애니메이션을 줄였습니다.",
+    "family.showingNow": "표시 중",
+    "family.openFeature": "기능 열기",
   },
 };
 

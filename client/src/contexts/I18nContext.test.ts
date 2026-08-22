@@ -23,6 +23,8 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.tabKeyboardHelp"]).toBeTruthy();
       expect(messages[language]["family.sharedCardOpened"]).toBeTruthy();
       expect(messages[language]["family.motionReducedNavigation"]).toBeTruthy();
+      expect(messages[language]["family.showingNow"]).toBeTruthy();
+      expect(messages[language]["family.openFeature"]).toBeTruthy();
     }
   });
 });

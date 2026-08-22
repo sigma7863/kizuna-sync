@@ -581,7 +581,10 @@ export default function FamilyDetail() {
 
         {/* Tabs */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-medium text-gray-700">{t("family.switchFeatures")}</p>
+          <div>
+            <p className="text-sm font-medium text-gray-700">{t("family.switchFeatures")}</p>
+            <p className="mt-1 text-xs font-semibold text-pink-700"><span className="mr-1 rounded-full bg-pink-100 px-1.5 py-0.5">{t("family.showingNow")}</span>{activeTabLabel[activeTab]}</p>
+          </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Button
               type="button"
@@ -603,6 +606,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("timeline")}
             aria-pressed={activeTab === "timeline"}
+            aria-current={activeTab === "timeline" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.timeline")}`}
             data-family-tab="timeline"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "timeline"
@@ -616,6 +621,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("safety")}
             aria-pressed={activeTab === "safety"}
+            aria-current={activeTab === "safety" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.safety")}`}
             data-family-tab="safety"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "safety"
@@ -629,6 +636,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("trail")}
             aria-pressed={activeTab === "trail"}
+            aria-current={activeTab === "trail" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.trailHeatmap")}`}
             data-family-tab="trail"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "trail"
@@ -642,6 +651,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("ai")}
             aria-pressed={activeTab === "ai"}
+            aria-current={activeTab === "ai" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.aiProposal")}`}
             data-family-tab="ai"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "ai"
@@ -655,6 +666,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("assistant")}
             aria-pressed={activeTab === "assistant"}
+            aria-current={activeTab === "assistant" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.assistant")}`}
             data-family-tab="assistant"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "assistant"
@@ -668,6 +681,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("celebration")}
             aria-pressed={activeTab === "celebration"}
+            aria-current={activeTab === "celebration" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.celebration")}`}
             data-family-tab="celebration"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "celebration"
@@ -681,6 +696,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("digest")}
             aria-pressed={activeTab === "digest"}
+            aria-current={activeTab === "digest" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.digestAlbum")}`}
             data-family-tab="digest"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "digest"
@@ -694,6 +711,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("album")}
             aria-pressed={activeTab === "album"}
+            aria-current={activeTab === "album" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.album")}`}
             data-family-tab="album"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "album"
@@ -707,6 +726,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("automation")}
             aria-pressed={activeTab === "automation"}
+            aria-current={activeTab === "automation" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.weeklyAi")}`}
             data-family-tab="automation"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "automation"
@@ -720,6 +741,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("health")}
             aria-pressed={activeTab === "health"}
+            aria-current={activeTab === "health" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.healthExperience")}`}
             data-family-tab="health"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "health"
@@ -733,6 +756,8 @@ export default function FamilyDetail() {
           <button
             onClick={() => changeActiveTab("stats")}
             aria-pressed={activeTab === "stats"}
+            aria-current={activeTab === "stats" ? "page" : undefined}
+            aria-label={`${t("family.openFeature")}: ${t("family.stats")}`}
             data-family-tab="stats"
             className={`px-4 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "stats"
