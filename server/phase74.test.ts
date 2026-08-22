@@ -1,6 +1,7 @@
 import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab } from "../shared/familyDetailTabs";
 import { getRecommendedFamilyDetailTabs } from "../shared/familyDetailTabs";
 import { getFamilyDetailRecommendationStorageKey, normalizeRecommendedFamilyDetailTabs, toggleRecommendedFamilyDetailTab } from "../shared/familyDetailTabs";
+import { createFamilyDetailRecommendationSharePath } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -73,5 +74,10 @@ describe("family detail tab navigation phase 74", () => {
     expect(normalizeRecommendedFamilyDetailTabs(["safety", "unknown", "album", "safety"])).toEqual(["safety", "album"]);
     expect(toggleRecommendedFamilyDetailTab(["safety", "assistant"], "album")).toEqual(["safety", "assistant", "album"]);
     expect(toggleRecommendedFamilyDetailTab(["safety", "assistant"], "safety")).toEqual(["assistant"]);
+  });
+
+  it("おすすめ共有では最初のおすすめ機能を開くURLを作る", () => {
+    expect(createFamilyDetailRecommendationSharePath(42, ["assistant", "safety"])).toBe("/family/42?tab=assistant");
+    expect(createFamilyDetailRecommendationSharePath(42, [])).toBe("/family/42?tab=timeline");
   });
 });

@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailRecommendationStorageKey, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailRecommendationStorageKey, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -408,13 +408,13 @@ export default function FamilyDetail() {
   const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel);
   const recommendedTabs = customRecommendedTabs ?? getRecommendedFamilyDetailTabs(currentMemberRole);
 
-  const handleShareActiveTab = async () => {
-    const url = new URL(createFamilyDetailTabPath(familyGroupId, activeTab), window.location.origin).toString();
-    const title = `${familyGroup?.name ?? "家族"}｜${activeTabLabel[activeTab]}`;
+  const shareFamilyTab = async (tab: FamilyDetailTab, path: string, text: string) => {
+    const url = new URL(path, window.location.origin).toString();
+    const title = `${familyGroup?.name ?? "家族"}｜${activeTabLabel[tab]}`;
 
     try {
       if (navigator.share) {
-        await navigator.share({ title, text: t("family.shareText").replace("{tab}", activeTabLabel[activeTab]), url });
+        await navigator.share({ title, text, url });
         setTabShareStatus("shared");
         return;
       }
@@ -430,6 +430,11 @@ export default function FamilyDetail() {
       if (error instanceof DOMException && error.name === "AbortError") return;
       setTabShareStatus("unavailable");
     }
+  };
+  const handleShareActiveTab = () => shareFamilyTab(activeTab, createFamilyDetailTabPath(familyGroupId, activeTab), t("family.shareText").replace("{tab}", activeTabLabel[activeTab]));
+  const handleShareRecommendations = () => {
+    const firstRecommendation = recommendedTabs[0] ?? "timeline";
+    return shareFamilyTab(firstRecommendation, createFamilyDetailRecommendationSharePath(familyGroupId, recommendedTabs), t("family.shareRecommendations"));
   };
 
   const getActivityIcon = (type: string) => {
@@ -755,6 +760,10 @@ export default function FamilyDetail() {
           </div>
           <Button type="button" size="sm" variant="outline" className="mt-2" onClick={toggleActiveRecommendation}>
             {recommendedTabs.includes(activeTab) ? t("family.removeRecommendation") : t("family.addRecommendation")}
+          </Button>
+          <Button type="button" size="sm" variant="outline" className="mt-2 ml-2" onClick={() => void handleShareRecommendations()}>
+            <Share2 className="mr-1.5 h-4 w-4" />
+            {t("family.shareRecommendations")}
           </Button>
         </div>
         <div className="mb-3 rounded-lg border border-pink-100 bg-white/80 p-3">
