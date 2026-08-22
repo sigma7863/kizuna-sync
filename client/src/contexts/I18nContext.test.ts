@@ -21,6 +21,7 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.preparingFeature"]).toContain("{tab}");
       expect(messages[language]["family.shareText"]).toContain("{tab}");
       expect(messages[language]["family.tabKeyboardHelp"]).toBeTruthy();
+      expect(messages[language]["family.sharedCardOpened"]).toBeTruthy();
     }
   });
 });
