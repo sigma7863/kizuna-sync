@@ -641,6 +641,14 @@ export default function FamilyDetail() {
             <Button type="button" size="sm" variant="outline" onClick={centerCurrentFamilyTab}>
               {t("family.centerCurrentFeature")}
             </Button>
+            <select
+              value={activeTab}
+              onChange={(event) => changeActiveTab(event.target.value as FamilyDetailTab)}
+              aria-label={t("family.chooseFeature")}
+              className="h-9 max-w-44 rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-700 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+            >
+              {Object.entries(activeTabLabel).map(([tab, label]) => <option key={tab} value={tab}>{label}</option>)}
+            </select>
             <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab("timeline")}>
               {t("family.jumpFirstFeature")}
             </Button>

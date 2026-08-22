@@ -143,7 +143,8 @@ type TranslationKey =
   | "family.centerCurrentFeature"
   | "family.currentFeatureCentered"
   | "family.currentFeaturePosition"
-  | "family.skipToCurrentContent";
+  | "family.skipToCurrentContent"
+  | "family.chooseFeature";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -290,6 +291,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeatureCentered": "表示中の機能タブを見える位置へ戻しました。",
     "family.currentFeaturePosition": "全{total}件中 {current}番目",
     "family.skipToCurrentContent": "表示中の内容へ",
+    "family.chooseFeature": "表示する機能を選ぶ",
   },
   en: {
     "common.loading": "Loading...",
@@ -433,6 +435,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeatureCentered": "Moved the current feature tab back into view.",
     "family.currentFeaturePosition": "{current} of {total}",
     "family.skipToCurrentContent": "Skip to current content",
+    "family.chooseFeature": "Choose a feature to view",
   },
   zh: {
     "common.loading": "加载中...",
@@ -576,6 +579,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeatureCentered": "已将当前功能标签移回可见位置。",
     "family.currentFeaturePosition": "共 {total} 个中的第 {current} 个",
     "family.skipToCurrentContent": "跳到当前内容",
+    "family.chooseFeature": "选择要查看的功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -719,6 +723,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeatureCentered": "현재 기능 탭을 보이는 위치로 되돌렸습니다.",
     "family.currentFeaturePosition": "전체 {total}개 중 {current}번째",
     "family.skipToCurrentContent": "현재 내용으로 건너뛰기",
+    "family.chooseFeature": "볼 기능 선택",
   },
 };
 
