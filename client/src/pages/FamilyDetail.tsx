@@ -623,6 +623,12 @@ export default function FamilyDetail() {
             <Button type="button" size="sm" variant="outline" onClick={focusCurrentFamilyTab}>
               {t("family.focusCurrentFeature")}
             </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab("timeline")}>
+              {t("family.jumpFirstFeature")}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab("health")}>
+              {t("family.jumpLastFeature")}
+            </Button>
             <Button type="button" size="sm" variant="outline" onClick={toggleTabHelp} aria-expanded={showTabHelp}>
               {showTabHelp ? t("family.tabHelpClose") : t("family.tabHelp")}
             </Button>
