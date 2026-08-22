@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -157,7 +157,9 @@ export default function FamilyDetail() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [showTabHelp, setShowTabHelp] = useState(() => window.localStorage.getItem("kizuna-sync-show-family-tab-help") === "true");
   const [currentTabCentered, setCurrentTabCentered] = useState(false);
+  const [recentTabs, setRecentTabs] = useState<FamilyDetailTab[]>([]);
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
+  const recentTabsStorageKey = getFamilyDetailTabRecentsStorageKey(familyGroupId);
 
   useEffect(() => {
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
@@ -166,6 +168,14 @@ export default function FamilyDetail() {
     setActiveTab(nextTab);
     window.localStorage.setItem(lastOpenedTabStorageKey, nextTab);
   }, [lastOpenedTabStorageKey, location]);
+
+  useEffect(() => {
+    try {
+      setRecentTabs(normalizeRecentFamilyDetailTabs(JSON.parse(window.localStorage.getItem(recentTabsStorageKey) ?? "[]")));
+    } catch {
+      setRecentTabs([]);
+    }
+  }, [recentTabsStorageKey]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -305,6 +315,11 @@ export default function FamilyDetail() {
     setTabShareStatus("idle");
     setCurrentTabCentered(false);
     window.localStorage.setItem(lastOpenedTabStorageKey, tab);
+    setRecentTabs((previous) => {
+      const next = recordRecentFamilyDetailTab(previous, tab);
+      window.localStorage.setItem(recentTabsStorageKey, JSON.stringify(next));
+      return next;
+    });
     setLocation(createFamilyDetailTabPath(familyGroupId, tab));
   };
   const handleFamilyTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -649,6 +664,11 @@ export default function FamilyDetail() {
             >
               {Object.entries(activeTabLabel).map(([tab, label]) => <option key={tab} value={tab}>{label}</option>)}
             </select>
+            {recentTabs.filter((tab) => tab !== activeTab).map((tab) => (
+              <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} aria-label={`${t("family.recentFeatures")}: ${activeTabLabel[tab]}`}>
+                {activeTabLabel[tab]}
+              </Button>
+            ))}
             <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab("timeline")}>
               {t("family.jumpFirstFeature")}
             </Button>

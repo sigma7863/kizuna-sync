@@ -31,8 +31,12 @@ export function createFamilyDetailTabPath(familyGroupId: number, tab: FamilyDeta
   return `/family/${familyGroupId}?tab=${tab}`;
 }
 
-export function getFamilyDetailTabStorageKey(familyGroupId: number): string {
+export function getFamilyDetailTabStorageKey(familyGroupId: number) {
   return `kizuna-sync-last-family-detail-tab:${familyGroupId}`;
+}
+
+export function getFamilyDetailTabRecentsStorageKey(familyGroupId: number) {
+  return `kizuna-sync-family-detail-tab-recents-${familyGroupId}`;
 }
 
 export type FamilyDetailTabMove = "next" | "previous" | "first" | "last";
@@ -52,4 +56,16 @@ export function getFamilyNavigationScrollBehavior(prefersReducedMotion: boolean)
 
 export function getFamilyDetailTabPosition(tab: FamilyDetailTab) {
   return { current: familyDetailTabs.indexOf(tab) + 1, total: familyDetailTabs.length };
+}
+
+export function normalizeRecentFamilyDetailTabs(value: unknown): FamilyDetailTab[] {
+  if (!Array.isArray(value)) return [];
+  return value.reduce<FamilyDetailTab[]>((tabs, candidate) => {
+    const tab = normalizeFamilyDetailTab(candidate);
+    return tab && !tabs.includes(tab) ? [...tabs, tab] : tabs;
+  }, []).slice(0, 3);
+}
+
+export function recordRecentFamilyDetailTab(existing: unknown, tab: FamilyDetailTab) {
+  return [tab, ...normalizeRecentFamilyDetailTabs(existing).filter((candidate) => candidate !== tab)].slice(0, 3);
 }

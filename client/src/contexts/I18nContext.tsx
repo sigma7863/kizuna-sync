@@ -144,7 +144,8 @@ type TranslationKey =
   | "family.currentFeatureCentered"
   | "family.currentFeaturePosition"
   | "family.skipToCurrentContent"
-  | "family.chooseFeature";
+  | "family.chooseFeature"
+  | "family.recentFeatures";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -292,6 +293,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeaturePosition": "全{total}件中 {current}番目",
     "family.skipToCurrentContent": "表示中の内容へ",
     "family.chooseFeature": "表示する機能を選ぶ",
+    "family.recentFeatures": "最近使った機能",
   },
   en: {
     "common.loading": "Loading...",
@@ -436,6 +438,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeaturePosition": "{current} of {total}",
     "family.skipToCurrentContent": "Skip to current content",
     "family.chooseFeature": "Choose a feature to view",
+    "family.recentFeatures": "Recently used features",
   },
   zh: {
     "common.loading": "加载中...",
@@ -580,6 +583,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeaturePosition": "共 {total} 个中的第 {current} 个",
     "family.skipToCurrentContent": "跳到当前内容",
     "family.chooseFeature": "选择要查看的功能",
+    "family.recentFeatures": "最近使用的功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -724,6 +728,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.currentFeaturePosition": "전체 {total}개 중 {current}번째",
     "family.skipToCurrentContent": "현재 내용으로 건너뛰기",
     "family.chooseFeature": "볼 기능 선택",
+    "family.recentFeatures": "최근 사용한 기능",
   },
 };
 

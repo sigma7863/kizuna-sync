@@ -1,4 +1,4 @@
-import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab } from "../shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -37,5 +37,12 @@ describe("family detail tab navigation phase 74", () => {
   it("選択中タブの位置と総数を返す", () => {
     expect(getFamilyDetailTabPosition("timeline")).toEqual({ current: 1, total: 11 });
     expect(getFamilyDetailTabPosition("health")).toEqual({ current: 11, total: 11 });
+  });
+
+  it("最近使った機能を重複なく最大3件で記憶する", () => {
+    expect(getFamilyDetailTabRecentsStorageKey(12)).toBe("kizuna-sync-family-detail-tab-recents-12");
+    expect(normalizeRecentFamilyDetailTabs(["ai", "unknown", "album", "ai"])).toEqual(["ai", "album"]);
+    expect(recordRecentFamilyDetailTab(["ai", "album", "stats"], "album")).toEqual(["album", "ai", "stats"]);
+    expect(recordRecentFamilyDetailTab(["ai", "album", "stats"], "health")).toEqual(["health", "ai", "album"]);
   });
 });
