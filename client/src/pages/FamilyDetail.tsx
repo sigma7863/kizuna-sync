@@ -135,6 +135,7 @@ import { FamilyNextStepCard } from "@/components/FamilyNextStepCard";
 import { FamilyHouseholdTip } from "@/components/FamilyHouseholdTip";
 import { FamilyPackingCheck } from "@/components/FamilyPackingCheck";
 import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
+import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 
@@ -418,6 +419,7 @@ export default function FamilyDetail() {
           <FamilyDisplaySettings />
           <FamilyImportantShortcuts onSafety={() => setActiveTab("safety")} onMood={() => scrollToElement("share-feeling")} onDaily={() => scrollToElement("family-daily-cards")}/>
         </div>
+        <FamilyCardNavigator onOpen={scrollToElement}/>
 
         <div className="mb-6 grid gap-4 md:grid-cols-2">
           <FamilyCheckIn familyGroupId={familyGroupId} />
@@ -479,9 +481,9 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHelpingHand familyGroupId={familyGroupId}/><FamilyDiscoveryShare familyGroupId={familyGroupId}/><FamilyWeekendCalmPlan familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyCareTheme familyGroupId={familyGroupId}/><FamilyTriedMemo familyGroupId={familyGroupId}/><FamilyHomecomingBreather familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyJournalRelay familyGroupId={familyGroupId}/><FamilyConversationTopic familyGroupId={familyGroupId}/><FamilyAppreciationCard familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyRoleBaton familyGroupId={familyGroupId}/><FamilyPlaceCard familyGroupId={familyGroupId}/><FamilyNoticeBoard familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyPriorityMemo familyGroupId={familyGroupId}/><FamilyPlanCheckin familyGroupId={familyGroupId}/><FamilyNextStepCard familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHouseholdTip familyGroupId={familyGroupId}/><FamilyPackingCheck familyGroupId={familyGroupId}/><FamilyTogetherPick familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-role-handoff" className="scroll-mt-4"><FamilyRoleBaton familyGroupId={familyGroupId}/></div><div id="card-place-ideas" className="scroll-mt-4"><FamilyPlaceCard familyGroupId={familyGroupId}/></div><div id="card-family-notices" className="scroll-mt-4"><FamilyNoticeBoard familyGroupId={familyGroupId}/></div></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-priority-flow" className="scroll-mt-4"><FamilyPriorityMemo familyGroupId={familyGroupId}/></div><div id="card-plan-checkins" className="scroll-mt-4"><FamilyPlanCheckin familyGroupId={familyGroupId}/></div><div id="card-next-steps" className="scroll-mt-4"><FamilyNextStepCard familyGroupId={familyGroupId}/></div></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-household-tips" className="scroll-mt-4"><FamilyHouseholdTip familyGroupId={familyGroupId}/></div><div id="card-packing-checks" className="scroll-mt-4"><FamilyPackingCheck familyGroupId={familyGroupId}/></div><div id="card-together-picks" className="scroll-mt-4"><FamilyTogetherPick familyGroupId={familyGroupId}/></div></div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
