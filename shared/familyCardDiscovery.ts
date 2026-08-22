@@ -51,3 +51,7 @@ export const DISCOVERY_PURPOSE_SHORTCUTS = [
 export function getDiscoveryPurposeShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return DISCOVERY_PURPOSE_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
 export function createDiscoveryGroupSharePath(group: string) { return `?cardGroup=${encodeURIComponent(group)}#family-card-navigator`; }
 export function normalizeDiscoverySortMode(value: unknown): DiscoverySortMode { return value === "recent" || value === "title" ? value : "featured"; }
+export type DiscoveryPace = 1 | 2 | 3;
+export function normalizeDiscoveryPace(value: unknown): DiscoveryPace { return value === 1 || value === 3 ? value : 2; }
+export function getUnvisitedCardSuggestions(recentIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS, limit: DiscoveryPace = 2) { return [...cards].filter((card) => !recentIds.includes(card.id)).sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured))).slice(0, limit); }
+export function getDiscoveryReassurance(cards: FamilyCardDiscoveryItem[], recentIds: string[]) { const usage = getUsageSummary(cards, recentIds); if (usage.usedCount === 0) return "気になる一枚から、ゆっくり始めてみましょう。"; if (usage.unvisitedCount === 0) return "よく使う入口がそろいました。必要なときにまた開けます。"; return `あと${usage.unvisitedCount}枚。気になるものを一つだけ見てみましょう。`; }
