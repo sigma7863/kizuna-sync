@@ -54,6 +54,12 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.dailyRhythmMorning"]).toBeTruthy();
       expect(messages[language]["family.dailyRhythmDaytime"]).toBeTruthy();
       expect(messages[language]["family.dailyRhythmEvening"]).toBeTruthy();
+      expect(messages[language]["family.energyMeter"]).toBeTruthy();
+      expect(messages[language]["family.energyMeterDescription"]).toBeTruthy();
+      expect(messages[language]["family.energyLevel1"]).toBeTruthy();
+      expect(messages[language]["family.energyLevel5"]).toBeTruthy();
+      expect(messages[language]["family.shareEnergy"]).toBeTruthy();
+      expect(messages[language]["family.energyPrivacy"]).toBeTruthy();
     }
   });
 });

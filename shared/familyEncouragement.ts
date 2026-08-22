@@ -14,3 +14,10 @@ const wishLabels: Record<WishCategory, string> = { place: "行きたい場所", 
 export function getEnergyCue(level: EnergyLevel) { return energyCues[level]; }
 export function getWishCategoryLabel(category: WishCategory) { return wishLabels[category]; }
 export function getEncouragementSummary(posts: Array<{ recipientUserId: number | null }>, userId: number) { return { total: posts.length, addressedToMe: posts.filter((post) => post.recipientUserId === userId).length }; }
+
+export function getLatestEnergyStatuses<T extends { userId: number }>(statuses: readonly T[]): Map<number, T> {
+  return statuses.reduce((latestByUser, status) => {
+    if (!latestByUser.has(status.userId)) latestByUser.set(status.userId, status);
+    return latestByUser;
+  }, new Map<number, T>());
+}

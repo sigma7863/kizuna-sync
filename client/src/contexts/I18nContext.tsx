@@ -164,7 +164,19 @@ type TranslationKey =
   | "family.dailyRhythm"
   | "family.dailyRhythmMorning"
   | "family.dailyRhythmDaytime"
-  | "family.dailyRhythmEvening";
+  | "family.dailyRhythmEvening"
+  | "family.energyMeter"
+  | "family.energyMeterDescription"
+  | "family.energyLevel1"
+  | "family.energyLevel2"
+  | "family.energyLevel3"
+  | "family.energyLevel4"
+  | "family.energyLevel5"
+  | "family.energyNote"
+  | "family.shareEnergy"
+  | "family.energyLoading"
+  | "family.energyNotShared"
+  | "family.energyPrivacy";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -332,6 +344,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailyRhythmMorning": "朝の準備と見守りを整えましょう",
     "family.dailyRhythmDaytime": "日中の安心と体調をやさしく確認しましょう",
     "family.dailyRhythmEvening": "今日の思い出と会話をゆっくり振り返りましょう",
+    "family.energyMeter": "家族の元気度メーター",
+    "family.energyMeterDescription": "今の余力を自分で選んで、無理のない声かけへ。",
+    "family.energyLevel1": "充電したい",
+    "family.energyLevel2": "ゆっくりめ",
+    "family.energyLevel3": "ふつう",
+    "family.energyLevel4": "元気",
+    "family.energyLevel5": "เต็มタン",
+    "family.energyNote": "ひとこと（任意）",
+    "family.shareEnergy": "今の元気度を共有",
+    "family.energyLoading": "元気度を読み込み中です…",
+    "family.energyNotShared": "未共有",
+    "family.energyPrivacy": "医療情報ではなく、その日の余力を本人が選んで伝えるためのメーターです。",
   },
   en: {
     "common.loading": "Loading...",
@@ -496,6 +520,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailyRhythmMorning": "Prepare for the morning and stay connected",
     "family.dailyRhythmDaytime": "Gently check daytime safety and wellbeing",
     "family.dailyRhythmEvening": "Reflect on today's memories and conversations",
+    "family.energyMeter": "Family energy meter",
+    "family.energyMeterDescription": "Choose your current capacity for kinder, pressure-free support.",
+    "family.energyLevel1": "Need to recharge",
+    "family.energyLevel2": "Taking it slowly",
+    "family.energyLevel3": "Doing okay",
+    "family.energyLevel4": "Feeling good",
+    "family.energyLevel5": "Fully charged",
+    "family.energyNote": "A short note (optional)",
+    "family.shareEnergy": "Share my energy level",
+    "family.energyLoading": "Loading energy levels…",
+    "family.energyNotShared": "Not shared yet",
+    "family.energyPrivacy": "This is not medical information; it is a self-chosen way to share today's capacity.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -660,6 +696,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailyRhythmMorning": "准备早晨，并与家人保持联系",
     "family.dailyRhythmDaytime": "温和地确认日间安全与健康状况",
     "family.dailyRhythmEvening": "回顾今天的回忆与交流",
+    "family.energyMeter": "家人的精力状态",
+    "family.energyMeterDescription": "自己选择当前精力，让家人的关心更轻松。",
+    "family.energyLevel1": "想要充电",
+    "family.energyLevel2": "慢慢来",
+    "family.energyLevel3": "还不错",
+    "family.energyLevel4": "精神不错",
+    "family.energyLevel5": "精力满满",
+    "family.energyNote": "一句话（可选）",
+    "family.shareEnergy": "分享我的精力状态",
+    "family.energyLoading": "正在读取精力状态…",
+    "family.energyNotShared": "尚未分享",
+    "family.energyPrivacy": "这不是医疗信息，而是本人选择分享当天精力状态的方式。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -824,6 +872,18 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailyRhythmMorning": "아침 준비와 가족 연결을 챙겨보세요",
     "family.dailyRhythmDaytime": "낮 동안의 안전과 컨디션을 살펴보세요",
     "family.dailyRhythmEvening": "오늘의 추억과 대화를 돌아보세요",
+    "family.energyMeter": "가족 에너지 미터",
+    "family.energyMeterDescription": "지금의 여유를 직접 골라 부담 없는 돌봄을 나눠보세요.",
+    "family.energyLevel1": "충전이 필요해요",
+    "family.energyLevel2": "천천히 가고 있어요",
+    "family.energyLevel3": "괜찮아요",
+    "family.energyLevel4": "기운이 있어요",
+    "family.energyLevel5": "에너지가 가득해요",
+    "family.energyNote": "한마디 (선택 사항)",
+    "family.shareEnergy": "지금의 에너지 공유",
+    "family.energyLoading": "에너지 상태를 불러오는 중…",
+    "family.energyNotShared": "아직 공유하지 않음",
+    "family.energyPrivacy": "의료 정보가 아니라, 오늘의 여유를 직접 선택해 전하는 미터입니다.",
   },
 };
 
