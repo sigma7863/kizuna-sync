@@ -50,6 +50,10 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.shareRecommendations"]).toBeTruthy();
       expect(messages[language]["family.safetyLauncher"]).toBeTruthy();
       expect(messages[language]["family.safetyLauncherDescription"]).toBeTruthy();
+      expect(messages[language]["family.dailyRhythm"]).toBeTruthy();
+      expect(messages[language]["family.dailyRhythmMorning"]).toBeTruthy();
+      expect(messages[language]["family.dailyRhythmDaytime"]).toBeTruthy();
+      expect(messages[language]["family.dailyRhythmEvening"]).toBeTruthy();
     }
   });
 });
