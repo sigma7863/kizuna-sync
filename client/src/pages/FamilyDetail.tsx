@@ -21,6 +21,7 @@ import { FamilyDailySupportSummary } from "@/components/FamilyDailySupportSummar
 import { FamilyCheckInFollowUp } from "@/components/FamilyCheckInFollowUp";
 import { TodayKizunaHighlights } from "@/components/TodayKizunaHighlights";
 import { FamilyEmergencyAssist } from "@/components/FamilyEmergencyAssist";
+import { FamilyKoshienDemoGuide } from "@/components/FamilyKoshienDemoGuide";
 import { FamilyRoleQuickHub } from "@/components/FamilyRoleQuickHub";
 import { FamilyDisplaySettings } from "@/components/FamilyDisplaySettings";
 import { FamilySharingControls } from "@/components/FamilySharingControls";
@@ -432,6 +433,7 @@ export default function FamilyDetail() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <FamilyKoshienDemoGuide familyGroupId={familyGroupId} onNavigate={setLocation} />
               <LanguageSwitcher />
               <Button
               onClick={() => setLocation(`/family/${familyGroupId}/invite`)}

@@ -28,6 +28,23 @@ type TranslationKey =
   | "home.createGroup"
   | "home.loading"
   | "home.featureRipple"
+  | "family.demoOpen"
+  | "family.demoTitle"
+  | "family.demoDescription"
+  | "family.demoSafetyTitle"
+  | "family.demoSafetyDescription"
+  | "family.demoStepsTitle"
+  | "family.demoStepCreate"
+  | "family.demoStepSafety"
+  | "family.demoStepCheckIn"
+  | "family.demoStepMemory"
+  | "family.demoStepRecovery"
+  | "family.demoValueTitle"
+  | "family.demoValuePrivacy"
+  | "family.demoValueLanguage"
+  | "family.demoValueAccessibility"
+  | "family.demoValuePerformance"
+  | "family.demoReset"
   | "family.members"
   | "family.invite"
   | "family.timeline"
@@ -411,6 +428,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.createGroup": "グループを作成",
     "home.loading": "読み込み中…",
     "home.featureRipple": "絆の波紋で家族の「今」を感じる",
+    "family.demoOpen": "3分デモ",
+    "family.demoTitle": "PC甲子園向け・3分デモガイド",
+    "family.demoDescription": "家族をつなぐ安心の流れを、実データを変えずに短時間で案内します。各項目を選ぶと該当画面へ移動します。",
+    "family.demoSafetyTitle": "デモモードの安全な使い方",
+    "family.demoSafetyDescription": "このガイドは説明専用です。サンプルの家族情報を作成・送信・変更しません。実際の送信は各画面で明確に確認してから行われます。",
+    "family.demoStepsTitle": "3分の見せ方",
+    "family.demoStepCreate": "家族グループの作成から、役割別の入口を紹介",
+    "family.demoStepSafety": "見守り・緊急連絡先・避難情報を確認",
+    "family.demoStepCheckIn": "安心チェックインと家族へのやさしい返信を体験",
+    "family.demoStepMemory": "思い出アルバムと感謝の反応を紹介",
+    "family.demoStepRecovery": "通信不安定時の保存・復帰・再同期を確認",
+    "family.demoValueTitle": "審査で伝える4つの価値",
+    "family.demoValuePrivacy": "最小開示のプライバシー設計",
+    "family.demoValueLanguage": "JA / EN / ZH / KO の4言語",
+    "family.demoValueAccessibility": "高齢者にも届くアクセシビリティ",
+    "family.demoValuePerformance": "低速端末にも配慮した性能",
+    "family.demoReset": "タイムラインへ戻る",
     "family.members": "人のメンバー",
     "family.invite": "メンバーを招待",
     "family.timeline": "タイムライン",
@@ -766,6 +800,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.createGroup": "Create a group",
     "home.loading": "Loading…",
     "home.featureRipple": "Feel your family's present moment through Kizuna ripples",
+    "family.demoOpen": "3-minute demo",
+    "family.demoTitle": "PC Koshien 3-minute demo guide",
+    "family.demoDescription": "Introduce the family-safety journey quickly without changing real data. Select a step to move to the related screen.",
+    "family.demoSafetyTitle": "Using demo mode safely",
+    "family.demoSafetyDescription": "This guide is for explanation only. It does not create, send, or change family information. Actual sending is confirmed clearly on each screen.",
+    "family.demoStepsTitle": "A three-minute story",
+    "family.demoStepCreate": "Introduce family-group creation and role-based entry points",
+    "family.demoStepSafety": "Review safety, emergency contacts, and evacuation information",
+    "family.demoStepCheckIn": "Try a reassurance check-in and a gentle family response",
+    "family.demoStepMemory": "Introduce the memories album and thankful reactions",
+    "family.demoStepRecovery": "Review saving, recovery, and re-sync for unstable connections",
+    "family.demoValueTitle": "Four values to communicate",
+    "family.demoValuePrivacy": "Least-disclosure privacy design",
+    "family.demoValueLanguage": "Four languages: JA / EN / ZH / KO",
+    "family.demoValueAccessibility": "Accessibility that reaches older adults",
+    "family.demoValuePerformance": "Performance for slower devices",
+    "family.demoReset": "Return to timeline",
     "family.members": " members",
     "family.invite": "Invite members",
     "family.timeline": "Timeline",
@@ -1121,6 +1172,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.createGroup": "创建群组",
     "home.loading": "正在加载…",
     "home.featureRipple": "通过羁绊波纹感受家人的此刻",
+    "family.demoOpen": "3分钟演示",
+    "family.demoTitle": "PC甲子园3分钟演示指南",
+    "family.demoDescription": "无需更改真实数据，即可快速介绍家人安心的使用流程。选择步骤可前往相关页面。",
+    "family.demoSafetyTitle": "安全使用演示模式",
+    "family.demoSafetyDescription": "本指南仅用于说明，不会创建、发送或更改家庭信息。实际发送前会在各页面明确确认。",
+    "family.demoStepsTitle": "3分钟展示流程",
+    "family.demoStepCreate": "介绍创建家庭群组与按角色设计的入口",
+    "family.demoStepSafety": "查看守护、紧急联系人和避难信息",
+    "family.demoStepCheckIn": "体验安心报到与家人的温柔回应",
+    "family.demoStepMemory": "介绍回忆相册与感谢互动",
+    "family.demoStepRecovery": "查看网络不稳定时的保存、恢复与重新同步",
+    "family.demoValueTitle": "向评审传达的四项价值",
+    "family.demoValuePrivacy": "最小披露的隐私设计",
+    "family.demoValueLanguage": "JA / EN / ZH / KO 四种语言",
+    "family.demoValueAccessibility": "让高龄者也能使用的无障碍设计",
+    "family.demoValuePerformance": "兼顾低速设备的性能",
+    "family.demoReset": "返回时间线",
     "family.members": " 位成员",
     "family.invite": "邀请成员",
     "family.timeline": "时间线",
@@ -1476,6 +1544,23 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "home.createGroup": "그룹 만들기",
     "home.loading": "불러오는 중…",
     "home.featureRipple": "인연의 물결로 가족의 지금을 느껴 보세요",
+    "family.demoOpen": "3분 데모",
+    "family.demoTitle": "PC 고시엔 3분 데모 가이드",
+    "family.demoDescription": "실제 데이터를 바꾸지 않고 가족 안심 흐름을 짧게 소개합니다. 단계를 선택하면 관련 화면으로 이동합니다.",
+    "family.demoSafetyTitle": "데모 모드 안전 안내",
+    "family.demoSafetyDescription": "이 가이드는 설명 전용입니다. 가족 정보를 만들거나 보내거나 변경하지 않습니다. 실제 전송은 각 화면에서 명확히 확인합니다.",
+    "family.demoStepsTitle": "3분 구성",
+    "family.demoStepCreate": "가족 그룹 생성과 역할별 시작점을 소개",
+    "family.demoStepSafety": "돌봄, 긴급 연락처, 대피 정보를 확인",
+    "family.demoStepCheckIn": "안심 체크인과 가족의 다정한 답장을 체험",
+    "family.demoStepMemory": "추억 앨범과 감사 반응을 소개",
+    "family.demoStepRecovery": "통신 불안정 시 저장, 복구, 재동기화를 확인",
+    "family.demoValueTitle": "심사에 전할 네 가지 가치",
+    "family.demoValuePrivacy": "최소 공개 프라이버시 설계",
+    "family.demoValueLanguage": "JA / EN / ZH / KO 4개 언어",
+    "family.demoValueAccessibility": "고령자에게도 닿는 접근성",
+    "family.demoValuePerformance": "느린 기기도 고려한 성능",
+    "family.demoReset": "타임라인으로 돌아가기",
     "family.members": "명의 멤버",
     "family.invite": "멤버 초대",
     "family.timeline": "타임라인",
