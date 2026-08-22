@@ -277,6 +277,32 @@ type TranslationKey =
   | "family.dailySupportCompleted"
   | "family.dailySupportCheckIn"
   | "family.dailySupportCheckInHelp"
+  | "family.albumTitle"
+  | "family.albumDescription"
+  | "family.albumFavorites"
+  | "family.albumDownloadAll"
+  | "family.albumAdd"
+  | "family.albumSearch"
+  | "family.albumClearSearch"
+  | "family.albumLoading"
+  | "family.albumNoResults"
+  | "family.albumNoFavorites"
+  | "family.albumEmpty"
+  | "family.albumEmptyHelp"
+  | "family.albumUploaded"
+  | "family.albumUploadFailed"
+  | "family.albumFileTypeError"
+  | "family.albumFileSizeError"
+  | "family.albumDownloadStarted"
+  | "family.albumAddFavorite"
+  | "family.albumRemoveFavorite"
+  | "family.albumFavoriteFailed"
+  | "family.albumDescriptionPending"
+  | "family.albumSave"
+  | "family.albumReaction"
+  | "family.albumReactionMessage"
+  | "family.albumReactionSent"
+  | "family.albumReactionFailed"
   | "family.additionalDailyToolsTitle"
   | "family.additionalDailyToolsDescription"
   | "family.additionalDailyToolsOpen"
@@ -577,6 +603,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailySupportCompleted": "できたこと",
     "family.dailySupportCheckIn": "予定の前後に安心を知らせる",
     "family.dailySupportCheckInHelp": "外出・帰宅・予定の前後に、短いチェックインで家族へ安心を伝えられます。",
+    "family.albumTitle": "家族クラウドアルバム", "family.albumDescription": "写真を共有すると、AIが思い出をやさしく整理します。", "family.albumFavorites": "お気に入り", "family.albumDownloadAll": "まとめて保存", "family.albumAdd": "写真を追加", "family.albumSearch": "AIタグや説明から思い出を探す", "family.albumClearSearch": "検索をクリア", "family.albumLoading": "読み込み中…", "family.albumNoResults": "一致する思い出が見つかりませんでした", "family.albumNoFavorites": "お気に入りの写真はまだありません", "family.albumEmpty": "最初の家族写真を追加しましょう", "family.albumEmptyHelp": "AIが説明とタグを付け、思い出を探しやすくします。", "family.albumUploaded": "写真をアルバムに追加し、AIタグを付けました", "family.albumUploadFailed": "写真の追加に失敗しました", "family.albumFileTypeError": "JPEG・PNG・WebP形式の画像を選択してください", "family.albumFileSizeError": "写真は8MB以下にしてください", "family.albumDownloadStarted": "{count}枚の保存を開始しました", "family.albumAddFavorite": "お気に入りに追加", "family.albumRemoveFavorite": "お気に入りから外す", "family.albumFavoriteFailed": "お気に入りを更新できませんでした", "family.albumDescriptionPending": "AIの説明を準備中です", "family.albumSave": "保存", "family.albumReaction": "ありがとうを送る", "family.albumReactionMessage": "この思い出を共有してくれてありがとう。", "family.albumReactionSent": "思い出へのありがとうを家族へ届けました", "family.albumReactionFailed": "ありがとうを送れませんでした。もう一度お試しください。",
     "family.additionalDailyToolsTitle": "もっと家族の毎日を整えるツール",
     "family.additionalDailyToolsDescription": "必要なときだけ開くことで、最初の表示を軽く保ちます。",
     "family.additionalDailyToolsOpen": "追加ツールを開く",
@@ -874,6 +901,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailySupportCompleted": "Done",
     "family.dailySupportCheckIn": "Share reassurance around plans",
     "family.dailySupportCheckInHelp": "Before or after going out, returning home, or a plan, a short check-in can reassure your family.",
+    "family.albumTitle": "Family cloud album", "family.albumDescription": "When you share a photo, AI gently organizes the memory.", "family.albumFavorites": "Favorites", "family.albumDownloadAll": "Save all", "family.albumAdd": "Add photo", "family.albumSearch": "Find memories by AI tags or descriptions", "family.albumClearSearch": "Clear search", "family.albumLoading": "Loading…", "family.albumNoResults": "No matching memories found", "family.albumNoFavorites": "No favorite photos yet", "family.albumEmpty": "Add your first family photo", "family.albumEmptyHelp": "AI adds descriptions and tags to make memories easier to find.", "family.albumUploaded": "Photo added and tagged by AI", "family.albumUploadFailed": "Could not add the photo", "family.albumFileTypeError": "Choose a JPEG, PNG, or WebP image", "family.albumFileSizeError": "Choose a photo up to 8 MB", "family.albumDownloadStarted": "Started saving {count} photos", "family.albumAddFavorite": "Add to favorites", "family.albumRemoveFavorite": "Remove from favorites", "family.albumFavoriteFailed": "Could not update favorites", "family.albumDescriptionPending": "Preparing AI description", "family.albumSave": "Save", "family.albumReaction": "Send thanks", "family.albumReactionMessage": "Thank you for sharing this memory.", "family.albumReactionSent": "Sent a thank-you for this memory to your family", "family.albumReactionFailed": "Could not send thanks. Please try again.",
     "family.additionalDailyToolsTitle": "More tools for family life",
     "family.additionalDailyToolsDescription": "Open these only when needed to keep the first view lightweight.",
     "family.additionalDailyToolsOpen": "Open more tools",
@@ -1171,6 +1199,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailySupportCompleted": "已完成",
     "family.dailySupportCheckIn": "在计划前后报平安",
     "family.dailySupportCheckInHelp": "外出、回家或计划前后，可用简短报平安让家人放心。",
+    "family.albumTitle": "家庭云相册", "family.albumDescription": "分享照片后，AI会温柔整理这段回忆。", "family.albumFavorites": "收藏", "family.albumDownloadAll": "全部保存", "family.albumAdd": "添加照片", "family.albumSearch": "通过AI标签或说明查找回忆", "family.albumClearSearch": "清除搜索", "family.albumLoading": "正在加载…", "family.albumNoResults": "没有找到匹配的回忆", "family.albumNoFavorites": "还没有收藏的照片", "family.albumEmpty": "添加第一张家庭照片吧", "family.albumEmptyHelp": "AI会添加说明和标签，让回忆更容易找到。", "family.albumUploaded": "已添加照片并生成AI标签", "family.albumUploadFailed": "无法添加照片", "family.albumFileTypeError": "请选择JPEG、PNG或WebP图像", "family.albumFileSizeError": "请选择8MB以内的照片", "family.albumDownloadStarted": "已开始保存{count}张照片", "family.albumAddFavorite": "添加到收藏", "family.albumRemoveFavorite": "从收藏中移除", "family.albumFavoriteFailed": "无法更新收藏", "family.albumDescriptionPending": "正在准备AI说明", "family.albumSave": "保存", "family.albumReaction": "发送感谢", "family.albumReactionMessage": "谢谢你分享这段回忆。", "family.albumReactionSent": "已向家人送出对这段回忆的感谢", "family.albumReactionFailed": "无法发送感谢，请再试一次。",
     "family.additionalDailyToolsTitle": "更多家庭日常工具",
     "family.additionalDailyToolsDescription": "仅在需要时打开，以减轻首次显示的负担。",
     "family.additionalDailyToolsOpen": "打开更多工具",
@@ -1468,6 +1497,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.dailySupportCompleted": "완료",
     "family.dailySupportCheckIn": "일정 전후 안심 알리기",
     "family.dailySupportCheckInHelp": "외출, 귀가 또는 일정 전후에 짧은 체크인으로 가족을 안심시킬 수 있어요.",
+    "family.albumTitle": "가족 클라우드 앨범", "family.albumDescription": "사진을 공유하면 AI가 추억을 부드럽게 정리해요.", "family.albumFavorites": "즐겨찾기", "family.albumDownloadAll": "모두 저장", "family.albumAdd": "사진 추가", "family.albumSearch": "AI 태그나 설명으로 추억 찾기", "family.albumClearSearch": "검색 지우기", "family.albumLoading": "불러오는 중…", "family.albumNoResults": "일치하는 추억을 찾지 못했어요", "family.albumNoFavorites": "아직 즐겨찾기 사진이 없어요", "family.albumEmpty": "첫 가족 사진을 추가해 보세요", "family.albumEmptyHelp": "AI가 설명과 태그를 더해 추억을 쉽게 찾도록 해요.", "family.albumUploaded": "사진을 추가하고 AI 태그를 만들었어요", "family.albumUploadFailed": "사진을 추가할 수 없어요", "family.albumFileTypeError": "JPEG, PNG 또는 WebP 이미지를 선택해 주세요", "family.albumFileSizeError": "8MB 이하의 사진을 선택해 주세요", "family.albumDownloadStarted": "{count}장의 사진 저장을 시작했어요", "family.albumAddFavorite": "즐겨찾기에 추가", "family.albumRemoveFavorite": "즐겨찾기에서 제거", "family.albumFavoriteFailed": "즐겨찾기를 업데이트할 수 없어요", "family.albumDescriptionPending": "AI 설명을 준비하고 있어요", "family.albumSave": "저장", "family.albumReaction": "고마움 보내기", "family.albumReactionMessage": "이 추억을 공유해 줘서 고마워요.", "family.albumReactionSent": "이 추억에 대한 고마움을 가족에게 전했어요", "family.albumReactionFailed": "고마움을 보낼 수 없어요. 다시 시도해 주세요.",
     "family.additionalDailyToolsTitle": "가족의 일상을 돕는 더 많은 도구",
     "family.additionalDailyToolsDescription": "필요할 때만 열어 첫 화면을 가볍게 유지합니다.",
     "family.additionalDailyToolsOpen": "추가 도구 열기",
