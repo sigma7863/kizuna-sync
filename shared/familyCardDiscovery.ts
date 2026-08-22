@@ -101,3 +101,11 @@ export const DAILY_PURPOSE_SHORTCUTS = [
 export function getDailyPurposeShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return DAILY_PURPOSE_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
 export function getDailyPurposeUsageSummary(recentIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS) { const entries = getDailyPurposeShortcuts(cards).map((item) => ({ ...item, count: cards.filter((card) => card.group === item.group && recentIds.includes(card.id)).length })); const next = [...entries].sort((a, b) => a.count - b.count)[0]; return { entries, message: next ? `次は「${next.label}」から、家族の今日を少し動かせます。` : "気になる目的から、家族の今日を始めましょう。" }; }
 export function normalizeDailyPurposeSuggestionVisibility(value: unknown) { return value !== false; }
+export const TODAY_FAMILY_PURPOSE_SHORTCUTS = [
+  { label: "気分を分け合う", group: "楽しみ" },
+  { label: "予定を整える", group: "予定" },
+  { label: "助けを頼む", group: "支え合い" },
+] as const;
+export function getTodayFamilyPurposeShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return TODAY_FAMILY_PURPOSE_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
+export function getTodayFamilyPurposeUsageSummary(recentIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS) { const entries = getTodayFamilyPurposeShortcuts(cards).map((item) => ({ ...item, count: cards.filter((card) => card.group === item.group && recentIds.includes(card.id)).length })); const next = [...entries].sort((a, b) => a.count - b.count)[0]; return { entries, message: next ? `今日は「${next.label}」から、家族の気持ちを近づけられます。` : "今日の気持ちに合う目的から、家族へひとこと届けましょう。" }; }
+export function normalizeTodayFamilyPurposeSuggestionVisibility(value: unknown) { return value !== false; }
