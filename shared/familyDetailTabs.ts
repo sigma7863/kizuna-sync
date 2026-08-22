@@ -34,3 +34,14 @@ export function createFamilyDetailTabPath(familyGroupId: number, tab: FamilyDeta
 export function getFamilyDetailTabStorageKey(familyGroupId: number): string {
   return `kizuna-sync-last-family-detail-tab:${familyGroupId}`;
 }
+
+export type FamilyDetailTabMove = "next" | "previous" | "first" | "last";
+
+export function getMovedFamilyDetailTab(currentTab: FamilyDetailTab, move: FamilyDetailTabMove): FamilyDetailTab {
+  const currentIndex = familyDetailTabs.indexOf(currentTab);
+
+  if (move === "first") return familyDetailTabs[0];
+  if (move === "last") return familyDetailTabs[familyDetailTabs.length - 1];
+  if (move === "next") return familyDetailTabs[(currentIndex + 1) % familyDetailTabs.length];
+  return familyDetailTabs[(currentIndex - 1 + familyDetailTabs.length) % familyDetailTabs.length];
+}
