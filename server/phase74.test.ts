@@ -1,5 +1,6 @@
 import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab } from "../shared/familyDetailTabs";
 import { getRecommendedFamilyDetailTabs } from "../shared/familyDetailTabs";
+import { getFamilyDetailRecommendationStorageKey, normalizeRecommendedFamilyDetailTabs, toggleRecommendedFamilyDetailTab } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -65,5 +66,12 @@ describe("family detail tab navigation phase 74", () => {
     expect(getRecommendedFamilyDetailTabs("guardian")).toEqual(["safety", "assistant", "stats"]);
     expect(getRecommendedFamilyDetailTabs("child")).toEqual(["timeline", "celebration", "album"]);
     expect(getRecommendedFamilyDetailTabs("elderly")).toEqual(["assistant", "safety", "health"]);
+  });
+
+  it("役割別のおすすめを重複なく調整して保存できる", () => {
+    expect(getFamilyDetailRecommendationStorageKey(12, "guardian")).toBe("kizuna-sync-family-detail-recommendations-12-guardian");
+    expect(normalizeRecommendedFamilyDetailTabs(["safety", "unknown", "album", "safety"])).toEqual(["safety", "album"]);
+    expect(toggleRecommendedFamilyDetailTab(["safety", "assistant"], "album")).toEqual(["safety", "assistant", "album"]);
+    expect(toggleRecommendedFamilyDetailTab(["safety", "assistant"], "safety")).toEqual(["assistant"]);
   });
 });

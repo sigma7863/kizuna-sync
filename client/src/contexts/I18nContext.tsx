@@ -154,7 +154,10 @@ type TranslationKey =
   | "family.noMatchingFeatures"
   | "family.searchResultsCount"
   | "family.clearSearch"
-  | "family.recommendedFeatures";
+  | "family.recommendedFeatures"
+  | "family.addRecommendation"
+  | "family.removeRecommendation"
+  | "family.resetRecommendations";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -312,6 +315,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchResultsCount": "{count}件の機能が見つかりました",
     "family.clearSearch": "検索をクリア",
     "family.recommendedFeatures": "あなたへのおすすめ機能",
+    "family.addRecommendation": "おすすめに追加",
+    "family.removeRecommendation": "おすすめから外す",
+    "family.resetRecommendations": "おすすめを初期状態に戻す",
   },
   en: {
     "common.loading": "Loading...",
@@ -466,6 +472,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchResultsCount": "{count} features found",
     "family.clearSearch": "Clear search",
     "family.recommendedFeatures": "Recommended for you",
+    "family.addRecommendation": "Add to recommendations",
+    "family.removeRecommendation": "Remove from recommendations",
+    "family.resetRecommendations": "Reset recommendations",
   },
   zh: {
     "common.loading": "加载中...",
@@ -620,6 +629,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchResultsCount": "找到 {count} 个功能",
     "family.clearSearch": "清除搜索",
     "family.recommendedFeatures": "为您推荐的功能",
+    "family.addRecommendation": "添加到推荐",
+    "family.removeRecommendation": "从推荐中移除",
+    "family.resetRecommendations": "重置推荐",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -774,6 +786,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.searchResultsCount": "{count}개의 기능을 찾았습니다",
     "family.clearSearch": "검색 지우기",
     "family.recommendedFeatures": "회원님을 위한 추천 기능",
+    "family.addRecommendation": "추천에 추가",
+    "family.removeRecommendation": "추천에서 제거",
+    "family.resetRecommendations": "추천 초기화",
   },
 };
 

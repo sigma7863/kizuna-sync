@@ -113,3 +113,22 @@ export function getRecommendedFamilyDetailTabs(role: "guardian" | "child" | "eld
   if (role === "child") return ["timeline", "celebration", "album"];
   return ["assistant", "safety", "health"];
 }
+
+export function getFamilyDetailRecommendationStorageKey(familyGroupId: number, role: "guardian" | "child" | "elderly") {
+  return `kizuna-sync-family-detail-recommendations-${familyGroupId}-${role}`;
+}
+
+export function normalizeRecommendedFamilyDetailTabs(value: unknown): FamilyDetailTab[] {
+  if (!Array.isArray(value)) return [];
+  return value.reduce<FamilyDetailTab[]>((tabs, candidate) => {
+    const tab = normalizeFamilyDetailTab(candidate);
+    return tab && !tabs.includes(tab) ? [...tabs, tab] : tabs;
+  }, []).slice(0, 3);
+}
+
+export function toggleRecommendedFamilyDetailTab(existing: unknown, tab: FamilyDetailTab): FamilyDetailTab[] {
+  const recommendations = normalizeRecommendedFamilyDetailTabs(existing);
+  return recommendations.includes(tab)
+    ? recommendations.filter((candidate) => candidate !== tab)
+    : [...recommendations, tab].slice(0, 3);
+}
