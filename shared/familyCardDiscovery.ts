@@ -75,3 +75,11 @@ export const DISCOVERY_SCENE_SHORTCUTS = [
 export function getDiscoverySceneShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return DISCOVERY_SCENE_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
 export function getRelatedDiscoveryCards(cardId: string | undefined, cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 2) { const source = cards.find((card) => card.id === cardId); return source ? cards.filter((card) => card.id !== source.id && card.group === source.group).slice(0, limit) : []; }
 export function normalizeSceneSuggestionVisibility(value: unknown) { return value !== false; }
+export const REASSURANCE_ACTION_SHORTCUTS = [
+  { label: "気づかいを届ける", group: "支え合い" },
+  { label: "予定を確かめる", group: "予定" },
+  { label: "小さな助けを決める", group: "注目" },
+] as const;
+export function getReassuranceActionShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return REASSURANCE_ACTION_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
+export function getReassuranceUsageSummary(recentIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS) { const actions = getReassuranceActionShortcuts(cards); const counts = actions.map((action) => ({ ...action, count: cards.filter((card) => card.group === action.group && recentIds.includes(card.id)).length })); const next = [...counts].sort((a, b) => a.count - b.count)[0]; return { counts, message: next ? `次は「${next.label}」から、家族の小さな一歩を選べます。` : "気になる行動から、ゆっくり始めましょう。" }; }
+export function normalizeReassuranceSuggestionVisibility(value: unknown) { return value !== false; }
