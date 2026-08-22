@@ -8,6 +8,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { trpc } from "@/lib/trpc";
 import { composeFamilyCheckInNote, familyCheckInStatuses, type FamilyCheckInStatus } from "@shared/familyCheckIn";
 import { formatFamilyTime } from "@shared/familyLocale";
+import { normalizeFamilyText } from "@shared/familyDataQuality";
 
 const checkInStatusLabelKeys: Record<FamilyCheckInStatus, "family.checkInStatusOkay" | "family.checkInStatusRest" | "family.checkInStatusAvailable"> = {
   okay: "family.checkInStatusOkay",
@@ -21,15 +22,18 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
   const [checkInStatus, setCheckInStatus] = useState<FamilyCheckInStatus>("okay");
   const [completedAt, setCompletedAt] = useState<Date | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
+  const [needsRetry, setNeedsRetry] = useState(false);
   const checkIn = trpc.checkIn.send.useMutation({
     onSuccess: () => {
       setNote("");
       setCompletedAt(new Date());
+      setNeedsRetry(false);
       setStatusMessage(t("family.checkInShared"));
       toast.success(t("family.checkInShared"));
     },
     onError: () => {
-      const message = t("family.checkInFailed");
+      const message = t("family.checkInRecoveryHint");
+      setNeedsRetry(true);
       setStatusMessage(message);
       toast.error(message);
     },
@@ -40,7 +44,7 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
   const sendCheckIn = () => checkIn.mutate({
     familyGroupId,
     status: checkInStatus,
-    note: composeFamilyCheckInNote(checkInStatus, checkInStatusLabel, note),
+    note: composeFamilyCheckInNote(checkInStatus, checkInStatusLabel, normalizeFamilyText(note)),
   });
 
   return (
@@ -66,6 +70,7 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
           {checkIn.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="mr-2 h-4 w-4" aria-hidden="true" />}
           {checkIn.isPending ? t("family.checkInSubmitting") : t("family.checkInSubmit")}
         </Button>
+        {needsRetry && <Button type="button" variant="outline" className="w-full border-amber-500 text-amber-900 hover:bg-amber-50" disabled={checkIn.isPending} onClick={sendCheckIn}>{t("family.checkInRetry")}</Button>}
         <p id="family-checkin-status" className="min-h-5 text-center text-xs font-medium text-emerald-700" role="status" aria-live="polite">
           {status}{completedAt && !checkIn.isPending ? ` ${t("family.checkInSharedAt").replace("{time}", formatFamilyTime(completedAt, language))}` : ""}
         </p>
