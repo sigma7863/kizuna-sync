@@ -248,6 +248,10 @@ export default function FamilyDetail() {
   const currentMemberRole: FamilyMemberRole = members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian";
   const getScrollBehavior = () => getFamilyNavigationScrollBehavior(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
+  const focusCurrentFamilyTab = () => document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.focus({ preventScroll: true });
+  useEffect(() => {
+    document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.scrollIntoView({ behavior: getScrollBehavior(), block: "nearest", inline: "center" });
+  }, [activeTab, reducedMotion]);
   useEffect(() => {
     const recoverSharedCard = () => {
       const cardId = normalizeFamilyCardAnchor(window.location.hash);
@@ -595,6 +599,9 @@ export default function FamilyDetail() {
             >
               <Heart className="mr-1.5 h-4 w-4" />
               {t("family.returnTimeline")}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={focusCurrentFamilyTab}>
+              {t("family.focusCurrentFeature")}
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={() => void handleShareActiveTab()}>
               <Share2 className="mr-1.5 h-4 w-4" />
