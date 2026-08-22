@@ -93,6 +93,10 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.careMessagePrivateHelp"]).toBeTruthy();
       expect(messages[language]["family.careMessageFromTo"]).toContain("{sender}");
       expect(messages[language]["family.careMessageFromTo"]).toContain("{recipient}");
+      expect(messages[language]["family.additionalDailyToolsTitle"]).toBeTruthy();
+      expect(messages[language]["family.additionalDailyToolsOpen"]).toBeTruthy();
+      expect(messages[language]["family.additionalDailyToolsClose"]).toBeTruthy();
+      expect(messages[language]["family.additionalDailyToolsLoading"]).toBeTruthy();
     }
   });
 });
