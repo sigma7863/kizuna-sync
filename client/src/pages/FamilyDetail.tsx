@@ -17,6 +17,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { FamilyCheckIn } from "@/components/FamilyCheckIn";
 import { FamilyCheckInHistory } from "@/components/FamilyCheckInHistory";
+import { FamilyDailySupportSummary } from "@/components/FamilyDailySupportSummary";
 import { FamilyCheckInFollowUp } from "@/components/FamilyCheckInFollowUp";
 import { TodayKizunaHighlights } from "@/components/TodayKizunaHighlights";
 import { FamilyHelpBoard } from "@/components/FamilyHelpBoard";
@@ -639,6 +640,7 @@ export default function FamilyDetail() {
           <FamilyCheckInFollowUp familyGroupId={familyGroupId} currentUserId={user?.id} currentUserRole={currentMemberRole} />
           <TodayKizunaHighlights familyGroupId={familyGroupId} />
         </div>
+        <div className="mb-6"><FamilyDailySupportSummary familyGroupId={familyGroupId} role={currentMemberRole} onOpenCheckIn={() => scrollToElement("family-check-in")} /></div>
         <div className="mb-6"><FamilyCheckInHistory familyGroupId={familyGroupId} currentUserRole={currentMemberRole} /></div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-3">

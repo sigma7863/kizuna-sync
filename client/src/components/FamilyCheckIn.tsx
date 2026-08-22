@@ -43,7 +43,7 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
   });
 
   return (
-    <Card className="border-0 bg-gradient-to-br from-emerald-50 via-white to-sky-50 shadow-md">
+    <Card id="family-check-in" className="border-0 bg-gradient-to-br from-emerald-50 via-white to-sky-50 shadow-md">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base text-slate-800"><HeartHandshake className="h-5 w-5 text-emerald-500" aria-hidden="true" />{t("family.checkInTitle")}</CardTitle>
         <p className="text-xs text-slate-500">{t("family.checkInDescription")}</p>
