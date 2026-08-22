@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -154,6 +154,7 @@ export default function FamilyDetail() {
   const [activeTab, setActiveTab] = useState<FamilyDetailTab>("timeline");
   const [tabShareStatus, setTabShareStatus] = useState<"idle" | "shared" | "copied" | "unavailable">("idle");
   const [sharedCardOpened, setSharedCardOpened] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
 
   useEffect(() => {
@@ -163,6 +164,14 @@ export default function FamilyDetail() {
     setActiveTab(nextTab);
     window.localStorage.setItem(lastOpenedTabStorageKey, nextTab);
   }, [lastOpenedTabStorageKey, location]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setReducedMotion(mediaQuery.matches);
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
 
   useFamilyRealtime(familyGroupId, undefined, undefined, (update) => {
     setRippleNotifications((previous) => [
@@ -237,7 +246,8 @@ export default function FamilyDetail() {
   };
 
   const currentMemberRole: FamilyMemberRole = members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian";
-  const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const getScrollBehavior = () => getFamilyNavigationScrollBehavior(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
   useEffect(() => {
     const recoverSharedCard = () => {
       const cardId = normalizeFamilyCardAnchor(window.location.hash);
@@ -246,7 +256,7 @@ export default function FamilyDetail() {
       window.requestAnimationFrame(() => {
         const card = document.getElementById(cardId);
         if (!card) return;
-        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        card.scrollIntoView({ behavior: getScrollBehavior(), block: "center" });
         card.focus({ preventScroll: true });
         setSharedCardOpened(true);
       });
@@ -738,6 +748,7 @@ export default function FamilyDetail() {
         <p id="family-tab-keyboard-help" className="sr-only" lang={language}>{t("family.tabKeyboardHelp")}</p>
         <p className="sr-only" aria-live="polite" lang={language}>{t("family.currentFeature").replace("{tab}", activeTabLabel[activeTab])}</p>
         {sharedCardOpened && <p className="sr-only" role="status" aria-live="polite" lang={language}>{t("family.sharedCardOpened")}</p>}
+        {reducedMotion && <p className="sr-only" role="status" aria-live="polite" lang={language}>{t("family.motionReducedNavigation")}</p>}
         {tabShareStatus !== "idle" && (
           <p role="status" className="mb-4 text-sm text-gray-600">
             {tabShareStatus === "shared" && t("family.shareOpened")}
