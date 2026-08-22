@@ -196,6 +196,19 @@ type TranslationKey =
   | "family.emergencyCallConfirmTitle"
   | "family.emergencyCallConfirmDescription"
   | "family.emergencyCallConfirm"
+  | "family.offlineRecoveryOfflineTitle"
+  | "family.offlineRecoveryOfflineDescription"
+  | "family.offlineRecoverySafetyHint"
+  | "family.offlineRecoverySyncingTitle"
+  | "family.offlineRecoverySyncingDescription"
+  | "family.offlineRecoveryPendingTitle"
+  | "family.offlineRecoveryPendingDescription"
+  | "family.offlineRecoveryRetry"
+  | "family.offlineRecoveryRestoredTitle"
+  | "family.offlineRecoveryRestoredDescription"
+  | "family.offlineRecoveryConflictTitle"
+  | "family.offlineRecoveryConflictDescription"
+  | "family.offlineRecoveryConflictReview"
   | "family.dailyRhythm"
   | "family.dailyRhythmMorning"
   | "family.dailyRhythmDaytime"
@@ -557,6 +570,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.emergencyCallConfirmTitle": "電話を始める前に確認",
     "family.emergencyCallConfirmDescription": "{name} へ電話を発信します。緊急でない場合は、いったん戻って状況を確認してください。",
     "family.emergencyCallConfirm": "電話を始める",
+    "family.offlineRecoveryOfflineTitle": "オフラインで表示しています",
+    "family.offlineRecoveryOfflineDescription": "通信が戻るまで、新しい共有や更新は家族へ送られません。",
+    "family.offlineRecoverySafetyHint": "緊急連絡先・避難情報は、安全タブに端末保存した内容があれば確認できます。",
+    "family.offlineRecoverySyncingTitle": "家族の更新を安全に同期中",
+    "family.offlineRecoverySyncingDescription": "待機中の共有を一度ずつ確認して送っています。画面を閉じても重複送信はしません。",
+    "family.offlineRecoveryPendingTitle": "送信待ちの共有があります",
+    "family.offlineRecoveryPendingDescription": "{count}件の家族アクティビティが通信復帰を待っています。",
+    "family.offlineRecoveryRetry": "同期を再試行",
+    "family.offlineRecoveryRestoredTitle": "接続が戻りました",
+    "family.offlineRecoveryRestoredDescription": "送信待ちの共有がある場合は、順番に同期します。",
+    "family.offlineRecoveryConflictTitle": "最新情報の確認が必要です",
+    "family.offlineRecoveryConflictDescription": "{count}件の送信待ち操作は、家族の更新と重なったため自動再送を止めました。",
+    "family.offlineRecoveryConflictReview": "最新情報を確認する",
     "family.dailyRhythm": "今の時間におすすめの機能",
     "family.dailyRhythmMorning": "朝の準備と見守りを整えましょう",
     "family.dailyRhythmDaytime": "日中の安心と体調をやさしく確認しましょう",
@@ -890,6 +916,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.emergencyCallConfirmTitle": "Confirm before calling",
     "family.emergencyCallConfirmDescription": "You are about to call {name}. If this is not urgent, go back and check the situation first.",
     "family.emergencyCallConfirm": "Start call",
+    "family.offlineRecoveryOfflineTitle": "You are offline",
+    "family.offlineRecoveryOfflineDescription": "New shares and updates will not reach family until the connection returns.",
+    "family.offlineRecoverySafetyHint": "If you saved it on this device, use the Safety tab to review emergency contacts and evacuation information.",
+    "family.offlineRecoverySyncingTitle": "Syncing family updates safely",
+    "family.offlineRecoverySyncingDescription": "Queued shares are being sent one at a time. Closing this screen will not send duplicates.",
+    "family.offlineRecoveryPendingTitle": "Family shares are waiting to send",
+    "family.offlineRecoveryPendingDescription": "{count} family activities are waiting for the connection to return.",
+    "family.offlineRecoveryRetry": "Retry sync",
+    "family.offlineRecoveryRestoredTitle": "Connection restored",
+    "family.offlineRecoveryRestoredDescription": "Any queued shares will sync in order.",
+    "family.offlineRecoveryConflictTitle": "Review the latest information",
+    "family.offlineRecoveryConflictDescription": "{count} queued actions overlap with a family update, so automatic resend was stopped.",
+    "family.offlineRecoveryConflictReview": "Review latest information",
     "family.dailyRhythm": "Helpful for this time of day",
     "family.dailyRhythmMorning": "Prepare for the morning and stay connected",
     "family.dailyRhythmDaytime": "Gently check daytime safety and wellbeing",
@@ -1223,6 +1262,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.emergencyCallConfirmTitle": "拨号前确认",
     "family.emergencyCallConfirmDescription": "即将拨打 {name}。如果情况并不紧急，请返回后先确认情况。",
     "family.emergencyCallConfirm": "开始拨号",
+    "family.offlineRecoveryOfflineTitle": "当前处于离线状态",
+    "family.offlineRecoveryOfflineDescription": "网络恢复前，新的共享和更新不会发送给家人。",
+    "family.offlineRecoverySafetyHint": "若已保存到此设备，可在安全标签查看紧急联系人和避难信息。",
+    "family.offlineRecoverySyncingTitle": "正在安全同步家庭更新",
+    "family.offlineRecoverySyncingDescription": "待发送的共享内容正逐项发送。关闭此页面不会重复发送。",
+    "family.offlineRecoveryPendingTitle": "有家庭共享等待发送",
+    "family.offlineRecoveryPendingDescription": "有 {count} 项家庭活动正在等待网络恢复。",
+    "family.offlineRecoveryRetry": "重新尝试同步",
+    "family.offlineRecoveryRestoredTitle": "网络已恢复",
+    "family.offlineRecoveryRestoredDescription": "待发送的共享内容将按顺序同步。",
+    "family.offlineRecoveryConflictTitle": "需要确认最新信息",
+    "family.offlineRecoveryConflictDescription": "有 {count} 项待发送操作与家庭更新重叠，已停止自动重发。",
+    "family.offlineRecoveryConflictReview": "查看最新信息",
     "family.dailyRhythm": "适合当前时段的功能",
     "family.dailyRhythmMorning": "准备早晨，并与家人保持联系",
     "family.dailyRhythmDaytime": "温和地确认日间安全与健康状况",
@@ -1556,6 +1608,19 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.emergencyCallConfirmTitle": "전화 시작 전 확인",
     "family.emergencyCallConfirmDescription": "{name}에게 전화를 걸려고 합니다. 긴급하지 않다면 돌아가서 상황을 먼저 확인하세요.",
     "family.emergencyCallConfirm": "전화 시작",
+    "family.offlineRecoveryOfflineTitle": "오프라인으로 표시 중입니다",
+    "family.offlineRecoveryOfflineDescription": "연결이 돌아올 때까지 새 공유와 업데이트는 가족에게 전송되지 않습니다.",
+    "family.offlineRecoverySafetyHint": "이 기기에 저장했다면 안전 탭에서 긴급 연락처와 대피 정보를 확인할 수 있습니다.",
+    "family.offlineRecoverySyncingTitle": "가족 업데이트를 안전하게 동기화 중",
+    "family.offlineRecoverySyncingDescription": "대기 중인 공유를 하나씩 전송하고 있습니다. 이 화면을 닫아도 중복 전송되지 않습니다.",
+    "family.offlineRecoveryPendingTitle": "전송 대기 중인 가족 공유가 있습니다",
+    "family.offlineRecoveryPendingDescription": "{count}개의 가족 활동이 연결 복구를 기다리고 있습니다.",
+    "family.offlineRecoveryRetry": "동기화 다시 시도",
+    "family.offlineRecoveryRestoredTitle": "연결이 복구되었습니다",
+    "family.offlineRecoveryRestoredDescription": "대기 중인 공유는 순서대로 동기화됩니다.",
+    "family.offlineRecoveryConflictTitle": "최신 정보 확인이 필요합니다",
+    "family.offlineRecoveryConflictDescription": "대기 중인 {count}개의 작업이 가족 업데이트와 겹쳐 자동 재전송을 중지했습니다.",
+    "family.offlineRecoveryConflictReview": "최신 정보 확인",
     "family.dailyRhythm": "지금 시간에 도움이 되는 기능",
     "family.dailyRhythmMorning": "아침 준비와 가족 연결을 챙겨보세요",
     "family.dailyRhythmDaytime": "낮 동안의 안전과 컨디션을 살펴보세요",

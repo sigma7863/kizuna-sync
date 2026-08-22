@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
-interface PendingActivity {
+export interface PendingActivity {
   id: string;
   type: "activity" | "timeline" | "location";
   data: Record<string, unknown>;
@@ -19,6 +19,8 @@ export function useOfflineSync() {
   );
   const [pendingActivities, setPendingActivities] = useState<PendingActivity[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [conflictActivityIds, setConflictActivityIds] = useState<string[]>([]);
+  const syncingRef = useRef(false);
 
   // Service Worker の登録
   useEffect(() => {
@@ -97,14 +99,16 @@ export function useOfflineSync() {
 
   // 同期を実行
   const triggerSync = useCallback(async () => {
-    if (isSyncing || !isOnline) return;
+    if (syncingRef.current || !isOnline) return;
 
+    syncingRef.current = true;
     setIsSyncing(true);
     try {
       const db = await openDatabase();
       const activities = await getAllPendingActivities(db);
 
       for (const activity of activities) {
+        if (conflictActivityIds.includes(activity.id)) continue;
         try {
           // サーバーに送信
           const response = await fetch("/api/trpc/activities.create", {
@@ -119,6 +123,10 @@ export function useOfflineSync() {
             setPendingActivities((prev) =>
               prev.filter((a) => a.id !== activity.id)
             );
+            setConflictActivityIds((previous) => previous.filter((id) => id !== activity.id));
+          } else if (response.status === 409) {
+            // 競合した操作は自動再送しない。最新情報を確認してから本人が操作をやり直す。
+            setConflictActivityIds((previous) => previous.includes(activity.id) ? previous : [...previous, activity.id]);
           }
         } catch (error) {
           console.error("Failed to sync activity:", error);
@@ -127,9 +135,10 @@ export function useOfflineSync() {
     } catch (error) {
       console.error("Sync failed:", error);
     } finally {
+      syncingRef.current = false;
       setIsSyncing(false);
     }
-  }, [isOnline, isSyncing]);
+  }, [conflictActivityIds, isOnline]);
 
   // 初期化時にペンディング中のアクティビティを読み込む
   useEffect(() => {
@@ -140,6 +149,7 @@ export function useOfflineSync() {
     isOnline,
     pendingActivities,
     isSyncing,
+    conflictActivityIds,
     addPendingActivity,
     triggerSync,
   };
