@@ -139,7 +139,9 @@ type TranslationKey =
   | "family.tabHelpClose"
   | "family.tabHelpText"
   | "family.jumpFirstFeature"
-  | "family.jumpLastFeature";
+  | "family.jumpLastFeature"
+  | "family.centerCurrentFeature"
+  | "family.currentFeatureCentered";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -282,6 +284,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelpText": "Alt+Tで表示中の機能タブへ移動できます。左右矢印で前後、Home/Endで先頭・末尾へ移動し、Escで表示中の内容へ戻ります。",
     "family.jumpFirstFeature": "最初の機能へ",
     "family.jumpLastFeature": "最後の機能へ",
+    "family.centerCurrentFeature": "表示中タブを中央へ",
+    "family.currentFeatureCentered": "表示中の機能タブを見える位置へ戻しました。",
   },
   en: {
     "common.loading": "Loading...",
@@ -421,6 +425,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelpText": "Press Alt+T to focus the current feature tab. Use left/right arrows for adjacent features, Home/End for the first or last feature, and Esc to return to the current content.",
     "family.jumpFirstFeature": "First feature",
     "family.jumpLastFeature": "Last feature",
+    "family.centerCurrentFeature": "Center current tab",
+    "family.currentFeatureCentered": "Moved the current feature tab back into view.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -560,6 +566,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelpText": "按 Alt+T 可定位到当前功能标签。使用左右方向键切换，Home/End 键跳到第一个或最后一个功能，Esc 键返回当前内容。",
     "family.jumpFirstFeature": "第一个功能",
     "family.jumpLastFeature": "最后一个功能",
+    "family.centerCurrentFeature": "居中当前标签",
+    "family.currentFeatureCentered": "已将当前功能标签移回可见位置。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -699,6 +707,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelpText": "Alt+T를 누르면 현재 기능 탭으로 이동합니다. 좌우 화살표로 전후 기능으로 이동하고 Home/End로 처음 또는 마지막 기능으로 이동하며 Esc로 현재 내용으로 돌아갑니다.",
     "family.jumpFirstFeature": "첫 기능으로",
     "family.jumpLastFeature": "마지막 기능으로",
+    "family.centerCurrentFeature": "현재 탭을 가운데로",
+    "family.currentFeatureCentered": "현재 기능 탭을 보이는 위치로 되돌렸습니다.",
   },
 };
 
