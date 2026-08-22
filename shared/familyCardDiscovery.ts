@@ -18,3 +18,5 @@ export function recordRecentCard(recentIds: string[], cardId: string, maxItems =
 export function getDiscoveryGroups(cards = FAMILY_CARD_DISCOVERY_ITEMS) { return ["すべて", ...Array.from(new Set(cards.map((card) => card.group)))]; }
 export function filterCardsByGroup(cards: FamilyCardDiscoveryItem[], group: string) { return group === "すべて" ? cards : cards.filter((card) => card.group === group); }
 export function toggleFavoriteCard(favoriteIds: string[], cardId: string) { return favoriteIds.includes(cardId) ? favoriteIds.filter((id) => id !== cardId) : [cardId, ...favoriteIds]; }
+export function createDailyCardDigest(featured: FamilyCardDiscoveryItem[], favorites: FamilyCardDiscoveryItem[], recent: FamilyCardDiscoveryItem[], limit = 3) { const seen = new Set<string>(); return [...featured, ...favorites, ...recent].filter((card) => !seen.has(card.id) && Boolean(seen.add(card.id))).slice(0, limit); }
+export function createCardSharePath(cardId: string) { return `#${cardId}`; }
