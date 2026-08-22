@@ -129,7 +129,8 @@ type TranslationKey =
   | "family.shareCopied"
   | "family.shareUnavailable"
   | "family.shareText"
-  | "family.tabKeyboardHelp";
+  | "family.tabKeyboardHelp"
+  | "family.sharedCardOpened";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -262,6 +263,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareUnavailable": "この端末では共有できませんでした。URLをコピーして家族へ送ってください。",
     "family.shareText": "KizunaSyncの「{tab}」を開きます。",
     "family.tabKeyboardHelp": "左右の矢印キーで前後の機能へ移動します。Homeキーで最初、Endキーで最後の機能を開きます。",
+    "family.sharedCardOpened": "共有された家族カードを開きました。",
   },
   en: {
     "common.loading": "Loading...",
@@ -391,6 +393,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareUnavailable": "Sharing is unavailable on this device. Please copy the URL and send it to your family.",
     "family.shareText": "Open KizunaSync’s “{tab}”.",
     "family.tabKeyboardHelp": "Use the left and right arrow keys to move between features. Press Home for the first feature or End for the last one.",
+    "family.sharedCardOpened": "Opened the shared family card.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -520,6 +523,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareUnavailable": "此设备无法分享。请复制网址并发送给家人。",
     "family.shareText": "打开 KizunaSync 的“{tab}”。",
     "family.tabKeyboardHelp": "使用左右方向键切换功能。按 Home 键打开第一个功能，按 End 键打开最后一个功能。",
+    "family.sharedCardOpened": "已打开共享的家庭卡片。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -649,6 +653,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareUnavailable": "이 기기에서는 공유할 수 없습니다. URL을 복사해 가족에게 보내 주세요.",
     "family.shareText": "KizunaSync의 “{tab}”을 엽니다.",
     "family.tabKeyboardHelp": "왼쪽 및 오른쪽 화살표 키로 기능 사이를 이동합니다. Home 키를 누르면 첫 기능으로, End 키를 누르면 마지막 기능으로 이동합니다.",
+    "family.sharedCardOpened": "공유된 가족 카드를 열었습니다.",
   },
 };
 

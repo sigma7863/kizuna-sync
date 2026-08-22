@@ -130,6 +130,7 @@ import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 import { createFamilyDetailTabPath, getFamilyDetailTabStorageKey, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -152,6 +153,7 @@ export default function FamilyDetail() {
   const [rippleNotifications, setRippleNotifications] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<FamilyDetailTab>("timeline");
   const [tabShareStatus, setTabShareStatus] = useState<"idle" | "shared" | "copied" | "unavailable">("idle");
+  const [sharedCardOpened, setSharedCardOpened] = useState(false);
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
 
   useEffect(() => {
@@ -236,6 +238,24 @@ export default function FamilyDetail() {
 
   const currentMemberRole: FamilyMemberRole = members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian";
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  useEffect(() => {
+    const recoverSharedCard = () => {
+      const cardId = normalizeFamilyCardAnchor(window.location.hash);
+      if (!cardId) return;
+
+      window.requestAnimationFrame(() => {
+        const card = document.getElementById(cardId);
+        if (!card) return;
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        card.focus({ preventScroll: true });
+        setSharedCardOpened(true);
+      });
+    };
+
+    recoverSharedCard();
+    window.addEventListener("hashchange", recoverSharedCard);
+    return () => window.removeEventListener("hashchange", recoverSharedCard);
+  }, [location]);
   const changeActiveTab = (tab: FamilyDetailTab) => {
     setActiveTab(tab);
     setTabShareStatus("idle");
@@ -545,9 +565,9 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyHelpingHand familyGroupId={familyGroupId}/><FamilyDiscoveryShare familyGroupId={familyGroupId}/><FamilyWeekendCalmPlan familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyCareTheme familyGroupId={familyGroupId}/><FamilyTriedMemo familyGroupId={familyGroupId}/><FamilyHomecomingBreather familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyJournalRelay familyGroupId={familyGroupId}/><FamilyConversationTopic familyGroupId={familyGroupId}/><FamilyAppreciationCard familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-role-handoff" className="scroll-mt-4"><FamilyRoleBaton familyGroupId={familyGroupId}/></div><div id="card-place-ideas" className="scroll-mt-4"><FamilyPlaceCard familyGroupId={familyGroupId}/></div><div id="card-family-notices" className="scroll-mt-4"><FamilyNoticeBoard familyGroupId={familyGroupId}/></div></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-priority-flow" className="scroll-mt-4"><FamilyPriorityMemo familyGroupId={familyGroupId}/></div><div id="card-plan-checkins" className="scroll-mt-4"><FamilyPlanCheckin familyGroupId={familyGroupId}/></div><div id="card-next-steps" className="scroll-mt-4"><FamilyNextStepCard familyGroupId={familyGroupId}/></div></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-household-tips" className="scroll-mt-4"><FamilyHouseholdTip familyGroupId={familyGroupId}/></div><div id="card-packing-checks" className="scroll-mt-4"><FamilyPackingCheck familyGroupId={familyGroupId}/></div><div id="card-together-picks" className="scroll-mt-4"><FamilyTogetherPick familyGroupId={familyGroupId}/></div></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-role-handoff" tabIndex={-1} className="scroll-mt-4"><FamilyRoleBaton familyGroupId={familyGroupId}/></div><div id="card-place-ideas" tabIndex={-1} className="scroll-mt-4"><FamilyPlaceCard familyGroupId={familyGroupId}/></div><div id="card-family-notices" tabIndex={-1} className="scroll-mt-4"><FamilyNoticeBoard familyGroupId={familyGroupId}/></div></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-priority-flow" tabIndex={-1} className="scroll-mt-4"><FamilyPriorityMemo familyGroupId={familyGroupId}/></div><div id="card-plan-checkins" tabIndex={-1} className="scroll-mt-4"><FamilyPlanCheckin familyGroupId={familyGroupId}/></div><div id="card-next-steps" tabIndex={-1} className="scroll-mt-4"><FamilyNextStepCard familyGroupId={familyGroupId}/></div></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><div id="card-household-tips" tabIndex={-1} className="scroll-mt-4"><FamilyHouseholdTip familyGroupId={familyGroupId}/></div><div id="card-packing-checks" tabIndex={-1} className="scroll-mt-4"><FamilyPackingCheck familyGroupId={familyGroupId}/></div><div id="card-together-picks" tabIndex={-1} className="scroll-mt-4"><FamilyTogetherPick familyGroupId={familyGroupId}/></div></div>
 
         {/* Tabs */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -717,6 +737,7 @@ export default function FamilyDetail() {
 
         <p id="family-tab-keyboard-help" className="sr-only" lang={language}>{t("family.tabKeyboardHelp")}</p>
         <p className="sr-only" aria-live="polite" lang={language}>{t("family.currentFeature").replace("{tab}", activeTabLabel[activeTab])}</p>
+        {sharedCardOpened && <p className="sr-only" role="status" aria-live="polite" lang={language}>{t("family.sharedCardOpened")}</p>}
         {tabShareStatus !== "idle" && (
           <p role="status" className="mb-4 text-sm text-gray-600">
             {tabShareStatus === "shared" && t("family.shareOpened")}
