@@ -80,6 +80,7 @@ import {
   createFamilyCareMessage,
   getFamilyCareMessages,
   markFamilyCareMessageRead,
+  deferFamilyCareMessage,
   createFamilySharedItem,
   getFamilySharedItems,
   updateFamilySharedItemStatus,
@@ -832,6 +833,11 @@ export const appRouter = router({
       const members = await getFamilyMembers(input.familyGroupId);
       if (!members.some((member) => member.users.id === ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
       return markFamilyCareMessageRead({ ...input, readerUserId: ctx.user.id });
+    }),
+    defer: protectedProcedure.input(z.object({ familyGroupId: z.number(), messageId: z.number() })).mutation(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return deferFamilyCareMessage({ ...input, recipientUserId: ctx.user.id });
     }),
   }),
   sharedShelf: router({

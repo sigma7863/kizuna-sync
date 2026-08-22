@@ -4,6 +4,8 @@ export type CareMessageReadTarget = {
   recipientUserId: number | null;
 };
 
+export type CareMessageResponseState = "unread" | "read" | "later";
+
 export type CareMessageAccessTarget = {
   senderUserId: number;
   recipientUserId: number | null;
@@ -30,4 +32,12 @@ export function canViewCareMessage(message: CareMessageAccessTarget, currentUser
 
 export function canCreateCareMessage(memberUserIds: number[], senderUserId: number, recipientUserId?: number): boolean {
   return memberUserIds.includes(senderUserId) && (recipientUserId === undefined || memberUserIds.includes(recipientUserId));
+}
+
+export function canSetCareMessageResponse(message: CareMessageReadTarget, currentUserId?: number): boolean {
+  return Boolean(currentUserId && message.recipientUserId === currentUserId && message.senderUserId !== currentUserId);
+}
+
+export function getCareMessageResponseLabelKey(state: CareMessageResponseState): "family.careMessageUnread" | "family.careMessageRead" | "family.careMessageLater" {
+  return state === "read" ? "family.careMessageRead" : state === "later" ? "family.careMessageLater" : "family.careMessageUnread";
 }

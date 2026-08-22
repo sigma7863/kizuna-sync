@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canCreateCareMessage, canMarkCareMessageRead, canViewCareMessage, getCareMessageRecipientUserId } from "../shared/familyCareMessages";
+import { canCreateCareMessage, canMarkCareMessageRead, canSetCareMessageResponse, canViewCareMessage, getCareMessageRecipientUserId } from "../shared/familyCareMessages";
 
 describe("phase 107 family care message accessibility and delivery", () => {
   it("turns the all-family option into an open recipient and rejects invalid recipient choices", () => {
@@ -25,5 +25,12 @@ describe("phase 107 family care message accessibility and delivery", () => {
     expect(canCreateCareMessage([2, 7], 2, 7)).toBe(true);
     expect(canCreateCareMessage([2, 7], 2, 8)).toBe(false);
     expect(canCreateCareMessage([2, 7], 8)).toBe(false);
+  });
+
+  it("lets only the direct recipient quietly defer a reply", () => {
+    const directMessage = { isRead: false, senderUserId: 2, recipientUserId: 7 };
+    expect(canSetCareMessageResponse(directMessage, 7)).toBe(true);
+    expect(canSetCareMessageResponse(directMessage, 2)).toBe(false);
+    expect(canSetCareMessageResponse({ ...directMessage, recipientUserId: null }, 7)).toBe(false);
   });
 });
