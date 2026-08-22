@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailRecommendationStorageKey, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -160,6 +160,7 @@ export default function FamilyDetail() {
   const [recentTabs, setRecentTabs] = useState<FamilyDetailTab[]>([]);
   const [pinnedTabs, setPinnedTabs] = useState<FamilyDetailTab[]>([]);
   const [tabSearchQuery, setTabSearchQuery] = useState("");
+  const [customRecommendedTabs, setCustomRecommendedTabs] = useState<FamilyDetailTab[] | null>(null);
   const featureSearchInputRef = useRef<HTMLInputElement>(null);
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
   const recentTabsStorageKey = getFamilyDetailTabRecentsStorageKey(familyGroupId);
@@ -270,6 +271,19 @@ export default function FamilyDetail() {
   };
 
   const currentMemberRole: FamilyMemberRole = members?.find((member) => member.users.id === user?.id)?.family_members.memberRole ?? "guardian";
+  const recommendationStorageKey = getFamilyDetailRecommendationStorageKey(familyGroupId, currentMemberRole);
+  useEffect(() => {
+    const serializedRecommendations = window.localStorage.getItem(recommendationStorageKey);
+    if (!serializedRecommendations) {
+      setCustomRecommendedTabs(null);
+      return;
+    }
+    try {
+      setCustomRecommendedTabs(normalizeRecommendedFamilyDetailTabs(JSON.parse(serializedRecommendations)));
+    } catch {
+      setCustomRecommendedTabs(null);
+    }
+  }, [recommendationStorageKey]);
   const getScrollBehavior = () => getFamilyNavigationScrollBehavior(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
   const focusCurrentFamilyTab = () => document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.focus({ preventScroll: true });
@@ -344,6 +358,15 @@ export default function FamilyDetail() {
     window.localStorage.setItem(pinnedTabsStorageKey, JSON.stringify(next));
     return next;
   });
+  const toggleActiveRecommendation = () => setCustomRecommendedTabs((previous) => {
+    const next = toggleRecommendedFamilyDetailTab(previous ?? getRecommendedFamilyDetailTabs(currentMemberRole), activeTab);
+    window.localStorage.setItem(recommendationStorageKey, JSON.stringify(next));
+    return next;
+  });
+  const resetRecommendations = () => {
+    window.localStorage.removeItem(recommendationStorageKey);
+    setCustomRecommendedTabs(null);
+  };
   const handleFamilyTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const sourceTab = normalizeFamilyDetailTab((event.target as HTMLElement).dataset.familyTab);
     const moveByKey: Record<string, "next" | "previous" | "first" | "last"> = {
@@ -383,7 +406,7 @@ export default function FamilyDetail() {
   };
   const activeTabPosition = getFamilyDetailTabPosition(activeTab);
   const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel);
-  const recommendedTabs = getRecommendedFamilyDetailTabs(currentMemberRole);
+  const recommendedTabs = customRecommendedTabs ?? getRecommendedFamilyDetailTabs(currentMemberRole);
 
   const handleShareActiveTab = async () => {
     const url = new URL(createFamilyDetailTabPath(familyGroupId, activeTab), window.location.origin).toString();
@@ -719,7 +742,10 @@ export default function FamilyDetail() {
           </div>
         </div>
         <div className="mb-3 rounded-lg border border-purple-100 bg-purple-50/70 p-3">
-          <p className="text-sm font-medium text-purple-900">{t("family.recommendedFeatures")}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-medium text-purple-900">{t("family.recommendedFeatures")}</p>
+            <Button type="button" size="sm" variant="ghost" onClick={resetRecommendations} disabled={customRecommendedTabs === null}>{t("family.resetRecommendations")}</Button>
+          </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {recommendedTabs.map((tab) => (
               <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} disabled={activeTab === tab}>
@@ -727,6 +753,9 @@ export default function FamilyDetail() {
               </Button>
             ))}
           </div>
+          <Button type="button" size="sm" variant="outline" className="mt-2" onClick={toggleActiveRecommendation}>
+            {recommendedTabs.includes(activeTab) ? t("family.removeRecommendation") : t("family.addRecommendation")}
+          </Button>
         </div>
         <div className="mb-3 rounded-lg border border-pink-100 bg-white/80 p-3">
           <Label htmlFor="family-feature-search" className="text-sm font-medium text-gray-700">{t("family.searchFeatures")}</Label>
