@@ -157,7 +157,8 @@ type TranslationKey =
   | "family.recommendedFeatures"
   | "family.addRecommendation"
   | "family.removeRecommendation"
-  | "family.resetRecommendations";
+  | "family.resetRecommendations"
+  | "family.shareRecommendations";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -318,6 +319,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.addRecommendation": "おすすめに追加",
     "family.removeRecommendation": "おすすめから外す",
     "family.resetRecommendations": "おすすめを初期状態に戻す",
+    "family.shareRecommendations": "おすすめを家族に共有",
   },
   en: {
     "common.loading": "Loading...",
@@ -475,6 +477,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.addRecommendation": "Add to recommendations",
     "family.removeRecommendation": "Remove from recommendations",
     "family.resetRecommendations": "Reset recommendations",
+    "family.shareRecommendations": "Share recommendations with family",
   },
   zh: {
     "common.loading": "加载中...",
@@ -632,6 +635,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.addRecommendation": "添加到推荐",
     "family.removeRecommendation": "从推荐中移除",
     "family.resetRecommendations": "重置推荐",
+    "family.shareRecommendations": "与家人分享推荐",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -789,6 +793,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.addRecommendation": "추천에 추가",
     "family.removeRecommendation": "추천에서 제거",
     "family.resetRecommendations": "추천 초기화",
+    "family.shareRecommendations": "가족과 추천 공유",
   },
 };
 

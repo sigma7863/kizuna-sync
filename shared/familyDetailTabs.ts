@@ -132,3 +132,7 @@ export function toggleRecommendedFamilyDetailTab(existing: unknown, tab: FamilyD
     ? recommendations.filter((candidate) => candidate !== tab)
     : [...recommendations, tab].slice(0, 3);
 }
+
+export function createFamilyDetailRecommendationSharePath(familyGroupId: number, recommendations: readonly FamilyDetailTab[]): string {
+  return createFamilyDetailTabPath(familyGroupId, recommendations[0] ?? "timeline");
+}
