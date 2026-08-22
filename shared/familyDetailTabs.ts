@@ -136,3 +136,7 @@ export function toggleRecommendedFamilyDetailTab(existing: unknown, tab: FamilyD
 export function createFamilyDetailRecommendationSharePath(familyGroupId: number, recommendations: readonly FamilyDetailTab[]): string {
   return createFamilyDetailTabPath(familyGroupId, recommendations[0] ?? "timeline");
 }
+
+export function getFamilyDetailSafetyTabs(): FamilyDetailTab[] {
+  return ["safety", "health", "assistant"];
+}

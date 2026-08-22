@@ -158,7 +158,9 @@ type TranslationKey =
   | "family.addRecommendation"
   | "family.removeRecommendation"
   | "family.resetRecommendations"
-  | "family.shareRecommendations";
+  | "family.shareRecommendations"
+  | "family.safetyLauncher"
+  | "family.safetyLauncherDescription";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -320,6 +322,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.removeRecommendation": "おすすめから外す",
     "family.resetRecommendations": "おすすめを初期状態に戻す",
     "family.shareRecommendations": "おすすめを家族に共有",
+    "family.safetyLauncher": "安心のためのクイックアクセス",
+    "family.safetyLauncherDescription": "見守り、健康、家族への相談をすぐに開けます",
   },
   en: {
     "common.loading": "Loading...",
@@ -478,6 +482,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.removeRecommendation": "Remove from recommendations",
     "family.resetRecommendations": "Reset recommendations",
     "family.shareRecommendations": "Share recommendations with family",
+    "family.safetyLauncher": "Quick access for peace of mind",
+    "family.safetyLauncherDescription": "Open safety, health, or family support right away",
   },
   zh: {
     "common.loading": "加载中...",
@@ -636,6 +642,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.removeRecommendation": "从推荐中移除",
     "family.resetRecommendations": "重置推荐",
     "family.shareRecommendations": "与家人分享推荐",
+    "family.safetyLauncher": "安心快捷访问",
+    "family.safetyLauncherDescription": "立即打开安全、健康或家庭支持功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -794,6 +802,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.removeRecommendation": "추천에서 제거",
     "family.resetRecommendations": "추천 초기화",
     "family.shareRecommendations": "가족과 추천 공유",
+    "family.safetyLauncher": "안심을 위한 빠른 접근",
+    "family.safetyLauncherDescription": "안전, 건강 또는 가족 지원을 바로 열 수 있습니다",
   },
 };
 

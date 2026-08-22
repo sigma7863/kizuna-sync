@@ -2,6 +2,7 @@ import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPi
 import { getRecommendedFamilyDetailTabs } from "../shared/familyDetailTabs";
 import { getFamilyDetailRecommendationStorageKey, normalizeRecommendedFamilyDetailTabs, toggleRecommendedFamilyDetailTab } from "../shared/familyDetailTabs";
 import { createFamilyDetailRecommendationSharePath } from "../shared/familyDetailTabs";
+import { getFamilyDetailSafetyTabs } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -79,5 +80,9 @@ describe("family detail tab navigation phase 74", () => {
   it("おすすめ共有では最初のおすすめ機能を開くURLを作る", () => {
     expect(createFamilyDetailRecommendationSharePath(42, ["assistant", "safety"])).toBe("/family/42?tab=assistant");
     expect(createFamilyDetailRecommendationSharePath(42, [])).toBe("/family/42?tab=timeline");
+  });
+
+  it("安心ランチャーには見守り・健康・相談の機能を並べる", () => {
+    expect(getFamilyDetailSafetyTabs()).toEqual(["safety", "health", "assistant"]);
   });
 });
