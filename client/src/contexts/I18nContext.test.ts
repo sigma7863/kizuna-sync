@@ -80,6 +80,8 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.checkInStatusOkay"]).toBeTruthy();
       expect(messages[language]["family.checkInStatusRest"]).toBeTruthy();
       expect(messages[language]["family.checkInStatusAvailable"]).toBeTruthy();
+      expect(messages[language]["family.checkInPreviewTitle"]).toBeTruthy();
+      expect(messages[language]["family.checkInPrivacy"]).toBeTruthy();
     }
   });
 });

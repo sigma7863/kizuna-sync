@@ -6,9 +6,9 @@ describe("phase 104 family check-in shortcuts", () => {
     expect(familyCheckInStatuses).toEqual(["okay", "rest", "available"]);
   });
 
-  it("adds a non-default state before an optional personal note", () => {
+  it("adds the selected state before an optional personal note", () => {
     expect(composeFamilyCheckInNote("rest", "少し休みたいです", "あとで連絡します")).toBe("少し休みたいです — あとで連絡します");
-    expect(composeFamilyCheckInNote("okay", "大丈夫です", "学校に着きました")).toBe("学校に着きました");
-    expect(composeFamilyCheckInNote("okay", "大丈夫です", "  ")).toBeUndefined();
+    expect(composeFamilyCheckInNote("okay", "大丈夫です", "学校に着きました")).toBe("大丈夫です — 学校に着きました");
+    expect(composeFamilyCheckInNote("okay", "大丈夫です", "  ")).toBe("大丈夫です");
   });
 });

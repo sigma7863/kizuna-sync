@@ -212,7 +212,9 @@ type TranslationKey =
   | "family.checkInStatusHelp"
   | "family.checkInStatusOkay"
   | "family.checkInStatusRest"
-  | "family.checkInStatusAvailable";
+  | "family.checkInStatusAvailable"
+  | "family.checkInPreviewTitle"
+  | "family.checkInPrivacy";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -428,6 +430,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusOkay": "大丈夫です",
     "family.checkInStatusRest": "少し休みたいです",
     "family.checkInStatusAvailable": "話せます",
+    "family.checkInPreviewTitle": "家族へ共有する内容",
+    "family.checkInPrivacy": "この欄に表示された内容だけを共有します。入力中の一言はこの端末に保存しません。",
   },
   en: {
     "common.loading": "Loading...",
@@ -640,6 +644,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusOkay": "I am okay",
     "family.checkInStatusRest": "I need a little rest",
     "family.checkInStatusAvailable": "I am available to talk",
+    "family.checkInPreviewTitle": "What your family will receive",
+    "family.checkInPrivacy": "Only the content shown here will be shared. Your draft note is not stored on this device.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -852,6 +858,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusOkay": "我没事",
     "family.checkInStatusRest": "我想稍微休息一下",
     "family.checkInStatusAvailable": "我可以聊聊",
+    "family.checkInPreviewTitle": "将与家人分享的内容",
+    "family.checkInPrivacy": "只会分享此处显示的内容。正在输入的一句话不会保存在此设备上。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -1064,6 +1072,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInStatusOkay": "괜찮아요",
     "family.checkInStatusRest": "조금 쉬고 싶어요",
     "family.checkInStatusAvailable": "이야기할 수 있어요",
+    "family.checkInPreviewTitle": "가족에게 공유할 내용",
+    "family.checkInPrivacy": "여기에 표시된 내용만 공유합니다. 작성 중인 한마디는 이 기기에 저장하지 않습니다.",
   },
 };
 
