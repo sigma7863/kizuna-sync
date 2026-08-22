@@ -231,7 +231,29 @@ type TranslationKey =
   | "family.checkInFollowUpRestElderly"
   | "family.checkInFollowUpAvailableGuardian"
   | "family.checkInFollowUpAvailableChild"
-  | "family.checkInFollowUpAvailableElderly";
+  | "family.checkInFollowUpAvailableElderly"
+  | "family.careMessageTitle"
+  | "family.careMessageDescription"
+  | "family.careMessageCompose"
+  | "family.careMessageInputLabel"
+  | "family.careMessagePlaceholder"
+  | "family.careMessageRecipientLabel"
+  | "family.careMessageAll"
+  | "family.careMessageAllHelp"
+  | "family.careMessagePrivateHelp"
+  | "family.careMessageFamily"
+  | "family.careMessageSend"
+  | "family.careMessageSending"
+  | "family.careMessageSent"
+  | "family.careMessageFailed"
+  | "family.careMessageLoading"
+  | "family.careMessageFromTo"
+  | "family.careMessageRead"
+  | "family.careMessageUnread"
+  | "family.careMessageMarkRead"
+  | "family.careMessageReadUpdated"
+  | "family.careMessageReadFailed"
+  | "family.careMessageEmpty";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -466,6 +488,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "話せそうなら、今少し声をかけてもいい？",
     "family.checkInFollowUpAvailableChild": "今なら少し話せるんだね。都合のよい時に声をかけるね。",
     "family.checkInFollowUpAvailableElderly": "お話しできそうなのですね。ご都合のよい時にお声がけしますね。",
+    "family.careMessageTitle": "家族の見守りメッセージ帳",
+    "family.careMessageDescription": "短い気づかいを残して、既読を静かに見守ります。",
+    "family.careMessageCompose": "見守りメッセージを作成する",
+    "family.careMessageInputLabel": "気づかいのひとこと",
+    "family.careMessagePlaceholder": "例：気をつけて帰ってきてね",
+    "family.careMessageRecipientLabel": "届ける相手",
+    "family.careMessageAll": "みんなへ",
+    "family.careMessageAllHelp": "このメッセージは家族全員に表示されます。",
+    "family.careMessagePrivateHelp": "このメッセージは選んだ家族にだけ表示されます。",
+    "family.careMessageFamily": "家族",
+    "family.careMessageSend": "メッセージを残す",
+    "family.careMessageSending": "家族へ届けています…",
+    "family.careMessageSent": "気づかいのひとことを届けました",
+    "family.careMessageFailed": "メッセージを送信できませんでした。もう一度お試しください。",
+    "family.careMessageLoading": "メッセージを読み込み中です…",
+    "family.careMessageFromTo": "{sender} → {recipient}",
+    "family.careMessageRead": "既読",
+    "family.careMessageUnread": "未読",
+    "family.careMessageMarkRead": "タップで既読にする",
+    "family.careMessageReadUpdated": "既読にしました",
+    "family.careMessageReadFailed": "既読にできませんでした。もう一度お試しください。",
+    "family.careMessageEmpty": "今日の気づかいを、ひとこと残してみましょう。",
   },
   en: {
     "common.loading": "Loading...",
@@ -697,6 +741,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "If you feel ready to talk, may I check in with you now?",
     "family.checkInFollowUpAvailableChild": "You can talk a little now. I will reach out when it suits you.",
     "family.checkInFollowUpAvailableElderly": "It sounds like you may be ready to talk. I will reach out at a convenient time.",
+    "family.careMessageTitle": "Family care messages",
+    "family.careMessageDescription": "Leave a brief caring note and quietly keep track of when it is read.",
+    "family.careMessageCompose": "Compose a care message",
+    "family.careMessageInputLabel": "A caring note",
+    "family.careMessagePlaceholder": "For example: Please travel home safely.",
+    "family.careMessageRecipientLabel": "Send to",
+    "family.careMessageAll": "Everyone",
+    "family.careMessageAllHelp": "This message will be visible to every family member.",
+    "family.careMessagePrivateHelp": "This message will be visible only to the selected family member.",
+    "family.careMessageFamily": "Family member",
+    "family.careMessageSend": "Leave this message",
+    "family.careMessageSending": "Sending to your family…",
+    "family.careMessageSent": "Your caring note was sent",
+    "family.careMessageFailed": "Your message could not be sent. Please try again.",
+    "family.careMessageLoading": "Loading messages…",
+    "family.careMessageFromTo": "{sender} → {recipient}",
+    "family.careMessageRead": "Read",
+    "family.careMessageUnread": "Unread",
+    "family.careMessageMarkRead": "Tap to mark as read",
+    "family.careMessageReadUpdated": "Marked as read",
+    "family.careMessageReadFailed": "Could not mark as read. Please try again.",
+    "family.careMessageEmpty": "Leave a small caring note for today.",
   },
   zh: {
     "common.loading": "加载中...",
@@ -928,6 +994,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "如果你现在想聊聊，我可以来问候你吗？",
     "family.checkInFollowUpAvailableChild": "你现在可以聊一会儿。我会在合适的时候联系你。",
     "family.checkInFollowUpAvailableElderly": "看来您现在可以聊聊。我会在方便的时候问候您。",
+    "family.careMessageTitle": "家人关怀留言册",
+    "family.careMessageDescription": "留下简短的关心，并安静地查看是否已读。",
+    "family.careMessageCompose": "撰写关怀留言",
+    "family.careMessageInputLabel": "一句关心",
+    "family.careMessagePlaceholder": "例如：回家路上请注意安全。",
+    "family.careMessageRecipientLabel": "发送给",
+    "family.careMessageAll": "所有人",
+    "family.careMessageAllHelp": "这条留言会显示给所有家人。",
+    "family.careMessagePrivateHelp": "这条留言只会显示给选定的家人。",
+    "family.careMessageFamily": "家人",
+    "family.careMessageSend": "留下这条留言",
+    "family.careMessageSending": "正在发送给家人…",
+    "family.careMessageSent": "已送出关心的话语",
+    "family.careMessageFailed": "无法发送留言，请再试一次。",
+    "family.careMessageLoading": "正在加载留言…",
+    "family.careMessageFromTo": "{sender} → {recipient}",
+    "family.careMessageRead": "已读",
+    "family.careMessageUnread": "未读",
+    "family.careMessageMarkRead": "轻点标记为已读",
+    "family.careMessageReadUpdated": "已标记为已读",
+    "family.careMessageReadFailed": "无法标记为已读，请再试一次。",
+    "family.careMessageEmpty": "今天也留下简短的一句关心吧。",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -1159,6 +1247,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "이야기할 수 있다면, 지금 잠시 안부를 물어도 될까?",
     "family.checkInFollowUpAvailableChild": "지금은 조금 이야기할 수 있구나. 편할 때 연락할게.",
     "family.checkInFollowUpAvailableElderly": "이야기하실 수 있을 것 같네요. 편하실 때 안부를 여쭐게요.",
+    "family.careMessageTitle": "가족 돌봄 메시지함",
+    "family.careMessageDescription": "짧은 마음을 남기고, 읽었는지 조용히 살펴봅니다.",
+    "family.careMessageCompose": "돌봄 메시지 작성하기",
+    "family.careMessageInputLabel": "따뜻한 한마디",
+    "family.careMessagePlaceholder": "예: 돌아오는 길 조심해.",
+    "family.careMessageRecipientLabel": "보낼 대상",
+    "family.careMessageAll": "모두에게",
+    "family.careMessageAllHelp": "이 메시지는 모든 가족에게 표시됩니다.",
+    "family.careMessagePrivateHelp": "이 메시지는 선택한 가족에게만 표시됩니다.",
+    "family.careMessageFamily": "가족",
+    "family.careMessageSend": "이 메시지 남기기",
+    "family.careMessageSending": "가족에게 보내는 중…",
+    "family.careMessageSent": "따뜻한 한마디를 전했어요",
+    "family.careMessageFailed": "메시지를 보낼 수 없습니다. 다시 시도해 주세요.",
+    "family.careMessageLoading": "메시지를 불러오는 중…",
+    "family.careMessageFromTo": "{sender} → {recipient}",
+    "family.careMessageRead": "읽음",
+    "family.careMessageUnread": "읽지 않음",
+    "family.careMessageMarkRead": "눌러서 읽음으로 표시",
+    "family.careMessageReadUpdated": "읽음으로 표시했어요",
+    "family.careMessageReadFailed": "읽음으로 표시할 수 없습니다. 다시 시도해 주세요.",
+    "family.careMessageEmpty": "오늘의 따뜻한 한마디를 남겨 보세요.",
   },
 };
 
