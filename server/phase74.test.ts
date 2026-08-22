@@ -1,4 +1,5 @@
 import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab } from "../shared/familyDetailTabs";
+import { getRecommendedFamilyDetailTabs } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -58,5 +59,11 @@ describe("family detail tab navigation phase 74", () => {
     expect(filterFamilyDetailTabs("photo", labels)).toEqual(["album"]);
     expect(filterFamilyDetailTabs("予定", labels)).toEqual(["assistant"]);
     expect(filterFamilyDetailTabs("not-found", labels)).toEqual([]);
+  });
+
+  it("メンバーの役割ごとに優先する家族機能を提案する", () => {
+    expect(getRecommendedFamilyDetailTabs("guardian")).toEqual(["safety", "assistant", "stats"]);
+    expect(getRecommendedFamilyDetailTabs("child")).toEqual(["timeline", "celebration", "album"]);
+    expect(getRecommendedFamilyDetailTabs("elderly")).toEqual(["assistant", "safety", "health"]);
   });
 });

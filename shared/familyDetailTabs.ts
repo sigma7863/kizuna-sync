@@ -107,3 +107,9 @@ export function filterFamilyDetailTabs(query: string, labels: Record<FamilyDetai
   return familyDetailTabs.filter((tab) => [labels[tab], ...familyDetailTabSearchTerms[tab]]
     .some((term) => term.toLocaleLowerCase().includes(normalizedQuery)));
 }
+
+export function getRecommendedFamilyDetailTabs(role: "guardian" | "child" | "elderly"): FamilyDetailTab[] {
+  if (role === "guardian") return ["safety", "assistant", "stats"];
+  if (role === "child") return ["timeline", "celebration", "album"];
+  return ["assistant", "safety", "health"];
+}

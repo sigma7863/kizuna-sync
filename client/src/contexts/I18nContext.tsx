@@ -153,7 +153,8 @@ type TranslationKey =
   | "family.searchFeaturesPlaceholder"
   | "family.noMatchingFeatures"
   | "family.searchResultsCount"
-  | "family.clearSearch";
+  | "family.clearSearch"
+  | "family.recommendedFeatures";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -310,6 +311,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.noMatchingFeatures": "一致する機能はありません",
     "family.searchResultsCount": "{count}件の機能が見つかりました",
     "family.clearSearch": "検索をクリア",
+    "family.recommendedFeatures": "あなたへのおすすめ機能",
   },
   en: {
     "common.loading": "Loading...",
@@ -463,6 +465,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.noMatchingFeatures": "No matching features found",
     "family.searchResultsCount": "{count} features found",
     "family.clearSearch": "Clear search",
+    "family.recommendedFeatures": "Recommended for you",
   },
   zh: {
     "common.loading": "加载中...",
@@ -616,6 +619,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.noMatchingFeatures": "未找到匹配的功能",
     "family.searchResultsCount": "找到 {count} 个功能",
     "family.clearSearch": "清除搜索",
+    "family.recommendedFeatures": "为您推荐的功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -769,6 +773,7 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.noMatchingFeatures": "일치하는 기능이 없습니다",
     "family.searchResultsCount": "{count}개의 기능을 찾았습니다",
     "family.clearSearch": "검색 지우기",
+    "family.recommendedFeatures": "회원님을 위한 추천 기능",
   },
 };
 
