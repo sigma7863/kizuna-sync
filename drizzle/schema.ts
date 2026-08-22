@@ -1351,6 +1351,42 @@ export const familyNoticeBoards = mysqlTable("family_notice_boards", {
 }, (table) => [index("family_notice_boards_group_ack_idx").on(table.familyGroupId, table.isAcknowledged)]);
 export type FamilyNoticeBoard = typeof familyNoticeBoards.$inferSelect;
 
+/** High-priority family notes that can be resolved once everyone has seen them. */
+export const familyPriorityMemos = mysqlTable("family_priority_memos", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  priority: varchar("priority", { length: 180 }).notNull(),
+  note: varchar("note", { length: 240 }),
+  isResolved: boolean("is_resolved").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_priority_memos_group_resolved_idx").on(table.familyGroupId, table.isResolved)]);
+export type FamilyPriorityMemo = typeof familyPriorityMemos.$inferSelect;
+
+/** Short confirmations and offers of support for a family plan. */
+export const familyPlanCheckins = mysqlTable("family_plan_checkins", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  plan: varchar("plan", { length: 180 }).notNull(),
+  supportNote: varchar("support_note", { length: 180 }),
+  isConfirmed: boolean("is_confirmed").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_plan_checkins_group_confirmed_idx").on(table.familyGroupId, table.isConfirmed)]);
+export type FamilyPlanCheckin = typeof familyPlanCheckins.$inferSelect;
+
+/** A practical, gentle next step that family members can take for one another. */
+export const familyNextStepCards = mysqlTable("family_next_step_cards", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  step: varchar("step", { length: 180 }).notNull(),
+  reason: varchar("reason", { length: 220 }),
+  isTaken: boolean("is_taken").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_next_step_cards_group_taken_idx").on(table.familyGroupId, table.isTaken)]);
+export type FamilyNextStepCard = typeof familyNextStepCards.$inferSelect;
+
 /**
  * Location history - GPS tracking for safety
  */

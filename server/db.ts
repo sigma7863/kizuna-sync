@@ -111,6 +111,9 @@ import {
   familyRoleBatons,
   familyPlaceCards,
   familyNoticeBoards,
+  familyPriorityMemos,
+  familyPlanCheckins,
+  familyNextStepCards,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { matchesAlbumSearch } from "../shared/album";
@@ -862,6 +865,18 @@ export async function updateFamilyPlaceCard(input: { familyGroupId: number; plac
 export async function createFamilyNoticeBoard(input: { familyGroupId: number; userId: number; notice: string; detail?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, detail: input.detail ?? null }; const result = await db.insert(familyNoticeBoards).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isAcknowledged: false }; }
 export async function getFamilyNoticeBoards(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyNoticeBoards).where(eq(familyNoticeBoards.familyGroupId, familyGroupId)).orderBy(familyNoticeBoards.isAcknowledged, desc(familyNoticeBoards.createdAt)).limit(30) : []; }
 export async function updateFamilyNoticeBoard(input: { familyGroupId: number; noticeId: number; isAcknowledged: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyNoticeBoards).set({ isAcknowledged: input.isAcknowledged }).where(and(eq(familyNoticeBoards.id, input.noticeId), eq(familyNoticeBoards.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyPriorityMemo(input: { familyGroupId: number; userId: number; priority: string; note?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, note: input.note ?? null }; const result = await db.insert(familyPriorityMemos).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isResolved: false }; }
+export async function getFamilyPriorityMemos(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyPriorityMemos).where(eq(familyPriorityMemos.familyGroupId, familyGroupId)).orderBy(familyPriorityMemos.isResolved, desc(familyPriorityMemos.createdAt)).limit(30) : []; }
+export async function updateFamilyPriorityMemo(input: { familyGroupId: number; memoId: number; isResolved: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyPriorityMemos).set({ isResolved: input.isResolved }).where(and(eq(familyPriorityMemos.id, input.memoId), eq(familyPriorityMemos.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyPlanCheckin(input: { familyGroupId: number; userId: number; plan: string; supportNote?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, supportNote: input.supportNote ?? null }; const result = await db.insert(familyPlanCheckins).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isConfirmed: false }; }
+export async function getFamilyPlanCheckins(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyPlanCheckins).where(eq(familyPlanCheckins.familyGroupId, familyGroupId)).orderBy(familyPlanCheckins.isConfirmed, desc(familyPlanCheckins.createdAt)).limit(30) : []; }
+export async function updateFamilyPlanCheckin(input: { familyGroupId: number; checkinId: number; isConfirmed: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyPlanCheckins).set({ isConfirmed: input.isConfirmed }).where(and(eq(familyPlanCheckins.id, input.checkinId), eq(familyPlanCheckins.familyGroupId, input.familyGroupId))); }
+
+export async function createFamilyNextStepCard(input: { familyGroupId: number; userId: number; step: string; reason?: string }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const values = { ...input, reason: input.reason ?? null }; const result = await db.insert(familyNextStepCards).values(values); return { id: Number((result as { insertId?: number }).insertId ?? 0), ...values, isTaken: false }; }
+export async function getFamilyNextStepCards(familyGroupId: number) { const db = await getDb(); return db ? db.select().from(familyNextStepCards).where(eq(familyNextStepCards.familyGroupId, familyGroupId)).orderBy(familyNextStepCards.isTaken, desc(familyNextStepCards.createdAt)).limit(30) : []; }
+export async function updateFamilyNextStepCard(input: { familyGroupId: number; cardId: number; isTaken: boolean }) { const db = await getDb(); if (!db) throw new Error("Database not available"); return db.update(familyNextStepCards).set({ isTaken: input.isTaken }).where(and(eq(familyNextStepCards.id, input.cardId), eq(familyNextStepCards.familyGroupId, input.familyGroupId))); }
 export async function advanceFamilyMonthlyChallenge(input: { familyGroupId: number; challengeId: number; delta: number }) { const db = await getDb(); if (!db) throw new Error("Database not available"); const [current] = await db.select().from(familyMonthlyChallenges).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))).limit(1); if (!current) throw new Error("Challenge not found"); const nextProgress = Math.max(0, current.progressCount + input.delta); return db.update(familyMonthlyChallenges).set({ progressCount: nextProgress, isCompleted: nextProgress >= current.targetCount }).where(and(eq(familyMonthlyChallenges.id, input.challengeId), eq(familyMonthlyChallenges.familyGroupId, input.familyGroupId))); }
 
 // Activity queries
