@@ -1,4 +1,4 @@
-import { createFamilyDetailTabPath, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab } from "../shared/familyDetailTabs";
+import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab } from "../shared/familyDetailTabs";
 import { describe, expect, it } from "vitest";
 
 describe("family detail tab navigation phase 74", () => {
@@ -51,5 +51,12 @@ describe("family detail tab navigation phase 74", () => {
     expect(normalizePinnedFamilyDetailTabs(["safety", "unknown", "album", "safety"])).toEqual(["safety", "album"]);
     expect(togglePinnedFamilyDetailTab(["safety"], "album")).toEqual(["safety", "album"]);
     expect(togglePinnedFamilyDetailTab(["safety", "album"], "safety")).toEqual(["album"]);
+  });
+
+  it("機能名と目的語から表示したいタブを絞り込む", () => {
+    const labels = { timeline: "Timeline", safety: "Safety", trail: "Trail", ai: "AI", assistant: "Assistant", celebration: "Celebration", digest: "Digest", album: "Album", stats: "Stats", automation: "Automation", health: "Health" };
+    expect(filterFamilyDetailTabs("photo", labels)).toEqual(["album"]);
+    expect(filterFamilyDetailTabs("予定", labels)).toEqual(["assistant"]);
+    expect(filterFamilyDetailTabs("not-found", labels)).toEqual([]);
   });
 });

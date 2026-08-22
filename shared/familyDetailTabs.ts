@@ -86,3 +86,24 @@ export function togglePinnedFamilyDetailTab(existing: unknown, tab: FamilyDetail
   const pins = normalizePinnedFamilyDetailTabs(existing);
   return pins.includes(tab) ? pins.filter((candidate) => candidate !== tab) : [...pins, tab].slice(0, 5);
 }
+
+export const familyDetailTabSearchTerms: Record<FamilyDetailTab, readonly string[]> = {
+  timeline: ["timeline", "mood", "message", "タイムライン", "気分", "投稿"],
+  safety: ["safety", "location", "安心", "見守り", "位置"],
+  trail: ["trail", "route", "history", "移動", "経路", "履歴"],
+  ai: ["ai", "proposal", "suggestion", "提案", "アイデア"],
+  assistant: ["assistant", "schedule", "予定", "相談", "アシスタント"],
+  celebration: ["celebration", "anniversary", "お祝い", "記念日"],
+  digest: ["digest", "summary", "振り返り", "ダイジェスト"],
+  album: ["album", "photo", "写真", "思い出"],
+  stats: ["stats", "trend", "統計", "傾向"],
+  automation: ["automation", "weekly", "自動", "週間"],
+  health: ["health", "wellbeing", "健康", "ヘルス"],
+};
+
+export function filterFamilyDetailTabs(query: string, labels: Record<FamilyDetailTab, string>): FamilyDetailTab[] {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  if (!normalizedQuery) return familyDetailTabs.slice();
+  return familyDetailTabs.filter((tab) => [labels[tab], ...familyDetailTabSearchTerms[tab]]
+    .some((term) => term.toLocaleLowerCase().includes(normalizedQuery)));
+}

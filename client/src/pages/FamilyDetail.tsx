@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -159,6 +159,7 @@ export default function FamilyDetail() {
   const [currentTabCentered, setCurrentTabCentered] = useState(false);
   const [recentTabs, setRecentTabs] = useState<FamilyDetailTab[]>([]);
   const [pinnedTabs, setPinnedTabs] = useState<FamilyDetailTab[]>([]);
+  const [tabSearchQuery, setTabSearchQuery] = useState("");
   const lastOpenedTabStorageKey = getFamilyDetailTabStorageKey(familyGroupId);
   const recentTabsStorageKey = getFamilyDetailTabRecentsStorageKey(familyGroupId);
   const pinnedTabsStorageKey = getFamilyDetailTabPinsStorageKey(familyGroupId);
@@ -375,6 +376,7 @@ export default function FamilyDetail() {
     stats: t("family.stats"),
   };
   const activeTabPosition = getFamilyDetailTabPosition(activeTab);
+  const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel);
 
   const handleShareActiveTab = async () => {
     const url = new URL(createFamilyDetailTabPath(familyGroupId, activeTab), window.location.origin).toString();
@@ -708,6 +710,25 @@ export default function FamilyDetail() {
               {t("family.shareFeature")}
             </Button>
           </div>
+        </div>
+        <div className="mb-3 rounded-lg border border-pink-100 bg-white/80 p-3">
+          <Label htmlFor="family-feature-search" className="text-sm font-medium text-gray-700">{t("family.searchFeatures")}</Label>
+          <Input
+            id="family-feature-search"
+            value={tabSearchQuery}
+            onChange={(event) => setTabSearchQuery(event.target.value)}
+            placeholder={t("family.searchFeaturesPlaceholder")}
+            className="mt-2 bg-white"
+          />
+          {tabSearchQuery.trim() && (
+            <div className="mt-2 flex flex-wrap gap-2" aria-live="polite">
+              {matchingTabs.length ? matchingTabs.map((tab) => (
+                <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => { changeActiveTab(tab); setTabSearchQuery(""); }}>
+                  {activeTabLabel[tab]}
+                </Button>
+              )) : <p className="text-sm text-gray-600">{t("family.noMatchingFeatures")}</p>}
+            </div>
+          )}
         </div>
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" role="tablist" aria-orientation="horizontal" aria-label={t("family.switchFeatures")} aria-describedby="family-tab-keyboard-help" aria-keyshortcuts="Alt+T ArrowLeft ArrowRight Home End Escape" onKeyDown={handleFamilyTabKeyDown}>
           <button

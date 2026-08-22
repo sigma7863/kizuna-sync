@@ -148,7 +148,10 @@ type TranslationKey =
   | "family.recentFeatures"
   | "family.pinnedFeatures"
   | "family.pinFeature"
-  | "family.unpinFeature";
+  | "family.unpinFeature"
+  | "family.searchFeatures"
+  | "family.searchFeaturesPlaceholder"
+  | "family.noMatchingFeatures";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -300,6 +303,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.pinnedFeatures": "固定した機能",
     "family.pinFeature": "この機能を固定",
     "family.unpinFeature": "この機能の固定を解除",
+    "family.searchFeatures": "機能を検索",
+    "family.searchFeaturesPlaceholder": "例: 写真、安心、予定",
+    "family.noMatchingFeatures": "一致する機能はありません",
   },
   en: {
     "common.loading": "Loading...",
@@ -448,6 +454,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.pinnedFeatures": "Pinned features",
     "family.pinFeature": "Pin this feature",
     "family.unpinFeature": "Unpin this feature",
+    "family.searchFeatures": "Search features",
+    "family.searchFeaturesPlaceholder": "For example: photos, safety, schedule",
+    "family.noMatchingFeatures": "No matching features found",
   },
   zh: {
     "common.loading": "加载中...",
@@ -596,6 +605,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.pinnedFeatures": "已固定的功能",
     "family.pinFeature": "固定此功能",
     "family.unpinFeature": "取消固定此功能",
+    "family.searchFeatures": "搜索功能",
+    "family.searchFeaturesPlaceholder": "例如：照片、安全、日程",
+    "family.noMatchingFeatures": "未找到匹配的功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -744,6 +756,9 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.pinnedFeatures": "고정한 기능",
     "family.pinFeature": "이 기능 고정",
     "family.unpinFeature": "이 기능 고정 해제",
+    "family.searchFeatures": "기능 검색",
+    "family.searchFeaturesPlaceholder": "예: 사진, 안심, 일정",
+    "family.noMatchingFeatures": "일치하는 기능이 없습니다",
   },
 };
 
