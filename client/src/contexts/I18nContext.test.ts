@@ -71,6 +71,11 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.displayTextSize"]).toBeTruthy();
       expect(messages[language]["family.displaySizeXLarge"]).toBeTruthy();
       expect(messages[language]["family.displayUpdated"]).toContain("{setting}");
+      expect(messages[language]["family.checkInTitle"]).toBeTruthy();
+      expect(messages[language]["family.checkInSubmit"]).toBeTruthy();
+      expect(messages[language]["family.checkInSubmitting"]).toBeTruthy();
+      expect(messages[language]["family.checkInSharedAt"]).toContain("{time}");
+      expect(messages[language]["family.checkInFailed"]).toBeTruthy();
     }
   });
 });
