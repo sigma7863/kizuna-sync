@@ -48,12 +48,9 @@ import { FamilyDailyMoment } from "@/components/FamilyDailyMoment";
 import { FamilyMovementBingo } from "@/components/FamilyMovementBingo";
 import { FamilyTakeHomeNotes } from "@/components/FamilyTakeHomeNotes";
 import { FamilyEncouragementPost } from "@/components/FamilyEncouragementPost";
-import { FamilyEnergyMeter } from "@/components/FamilyEnergyMeter";
 import { FamilyWishList } from "@/components/FamilyWishList";
-import { FamilyMorningBoard } from "@/components/FamilyMorningBoard";
 import { FamilyVoiceMemoExchange } from "@/components/FamilyVoiceMemoExchange";
 import { FamilyAchievementAlbum } from "@/components/FamilyAchievementAlbum";
-import { FamilyHomecomingNote } from "@/components/FamilyHomecomingNote";
 import { FamilyReadingRelay } from "@/components/FamilyReadingRelay";
 import { FamilyWeatherMemo } from "@/components/FamilyWeatherMemo";
 import { FamilyPlaylist } from "@/components/FamilyPlaylist";
@@ -141,6 +138,9 @@ const FamilyTrailHeatmap = lazy(() => import("@/components/FamilyTrailHeatmap").
 const FamilyCelebrationComposer = lazy(() => import("@/components/FamilyCelebrationComposer").then((module) => ({ default: module.FamilyCelebrationComposer })));
 const FamilyDigestAlbum = lazy(() => import("@/components/FamilyDigestAlbum").then((module) => ({ default: module.FamilyDigestAlbum })));
 const FamilyCloudAlbum = lazy(() => import("@/components/FamilyCloudAlbum").then((module) => ({ default: module.FamilyCloudAlbum })));
+const FamilyEnergyMeter = lazy(() => import("@/components/FamilyEnergyMeter").then((module) => ({ default: module.FamilyEnergyMeter })));
+const FamilyMorningBoard = lazy(() => import("@/components/FamilyMorningBoard").then((module) => ({ default: module.FamilyMorningBoard })));
+const FamilyHomecomingNote = lazy(() => import("@/components/FamilyHomecomingNote").then((module) => ({ default: module.FamilyHomecomingNote })));
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
@@ -420,6 +420,11 @@ export default function FamilyDetail() {
     daytime: "family.dailyRhythmDaytime",
     evening: "family.dailyRhythmEvening",
   };
+  const renderDailyConditionLoading = (feature: string) => (
+    <Card className="border-dashed bg-slate-50" aria-busy="true">
+      <div className="p-4 text-sm text-slate-600" role="status">{t("family.preparingFeature").replace("{tab}", feature)}</div>
+    </Card>
+  );
 
   const shareFamilyTab = async (tab: FamilyDetailTab, path: string, text: string) => {
     const url = new URL(path, window.location.origin).toString();
@@ -668,8 +673,8 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWalkRoutes familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyLearningCards familyGroupId={familyGroupId}/></div>
         <div id="family-daily-cards" className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyMoment familyGroupId={familyGroupId}/><FamilyMovementBingo familyGroupId={familyGroupId}/><FamilyTakeHomeNotes familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyEncouragementPost familyGroupId={familyGroupId}/><FamilyEnergyMeter familyGroupId={familyGroupId}/><FamilyWishList familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMorningBoard familyGroupId={familyGroupId}/><FamilyVoiceMemoExchange familyGroupId={familyGroupId}/><FamilyAchievementAlbum familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyEncouragementPost familyGroupId={familyGroupId}/><Suspense fallback={renderDailyConditionLoading(t("family.energyMeter"))}><FamilyEnergyMeter familyGroupId={familyGroupId}/></Suspense><FamilyWishList familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><Suspense fallback={renderDailyConditionLoading(t("family.dailyRhythmMorning"))}><FamilyMorningBoard familyGroupId={familyGroupId}/></Suspense><FamilyVoiceMemoExchange familyGroupId={familyGroupId}/><FamilyAchievementAlbum familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyReadingRelay familyGroupId={familyGroupId}/><FamilyWeatherMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyPlaylist familyGroupId={familyGroupId}/><FamilyForgottenItemRescue familyGroupId={familyGroupId}/><FamilyThankYouBookmarks familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMealRequest familyGroupId={familyGroupId}/><FamilyFunCountdown familyGroupId={familyGroupId}/><FamilyMemoryQuiz familyGroupId={familyGroupId}/></div>
@@ -682,7 +687,7 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyPromise familyGroupId={familyGroupId}/><FamilyTalkTiming familyGroupId={familyGroupId}/><FamilyMemoryBookmarkExchange familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyQuestionBox familyGroupId={familyGroupId}/><FamilyMorningEncouragement familyGroupId={familyGroupId}/><FamilyWeekendHomecomingPlan familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyTogetherInvitation familyGroupId={familyGroupId}/><FamilyComfortMeter familyGroupId={familyGroupId}/><FamilyRainyDayIdeas familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyJoy familyGroupId={familyGroupId}/><FamilyHomecomingNote familyGroupId={familyGroupId}/><FamilyHelpBoard familyGroupId={familyGroupId}/></div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyJoy familyGroupId={familyGroupId}/><Suspense fallback={renderDailyConditionLoading(t("family.dailyRhythmEvening"))}><FamilyHomecomingNote familyGroupId={familyGroupId}/></Suspense><FamilyHelpBoard familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyLaterListenMemo familyGroupId={familyGroupId}/><FamilyTableTopic familyGroupId={familyGroupId}/><FamilyMeetingMarker familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMoodResetIdeas familyGroupId={familyGroupId}/><FamilyThanksRelay familyGroupId={familyGroupId}/><FamilyOutingCharmMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeeklyCheerTheme familyGroupId={familyGroupId}/><FamilyTinyAchievementBadge familyGroupId={familyGroupId}/><FamilyBedtimePreparationMemo familyGroupId={familyGroupId}/></div>
