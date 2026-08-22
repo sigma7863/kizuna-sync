@@ -261,6 +261,10 @@ export default function FamilyDetail() {
         event.preventDefault();
         focusCurrentFamilyTab();
       }
+      if (event.key === "Escape" && (event.target as HTMLElement).dataset.familyTab) {
+        event.preventDefault();
+        document.getElementById("family-current-feature")?.focus({ preventScroll: true });
+      }
     };
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
@@ -603,7 +607,7 @@ export default function FamilyDetail() {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-sm font-medium text-gray-700">{t("family.switchFeatures")}</p>
-            <p className="mt-1 text-xs font-semibold text-pink-700"><span className="mr-1 rounded-full bg-pink-100 px-1.5 py-0.5">{t("family.showingNow")}</span>{activeTabLabel[activeTab]}</p>
+            <p id="family-current-feature" tabIndex={-1} className="mt-1 text-xs font-semibold text-pink-700"><span className="mr-1 rounded-full bg-pink-100 px-1.5 py-0.5">{t("family.showingNow")}</span>{activeTabLabel[activeTab]}</p>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Button
