@@ -129,7 +129,7 @@ import { FamilyTogetherPick } from "@/components/FamilyTogetherPick";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
-import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
+import { createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
@@ -383,6 +383,7 @@ export default function FamilyDetail() {
   };
   const activeTabPosition = getFamilyDetailTabPosition(activeTab);
   const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel);
+  const recommendedTabs = getRecommendedFamilyDetailTabs(currentMemberRole);
 
   const handleShareActiveTab = async () => {
     const url = new URL(createFamilyDetailTabPath(familyGroupId, activeTab), window.location.origin).toString();
@@ -715,6 +716,16 @@ export default function FamilyDetail() {
               <Share2 className="mr-1.5 h-4 w-4" />
               {t("family.shareFeature")}
             </Button>
+          </div>
+        </div>
+        <div className="mb-3 rounded-lg border border-purple-100 bg-purple-50/70 p-3">
+          <p className="text-sm font-medium text-purple-900">{t("family.recommendedFeatures")}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {recommendedTabs.map((tab) => (
+              <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} disabled={activeTab === tab}>
+                {activeTabLabel[tab]}
+              </Button>
+            ))}
           </div>
         </div>
         <div className="mb-3 rounded-lg border border-pink-100 bg-white/80 p-3">
