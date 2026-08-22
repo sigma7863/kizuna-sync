@@ -251,6 +251,7 @@ export default function FamilyDetail() {
   const getScrollBehavior = () => getFamilyNavigationScrollBehavior(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const scrollToElement = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
   const focusCurrentFamilyTab = () => document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.focus({ preventScroll: true });
+  const focusCurrentFamilyContent = () => document.getElementById("family-current-feature")?.focus({ preventScroll: true });
   const centerCurrentFamilyTab = () => {
     document.querySelector<HTMLButtonElement>(`[data-family-tab="${activeTab}"]`)?.scrollIntoView({ behavior: getScrollBehavior(), block: "nearest", inline: "center" });
     setCurrentTabCentered(true);
@@ -265,6 +266,10 @@ export default function FamilyDetail() {
       if (event.altKey && event.key.toLowerCase() === "t") {
         event.preventDefault();
         focusCurrentFamilyTab();
+      }
+      if (event.altKey && event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        focusCurrentFamilyContent();
       }
       if (event.key === "Escape" && (event.target as HTMLElement).dataset.familyTab) {
         event.preventDefault();
@@ -629,6 +634,9 @@ export default function FamilyDetail() {
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={focusCurrentFamilyTab}>
               {t("family.focusCurrentFeature")}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={focusCurrentFamilyContent} aria-keyshortcuts="Alt+M">
+              {t("family.skipToCurrentContent")}
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={centerCurrentFamilyTab}>
               {t("family.centerCurrentFeature")}

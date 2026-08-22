@@ -32,6 +32,7 @@ describe("KizunaSync localization", () => {
       expect(messages[language]["family.centerCurrentFeature"]).toBeTruthy();
       expect(messages[language]["family.currentFeatureCentered"]).toBeTruthy();
       expect(messages[language]["family.currentFeaturePosition"]).toContain("{current}");
+      expect(messages[language]["family.skipToCurrentContent"]).toBeTruthy();
     }
   });
 });
