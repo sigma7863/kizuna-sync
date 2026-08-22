@@ -331,6 +331,7 @@ import { buildCelebrationMetadata, CelebrationOccasion } from "./celebration";
 import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension } from "../shared/album";
 import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
 import { familyCheckInStatuses } from "../shared/familyCheckIn";
+import { canCreateCareMessage } from "../shared/familyCareMessages";
 import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
 import { formatGratitudeContent } from "../shared/gratitude";
 import { buildWeeklyPulse } from "../shared/weeklyPulse";
@@ -745,12 +746,23 @@ export const appRouter = router({
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), content: z.string().trim().min(1).max(240), theme: z.string().trim().min(1).max(80) })).mutation(({ ctx, input }) => createFamilyFunPrompt({ ...input, createdByUserId: ctx.user.id })),
   }),
   careMessages: router({
-    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyCareMessages(input.familyGroupId)),
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!members.some((member) => member.users.id === ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return getFamilyCareMessages(input.familyGroupId, ctx.user.id);
+    }),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), recipientUserId: z.number().optional(), message: z.string().trim().min(1).max(180) })).mutation(async ({ ctx, input }) => {
-      await createFamilyNotification({ familyGroupId: input.familyGroupId, type: "safety", title: "見守りメッセージ帳", message: `${ctx.user.name ?? "家族"}さんから気づかいメッセージが届きました。`, payload: { message: input.message }, excludeUserId: ctx.user.id, quiet: true });
+      const members = await getFamilyMembers(input.familyGroupId);
+      const memberUserIds = members.map((member) => member.users.id);
+      if (!canCreateCareMessage(memberUserIds, ctx.user.id, input.recipientUserId)) throw new TRPCError({ code: "FORBIDDEN", message: "Sender and recipient must be family members" });
+      await createFamilyNotification({ familyGroupId: input.familyGroupId, type: "safety", title: "見守りメッセージ帳", message: `${ctx.user.name ?? "家族"}さんから気づかいメッセージが届きました。`, payload: { message: input.message }, excludeUserId: ctx.user.id, recipientUserIds: input.recipientUserId ? [input.recipientUserId] : undefined, quiet: true });
       return createFamilyCareMessage({ ...input, senderUserId: ctx.user.id });
     }),
-    markRead: protectedProcedure.input(z.object({ familyGroupId: z.number(), messageId: z.number() })).mutation(({ input }) => markFamilyCareMessageRead(input)),
+    markRead: protectedProcedure.input(z.object({ familyGroupId: z.number(), messageId: z.number() })).mutation(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!members.some((member) => member.users.id === ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return markFamilyCareMessageRead({ ...input, readerUserId: ctx.user.id });
+    }),
   }),
   sharedShelf: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilySharedItems(input.familyGroupId)),

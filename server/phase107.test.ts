@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canMarkCareMessageRead, getCareMessageRecipientUserId } from "../shared/familyCareMessages";
+import { canCreateCareMessage, canMarkCareMessageRead, canViewCareMessage, getCareMessageRecipientUserId } from "../shared/familyCareMessages";
 
 describe("phase 107 family care message accessibility and delivery", () => {
   it("turns the all-family option into an open recipient and rejects invalid recipient choices", () => {
@@ -15,5 +15,15 @@ describe("phase 107 family care message accessibility and delivery", () => {
     expect(canMarkCareMessageRead({ isRead: false, senderUserId: 2, recipientUserId: 7 }, 3)).toBe(false);
     expect(canMarkCareMessageRead({ isRead: false, senderUserId: 7, recipientUserId: null }, 7)).toBe(false);
     expect(canMarkCareMessageRead({ isRead: true, senderUserId: 2, recipientUserId: 7 }, 7)).toBe(false);
+  });
+
+  it("keeps private messages visible to their sender and recipient only, and validates both message participants", () => {
+    expect(canViewCareMessage({ senderUserId: 2, recipientUserId: 7 }, 2)).toBe(true);
+    expect(canViewCareMessage({ senderUserId: 2, recipientUserId: 7 }, 7)).toBe(true);
+    expect(canViewCareMessage({ senderUserId: 2, recipientUserId: 7 }, 3)).toBe(false);
+    expect(canViewCareMessage({ senderUserId: 2, recipientUserId: null }, 3)).toBe(true);
+    expect(canCreateCareMessage([2, 7], 2, 7)).toBe(true);
+    expect(canCreateCareMessage([2, 7], 2, 8)).toBe(false);
+    expect(canCreateCareMessage([2, 7], 8)).toBe(false);
   });
 });
