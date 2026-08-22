@@ -137,7 +137,9 @@ type TranslationKey =
   | "family.focusCurrentFeature"
   | "family.tabHelp"
   | "family.tabHelpClose"
-  | "family.tabHelpText";
+  | "family.tabHelpText"
+  | "family.jumpFirstFeature"
+  | "family.jumpLastFeature";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -278,6 +280,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelp": "タブ操作ヘルプ",
     "family.tabHelpClose": "ヘルプを閉じる",
     "family.tabHelpText": "Alt+Tで表示中の機能タブへ移動できます。左右矢印で前後、Home/Endで先頭・末尾へ移動し、Escで表示中の内容へ戻ります。",
+    "family.jumpFirstFeature": "最初の機能へ",
+    "family.jumpLastFeature": "最後の機能へ",
   },
   en: {
     "common.loading": "Loading...",
@@ -415,6 +419,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelp": "Tab controls help",
     "family.tabHelpClose": "Close help",
     "family.tabHelpText": "Press Alt+T to focus the current feature tab. Use left/right arrows for adjacent features, Home/End for the first or last feature, and Esc to return to the current content.",
+    "family.jumpFirstFeature": "First feature",
+    "family.jumpLastFeature": "Last feature",
   },
   zh: {
     "common.loading": "加载中...",
@@ -552,6 +558,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelp": "标签操作帮助",
     "family.tabHelpClose": "关闭帮助",
     "family.tabHelpText": "按 Alt+T 可定位到当前功能标签。使用左右方向键切换，Home/End 键跳到第一个或最后一个功能，Esc 键返回当前内容。",
+    "family.jumpFirstFeature": "第一个功能",
+    "family.jumpLastFeature": "最后一个功能",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -689,6 +697,8 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.tabHelp": "탭 조작 도움말",
     "family.tabHelpClose": "도움말 닫기",
     "family.tabHelpText": "Alt+T를 누르면 현재 기능 탭으로 이동합니다. 좌우 화살표로 전후 기능으로 이동하고 Home/End로 처음 또는 마지막 기능으로 이동하며 Esc로 현재 내용으로 돌아갑니다.",
+    "family.jumpFirstFeature": "첫 기능으로",
+    "family.jumpLastFeature": "마지막 기능으로",
   },
 };
 
