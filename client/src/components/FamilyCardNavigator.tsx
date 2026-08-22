@@ -19,6 +19,8 @@ import {
   getDiscoveryReassurance,
   getDiscoveryCardMarkers,
   getDiscoveryResumeLabel,
+  getDailyDiscoveryPick,
+  getDiscoveryStateSummary,
   getSearchAssistSuggestions,
   getNewCardIds,
   getResumeCards,
@@ -27,6 +29,7 @@ import {
   getUnvisitedCardSuggestions,
   normalizeDiscoveryPace,
   normalizeDiscoveryDensity,
+  normalizeDailySuggestionVisibility,
   normalizeDiscoverySharedState,
   normalizeDiscoverySortMode,
   recordRecentCard,
@@ -46,6 +49,7 @@ const SEARCH_HISTORY_KEY = "kizuna-sync-family-card-search-history";
 const NAV_STATE_KEY = "kizuna-sync-card-navigator-state";
 const PACE_KEY = "kizuna-sync-family-card-discovery-pace";
 const DENSITY_KEY = "kizuna-sync-family-card-discovery-density";
+const DAILY_SUGGESTION_KEY = "kizuna-sync-family-card-daily-suggestion";
 const roleLabels: Record<FamilyDiscoveryRole, string> = { guardian: "見守り役", child: "子ども", elderly: "シニア" };
 
 export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (cardId: string) => void; role?: FamilyDiscoveryRole }) {
@@ -61,6 +65,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [density, setDensity] = useState<DiscoveryDensity>("comfortable");
   const [savedView, setSavedView] = useState<{ group: string; sortMode: DiscoverySortMode; favoritesOnly: boolean } | null>(null);
+  const [showDailySuggestion, setShowDailySuggestion] = useState(true);
 
   useEffect(() => {
     try {
@@ -70,6 +75,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
       const state = JSON.parse(window.localStorage.getItem(NAV_STATE_KEY) ?? "{}");
       const storedPace = JSON.parse(window.localStorage.getItem(PACE_KEY) ?? "2");
       const storedDensity = JSON.parse(window.localStorage.getItem(DENSITY_KEY) ?? "\"comfortable\"");
+      const storedDailySuggestion = JSON.parse(window.localStorage.getItem(DAILY_SUGGESTION_KEY) ?? "true");
       const sharedParams = new URLSearchParams(window.location.search);
       const hasSharedState = ["cardQuery", "cardGroup", "cardSort", "cardFavorites"].some((key) => sharedParams.has(key));
       if (Array.isArray(recent)) setRecentIds(recent.filter((id): id is string => typeof id === "string"));
@@ -82,6 +88,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
       if (typeof state.group === "string") setSavedView({ group: state.group, sortMode: normalizeDiscoverySortMode(state.sortMode), favoritesOnly: Boolean(state.favoritesOnly) });
       setPace(normalizeDiscoveryPace(storedPace));
       setDensity(normalizeDiscoveryDensity(storedDensity));
+      setShowDailySuggestion(normalizeDailySuggestionVisibility(storedDailySuggestion));
       const sharedState = normalizeDiscoverySharedState({ query: sharedParams.get("cardQuery"), group: sharedParams.get("cardGroup"), sortMode: sharedParams.get("cardSort"), favoritesOnly: sharedParams.get("cardFavorites") === "1" });
       if (hasSharedState) {
         setQuery(sharedState.query);
@@ -133,6 +140,8 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
   const safeSearchSuggestions = useMemo(() => query.trim() && results.length === 0 ? getSafeSearchSuggestions(query) : [], [query, results.length]);
   const searchAssistSuggestions = useMemo(() => getSearchAssistSuggestions(query), [query]);
   const purposeShortcuts = useMemo(() => getDiscoveryPurposeShortcuts(), []);
+  const dailyPick = useMemo(() => getDailyDiscoveryPick(recentIds, favoriteIds), [recentIds, favoriteIds]);
+  const discoveryStateSummary = useMemo(() => getDiscoveryStateSummary(FAMILY_CARD_DISCOVERY_ITEMS.length, results.length, { query, group: activeGroup, favoritesOnly }), [results.length, query, activeGroup, favoritesOnly]);
   const newCardIds = getNewCardIds();
   const showExplorer = isExpanded || Boolean(query) || activeGroup !== "すべて";
 
@@ -143,6 +152,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
     </CardHeader>
     <CardContent className="space-y-4">
       <FamilyDailyCardSummary onOpen={open}/>
+      {showDailySuggestion && dailyPick && <section aria-label="今日の一枚" className="rounded-xl border border-amber-200/20 bg-amber-100/10 p-3"><p className="text-xs font-semibold text-amber-50">今日の一枚</p><p className="mt-1 text-[11px] text-amber-100">気になったときに、ここから小さく始められます。</p><button type="button" onClick={() => open(dailyPick.id)} className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium transition hover:bg-white/25">{dailyPick.title}<ArrowRight className="h-3 w-3"/></button></section>}
       <section aria-label="あなた向けのカード" className="rounded-xl border border-white/15 bg-white/5 p-3">
         <p className="text-xs font-semibold text-violet-100">{roleLabels[role]}向けの入口</p>
         <div className="mt-2 flex snap-x gap-2 overflow-x-auto pb-1">
@@ -165,7 +175,8 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
       {searchAssistSuggestions.length > 0 && <div className="flex flex-wrap items-center gap-2" aria-label="検索を補助する候補"><span className="text-[11px] text-indigo-100">近い候補</span>{searchAssistSuggestions.map((suggestion) => <button key={suggestion} type="button" onClick={() => { setQuery(suggestion); rememberSearch(suggestion); }} className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] transition hover:bg-white/20">{suggestion}</button>)}</div>}
       {searchHistory.length > 0 && <div className="flex flex-wrap items-center gap-2" aria-label="検索履歴"><span className="text-[11px] text-indigo-100">もう一度探す</span>{searchHistory.map((item) => <button key={item} type="button" onClick={() => { setQuery(item); rememberSearch(item); }} className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] transition hover:bg-white/20">{item}</button>)}<button type="button" onClick={() => { setSearchHistory([]); try { window.localStorage.removeItem(SEARCH_HISTORY_KEY); } catch { /* storage is optional */ } }} className="ml-auto text-[11px] text-indigo-100 underline-offset-2 hover:underline">履歴を消す</button></div>}
       {showExplorer && <div className="space-y-3 border-t border-white/15 pt-4">
-        <div className="flex flex-wrap items-center gap-2"><span className="text-xs text-indigo-100">並び替え</span>{(["featured", "recent", "title"] as const).map((mode) => <button key={mode} type="button" onClick={() => { setSortMode(mode); saveNavigatorState(activeGroup, isExpanded, mode); }} className={`rounded-full px-2 py-1 text-[11px] ${sortMode === mode ? "bg-violet-300 text-slate-900" : "bg-white/10"}`}>{mode === "featured" ? "注目順" : mode === "recent" ? "最近順" : "名前順"}</button>)}<button type="button" onClick={() => setFavoritesOnly((value) => { const next = !value; saveNavigatorState(activeGroup, isExpanded, sortMode, next); return next; })} className={`rounded-full px-2 py-1 text-[11px] ${favoritesOnly ? "bg-rose-300 text-slate-900" : "bg-white/10"}`}>お気に入りだけ</button><span className="ml-1 text-[11px] text-indigo-100">表示</span>{(["comfortable", "compact"] as const).map((mode) => <button key={mode} type="button" onClick={() => { setDensity(mode); try { window.localStorage.setItem(DENSITY_KEY, JSON.stringify(mode)); } catch { /* storage is optional */ } }} className={`rounded-full px-2 py-1 text-[11px] ${density === mode ? "bg-sky-200 text-slate-900" : "bg-white/10"}`}>{mode === "comfortable" ? "ゆったり" : "コンパクト"}</button>)}<button type="button" onClick={() => { setDensity("comfortable"); setPace(2); setSavedView(null); try { window.localStorage.removeItem(NAV_STATE_KEY); window.localStorage.removeItem(PACE_KEY); window.localStorage.removeItem(DENSITY_KEY); } catch { /* storage is optional */ } }} className="text-[11px] text-indigo-100 underline-offset-2 hover:underline">表示設定を初期化</button>{(query || activeGroup !== "すべて" || sortMode !== "featured" || favoritesOnly) && <button type="button" onClick={() => { const defaults = createDefaultDiscoveryFilters(); setQuery(defaults.query); setActiveGroup(defaults.group); setSortMode(defaults.sortMode); setFavoritesOnly(defaults.favoritesOnly); saveNavigatorState(defaults.group, isExpanded, defaults.sortMode, defaults.favoritesOnly); }} className="ml-auto text-[11px] text-indigo-100 underline-offset-2 hover:underline">絞り込みを戻す</button>}</div>
+        <p aria-live="polite" className="text-[11px] text-indigo-100">{discoveryStateSummary}</p>
+        <div className="flex flex-wrap items-center gap-2"><span className="text-xs text-indigo-100">並び替え</span>{(["featured", "recent", "title"] as const).map((mode) => <button key={mode} type="button" onClick={() => { setSortMode(mode); saveNavigatorState(activeGroup, isExpanded, mode); }} className={`rounded-full px-2 py-1 text-[11px] ${sortMode === mode ? "bg-violet-300 text-slate-900" : "bg-white/10"}`}>{mode === "featured" ? "注目順" : mode === "recent" ? "最近順" : "名前順"}</button>)}<button type="button" onClick={() => setFavoritesOnly((value) => { const next = !value; saveNavigatorState(activeGroup, isExpanded, sortMode, next); return next; })} className={`rounded-full px-2 py-1 text-[11px] ${favoritesOnly ? "bg-rose-300 text-slate-900" : "bg-white/10"}`}>お気に入りだけ</button><span className="ml-1 text-[11px] text-indigo-100">表示</span>{(["comfortable", "compact"] as const).map((mode) => <button key={mode} type="button" onClick={() => { setDensity(mode); try { window.localStorage.setItem(DENSITY_KEY, JSON.stringify(mode)); } catch { /* storage is optional */ } }} className={`rounded-full px-2 py-1 text-[11px] ${density === mode ? "bg-sky-200 text-slate-900" : "bg-white/10"}`}>{mode === "comfortable" ? "ゆったり" : "コンパクト"}</button>)}<button type="button" onClick={() => { const next = !showDailySuggestion; setShowDailySuggestion(next); try { window.localStorage.setItem(DAILY_SUGGESTION_KEY, JSON.stringify(next)); } catch { /* storage is optional */ } }} className="rounded-full bg-white/10 px-2 py-1 text-[11px]">今日の一枚 {showDailySuggestion ? "表示中" : "非表示"}</button><button type="button" onClick={() => { setDensity("comfortable"); setPace(2); setSavedView(null); try { window.localStorage.removeItem(NAV_STATE_KEY); window.localStorage.removeItem(PACE_KEY); window.localStorage.removeItem(DENSITY_KEY); } catch { /* storage is optional */ } }} className="text-[11px] text-indigo-100 underline-offset-2 hover:underline">表示設定を初期化</button>{(query || activeGroup !== "すべて" || sortMode !== "featured" || favoritesOnly) && <button type="button" onClick={() => { const defaults = createDefaultDiscoveryFilters(); setQuery(defaults.query); setActiveGroup(defaults.group); setSortMode(defaults.sortMode); setFavoritesOnly(defaults.favoritesOnly); saveNavigatorState(defaults.group, isExpanded, defaults.sortMode, defaults.favoritesOnly); }} className="ml-auto text-[11px] text-indigo-100 underline-offset-2 hover:underline">絞り込みを戻す</button>}</div>
         <div className="flex flex-wrap items-center gap-2">{groups.map((group) => <button key={group} type="button" onClick={() => selectGroup(group)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${activeGroup === group ? "bg-violet-300 text-slate-900" : "bg-white/10 text-indigo-100 hover:bg-white/20"}`}>{group}</button>)}<button type="button" onClick={copyGroupLink} className="ml-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 text-xs transition hover:bg-white/20"><ClipboardCopy className="h-3.5 w-3.5"/>{copiedGroup ? "コピー済み" : "この状態を共有"}</button></div>
         {comparisonCards.length > 1 && <section aria-label={`${activeGroup}のカード比較`} className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs font-semibold text-violet-100">似た目的から選ぶ</p><div className="mt-2 flex snap-x gap-2 overflow-x-auto pb-1">{comparisonCards.map((card) => <button key={card.id} type="button" onClick={() => open(card.id)} className="min-w-40 snap-start rounded-lg bg-white/10 p-2 text-left transition hover:bg-white/20"><span className="block text-xs font-semibold">{card.title}</span><span className="mt-1 block text-[11px] leading-relaxed text-indigo-100">{card.description}</span><span className="mt-2 inline-flex items-center gap-1 text-[11px] text-violet-200">開く <ArrowRight className="h-3 w-3"/></span></button>)}</div></section>}
         {safeSearchSuggestions.length > 0 && <section aria-live="polite" className="rounded-xl border border-amber-200/20 bg-amber-100/10 p-3"><p className="text-xs font-semibold text-amber-50">見つからないときは、こちらから</p><div className="mt-2 flex flex-wrap gap-2">{safeSearchSuggestions.map((suggestion) => <button key={suggestion} type="button" onClick={() => { const target = FAMILY_CARD_DISCOVERY_ITEMS.find((card) => card.title === suggestion); if (target) open(target.id); else { setQuery(suggestion); rememberSearch(suggestion); } }} className="rounded-full bg-white/15 px-3 py-1.5 text-xs text-white transition hover:bg-white/25">{suggestion}</button>)}</div></section>}
