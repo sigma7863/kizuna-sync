@@ -1553,6 +1553,17 @@ export const familySharingPreferences = mysqlTable("family_sharing_preferences",
 export type FamilySharingPreference = typeof familySharingPreferences.$inferSelect;
 export type InsertFamilySharingPreference = typeof familySharingPreferences.$inferInsert;
 
+/** A short, note-free record of a reassurance check-in, scoped to its family and sender. */
+export const familyCheckInRecords = mysqlTable("family_check_in_records", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  status: mysqlEnum("status", ["okay", "rest", "available"]).notNull(),
+  isShared: boolean("is_shared").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("family_check_in_records_group_user_created_idx").on(table.familyGroupId, table.userId, table.createdAt)]);
+export type FamilyCheckInRecord = typeof familyCheckInRecords.$inferSelect;
+
 
 /**
  * Geofence alert state - deduplication, acknowledgement, and re-notification state

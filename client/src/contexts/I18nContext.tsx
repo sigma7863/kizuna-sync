@@ -232,6 +232,14 @@ type TranslationKey =
   | "family.checkInFollowUpAvailableGuardian"
   | "family.checkInFollowUpAvailableChild"
   | "family.checkInFollowUpAvailableElderly"
+  | "family.checkInHistoryTitle"
+  | "family.checkInHistoryDescription"
+  | "family.checkInHistoryPersonalTitle"
+  | "family.checkInHistoryEmpty"
+  | "family.checkInHistoryGuardianTitle"
+  | "family.checkInHistoryGuardianEmpty"
+  | "family.checkInHistoryNoSharedStatus"
+  | "family.checkInHistoryPrivacy"
   | "family.careMessageTitle"
   | "family.careMessageDescription"
   | "family.careMessageCompose"
@@ -509,6 +517,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "話せそうなら、今少し声をかけてもいい？",
     "family.checkInFollowUpAvailableChild": "今なら少し話せるんだね。都合のよい時に声をかけるね。",
     "family.checkInFollowUpAvailableElderly": "お話しできそうなのですね。ご都合のよい時にお声がけしますね。",
+    "family.checkInHistoryTitle": "安心チェックインの短期履歴",
+    "family.checkInHistoryDescription": "直近7件の状態と時刻だけを確認できます。",
+    "family.checkInHistoryPersonalTitle": "あなたの直近のチェックイン",
+    "family.checkInHistoryEmpty": "まだチェックインはありません。必要なときに、ひとこと知らせてください。",
+    "family.checkInHistoryGuardianTitle": "家族の最新共有状態",
+    "family.checkInHistoryGuardianEmpty": "まだ共有されたチェックインはありません。",
+    "family.checkInHistoryNoSharedStatus": "共有状態なし",
+    "family.checkInHistoryPrivacy": "任意メモはこの履歴に表示しません。チェックイン共有を停止している間の状態は家族へ表示されません。",
     "family.careMessageTitle": "家族の見守りメッセージ帳",
     "family.careMessageDescription": "短い気づかいを残して、既読を静かに見守ります。",
     "family.careMessageCompose": "見守りメッセージを作成する",
@@ -783,6 +799,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "If you feel ready to talk, may I check in with you now?",
     "family.checkInFollowUpAvailableChild": "You can talk a little now. I will reach out when it suits you.",
     "family.checkInFollowUpAvailableElderly": "It sounds like you may be ready to talk. I will reach out at a convenient time.",
+    "family.checkInHistoryTitle": "Recent reassurance check-ins",
+    "family.checkInHistoryDescription": "Review only the status and time of your seven most recent check-ins.",
+    "family.checkInHistoryPersonalTitle": "Your recent check-ins",
+    "family.checkInHistoryEmpty": "No check-ins yet. Send a short signal whenever you need one.",
+    "family.checkInHistoryGuardianTitle": "Family's latest shared status",
+    "family.checkInHistoryGuardianEmpty": "No shared check-ins yet.",
+    "family.checkInHistoryNoSharedStatus": "No shared status",
+    "family.checkInHistoryPrivacy": "Optional notes never appear in this history. Check-ins sent while sharing is paused are not shown to family.",
     "family.careMessageTitle": "Family care messages",
     "family.careMessageDescription": "Leave a brief caring note and quietly keep track of when it is read.",
     "family.careMessageCompose": "Compose a care message",
@@ -1057,6 +1081,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "如果你现在想聊聊，我可以来问候你吗？",
     "family.checkInFollowUpAvailableChild": "你现在可以聊一会儿。我会在合适的时候联系你。",
     "family.checkInFollowUpAvailableElderly": "看来您现在可以聊聊。我会在方便的时候问候您。",
+    "family.checkInHistoryTitle": "安心报平安短期记录",
+    "family.checkInHistoryDescription": "仅查看最近7次报平安的状态和时间。",
+    "family.checkInHistoryPersonalTitle": "您的最近报平安",
+    "family.checkInHistoryEmpty": "还没有报平安记录。需要时请发送简短提示。",
+    "family.checkInHistoryGuardianTitle": "家人的最新共享状态",
+    "family.checkInHistoryGuardianEmpty": "还没有已共享的报平安。",
+    "family.checkInHistoryNoSharedStatus": "没有共享状态",
+    "family.checkInHistoryPrivacy": "可选留言不会显示在此记录中。暂停共享期间的报平安不会向家人显示。",
     "family.careMessageTitle": "家人关怀留言册",
     "family.careMessageDescription": "留下简短的关心，并安静地查看是否已读。",
     "family.careMessageCompose": "撰写关怀留言",
@@ -1331,6 +1363,14 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.checkInFollowUpAvailableGuardian": "이야기할 수 있다면, 지금 잠시 안부를 물어도 될까?",
     "family.checkInFollowUpAvailableChild": "지금은 조금 이야기할 수 있구나. 편할 때 연락할게.",
     "family.checkInFollowUpAvailableElderly": "이야기하실 수 있을 것 같네요. 편하실 때 안부를 여쭐게요.",
+    "family.checkInHistoryTitle": "안심 체크인 단기 기록",
+    "family.checkInHistoryDescription": "최근 7회의 상태와 시간만 확인할 수 있어요.",
+    "family.checkInHistoryPersonalTitle": "나의 최근 체크인",
+    "family.checkInHistoryEmpty": "아직 체크인이 없어요. 필요할 때 짧게 알려 주세요.",
+    "family.checkInHistoryGuardianTitle": "가족의 최신 공유 상태",
+    "family.checkInHistoryGuardianEmpty": "아직 공유된 체크인이 없어요.",
+    "family.checkInHistoryNoSharedStatus": "공유 상태 없음",
+    "family.checkInHistoryPrivacy": "선택 메모는 이 기록에 표시되지 않습니다. 공유를 일시 중지한 동안의 체크인은 가족에게 보이지 않습니다.",
     "family.careMessageTitle": "가족 돌봄 메시지함",
     "family.careMessageDescription": "짧은 마음을 남기고, 읽었는지 조용히 살펴봅니다.",
     "family.careMessageCompose": "돌봄 메시지 작성하기",
