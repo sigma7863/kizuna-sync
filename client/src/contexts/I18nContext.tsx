@@ -253,7 +253,12 @@ type TranslationKey =
   | "family.careMessageMarkRead"
   | "family.careMessageReadUpdated"
   | "family.careMessageReadFailed"
-  | "family.careMessageEmpty";
+  | "family.careMessageEmpty"
+  | "family.additionalDailyToolsTitle"
+  | "family.additionalDailyToolsDescription"
+  | "family.additionalDailyToolsOpen"
+  | "family.additionalDailyToolsClose"
+  | "family.additionalDailyToolsLoading";
 
 export const supportedLanguages: Language[] = ["ja", "en", "zh", "ko"];
 
@@ -510,6 +515,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageReadUpdated": "既読にしました",
     "family.careMessageReadFailed": "既読にできませんでした。もう一度お試しください。",
     "family.careMessageEmpty": "今日の気づかいを、ひとこと残してみましょう。",
+    "family.additionalDailyToolsTitle": "もっと家族の毎日を整えるツール",
+    "family.additionalDailyToolsDescription": "必要なときだけ開くことで、最初の表示を軽く保ちます。",
+    "family.additionalDailyToolsOpen": "追加ツールを開く",
+    "family.additionalDailyToolsClose": "追加ツールを閉じる",
+    "family.additionalDailyToolsLoading": "追加ツールを準備しています…",
   },
   en: {
     "common.loading": "Loading...",
@@ -763,6 +773,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageReadUpdated": "Marked as read",
     "family.careMessageReadFailed": "Could not mark as read. Please try again.",
     "family.careMessageEmpty": "Leave a small caring note for today.",
+    "family.additionalDailyToolsTitle": "More tools for family life",
+    "family.additionalDailyToolsDescription": "Open these only when needed to keep the first view lightweight.",
+    "family.additionalDailyToolsOpen": "Open more tools",
+    "family.additionalDailyToolsClose": "Close more tools",
+    "family.additionalDailyToolsLoading": "Preparing more tools…",
   },
   zh: {
     "common.loading": "加载中...",
@@ -1016,6 +1031,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageReadUpdated": "已标记为已读",
     "family.careMessageReadFailed": "无法标记为已读，请再试一次。",
     "family.careMessageEmpty": "今天也留下简短的一句关心吧。",
+    "family.additionalDailyToolsTitle": "更多家庭日常工具",
+    "family.additionalDailyToolsDescription": "仅在需要时打开，以减轻首次显示的负担。",
+    "family.additionalDailyToolsOpen": "打开更多工具",
+    "family.additionalDailyToolsClose": "关闭更多工具",
+    "family.additionalDailyToolsLoading": "正在准备更多工具…",
   },
   ko: {
     "common.loading": "불러오는 중...",
@@ -1269,6 +1289,11 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.careMessageReadUpdated": "읽음으로 표시했어요",
     "family.careMessageReadFailed": "읽음으로 표시할 수 없습니다. 다시 시도해 주세요.",
     "family.careMessageEmpty": "오늘의 따뜻한 한마디를 남겨 보세요.",
+    "family.additionalDailyToolsTitle": "가족의 일상을 돕는 더 많은 도구",
+    "family.additionalDailyToolsDescription": "필요할 때만 열어 첫 화면을 가볍게 유지합니다.",
+    "family.additionalDailyToolsOpen": "추가 도구 열기",
+    "family.additionalDailyToolsClose": "추가 도구 닫기",
+    "family.additionalDailyToolsLoading": "추가 도구를 준비하고 있어요…",
   },
 };
 

@@ -63,15 +63,6 @@ import { FamilyMemoryQuiz } from "@/components/FamilyMemoryQuiz";
 import { FamilyRoleQuickHub } from "@/components/FamilyRoleQuickHub";
 import { FamilyDisplaySettings } from "@/components/FamilyDisplaySettings";
 import { FamilyImportantShortcuts } from "@/components/FamilyImportantShortcuts";
-import { FamilyMonthlyGoals } from "@/components/FamilyMonthlyGoals";
-import { FamilyPhotoCaption } from "@/components/FamilyPhotoCaption";
-import { FamilyQuietTimeSignal } from "@/components/FamilyQuietTimeSignal";
-import { FamilyConsultationCard } from "@/components/FamilyConsultationCard";
-import { FamilySeasonalIdeas } from "@/components/FamilySeasonalIdeas";
-import { FamilyCareReplies } from "@/components/FamilyCareReplies";
-import { FamilyDailyQuestion } from "@/components/FamilyDailyQuestion";
-import { FamilyHomePreparation } from "@/components/FamilyHomePreparation";
-import { FamilyEncouragementStamps } from "@/components/FamilyEncouragementStamps";
 import { FamilyWeekendReflection } from "@/components/FamilyWeekendReflection";
 import { FamilySupportMap } from "@/components/FamilySupportMap";
 import { FamilyGentleReminders } from "@/components/FamilyGentleReminders";
@@ -129,6 +120,7 @@ import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailDailyRhythmTabs, getFamilyDetailDayPeriod, getFamilyDetailRecommendationStorageKey, getFamilyDetailSafetyTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailDayPeriod, type FamilyDetailTab } from "@shared/familyDetailTabs";
 import { normalizeFamilyCardAnchor } from "@shared/familyCardDiscovery";
+import { shouldLoadAdditionalFamilyTools } from "@shared/familyAdditionalDailyTools";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -142,6 +134,7 @@ const FamilyCloudAlbum = lazy(() => import("@/components/FamilyCloudAlbum").then
 const FamilyEnergyMeter = lazy(() => import("@/components/FamilyEnergyMeter").then((module) => ({ default: module.FamilyEnergyMeter })));
 const FamilyMorningBoard = lazy(() => import("@/components/FamilyMorningBoard").then((module) => ({ default: module.FamilyMorningBoard })));
 const FamilyHomecomingNote = lazy(() => import("@/components/FamilyHomecomingNote").then((module) => ({ default: module.FamilyHomecomingNote })));
+const FamilyAdditionalDailyTools = lazy(() => import("@/components/FamilyAdditionalDailyTools").then((module) => ({ default: module.FamilyAdditionalDailyTools })));
 
 export default function FamilyDetail() {
   const params = useParams<{ id: string }>();
@@ -158,6 +151,7 @@ export default function FamilyDetail() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [showTabHelp, setShowTabHelp] = useState(() => window.localStorage.getItem("kizuna-sync-show-family-tab-help") === "true");
   const [currentTabCentered, setCurrentTabCentered] = useState(false);
+  const [showAdditionalDailyTools, setShowAdditionalDailyTools] = useState(false);
   const [recentTabs, setRecentTabs] = useState<FamilyDetailTab[]>([]);
   const [pinnedTabs, setPinnedTabs] = useState<FamilyDetailTab[]>([]);
   const [tabSearchQuery, setTabSearchQuery] = useState("");
@@ -680,9 +674,12 @@ export default function FamilyDetail() {
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyReadingRelay familyGroupId={familyGroupId}/><FamilyWeatherMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyPlaylist familyGroupId={familyGroupId}/><FamilyForgottenItemRescue familyGroupId={familyGroupId}/><FamilyThankYouBookmarks familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMealRequest familyGroupId={familyGroupId}/><FamilyFunCountdown familyGroupId={familyGroupId}/><FamilyMemoryQuiz familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyMonthlyGoals familyGroupId={familyGroupId}/><FamilyPhotoCaption familyGroupId={familyGroupId}/><FamilyQuietTimeSignal familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyConsultationCard familyGroupId={familyGroupId}/><FamilySeasonalIdeas familyGroupId={familyGroupId}/><FamilyCareReplies familyGroupId={familyGroupId}/></div>
-        <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyDailyQuestion familyGroupId={familyGroupId}/><FamilyHomePreparation familyGroupId={familyGroupId}/><FamilyEncouragementStamps familyGroupId={familyGroupId}/></div>
+        <section className="mb-6 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4" aria-labelledby="additional-daily-tools-title">
+          <h2 id="additional-daily-tools-title" className="text-sm font-semibold text-indigo-950">{t("family.additionalDailyToolsTitle")}</h2>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">{t("family.additionalDailyToolsDescription")}</p>
+          <Button type="button" variant="outline" size="sm" className="mt-3 border-indigo-200 bg-white text-indigo-800 hover:bg-indigo-100 focus-visible:ring-2 focus-visible:ring-indigo-600" aria-expanded={showAdditionalDailyTools} aria-controls="additional-daily-tools-content" onClick={() => setShowAdditionalDailyTools((previous) => !previous)}>{showAdditionalDailyTools ? t("family.additionalDailyToolsClose") : t("family.additionalDailyToolsOpen")}</Button>
+        </section>
+        {shouldLoadAdditionalFamilyTools(showAdditionalDailyTools) && <div id="additional-daily-tools-content"><Suspense fallback={<p className="mb-6 rounded-xl bg-indigo-50 p-4 text-center text-sm font-medium text-indigo-800" role="status" aria-live="polite">{t("family.additionalDailyToolsLoading")}</p>}><FamilyAdditionalDailyTools familyGroupId={familyGroupId}/></Suspense></div>}
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyWeekendReflection familyGroupId={familyGroupId}/><FamilySupportMap familyGroupId={familyGroupId}/><FamilyGentleReminders familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyEveningNote familyGroupId={familyGroupId}/><FamilyWalkLog familyGroupId={familyGroupId}/><FamilyHelpedMemo familyGroupId={familyGroupId}/></div>
         <div className="mb-6 grid gap-4 md:grid-cols-3"><FamilyTomorrowMemo familyGroupId={familyGroupId}/><FamilySeasonalPhotoPrompt familyGroupId={familyGroupId}/><FamilyHelpGuide familyGroupId={familyGroupId}/></div>
