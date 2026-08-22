@@ -13,10 +13,13 @@ import {
   getCardHint,
   getDiscoveryGroups,
   getDiscoveryPurposeShortcuts,
+  getDiscoveryReassurance,
   getNewCardIds,
   getResumeCards,
   getRoleCardRecommendations,
   getSafeSearchSuggestions,
+  getUnvisitedCardSuggestions,
+  normalizeDiscoveryPace,
   normalizeDiscoverySortMode,
   recordRecentCard,
   recordSearchHistory,
@@ -24,6 +27,7 @@ import {
   sortDiscoveryCards,
   toggleFavoriteCard,
   type DiscoverySortMode,
+  type DiscoveryPace,
   type FamilyDiscoveryRole,
 } from "@shared/familyCardDiscovery";
 
@@ -31,6 +35,7 @@ const RECENT_KEY = "kizuna-sync-recent-family-cards";
 const FAVORITES_KEY = "kizuna-sync-favorite-family-cards";
 const SEARCH_HISTORY_KEY = "kizuna-sync-family-card-search-history";
 const NAV_STATE_KEY = "kizuna-sync-card-navigator-state";
+const PACE_KEY = "kizuna-sync-family-card-discovery-pace";
 const roleLabels: Record<FamilyDiscoveryRole, string> = { guardian: "見守り役", child: "子ども", elderly: "シニア" };
 
 export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (cardId: string) => void; role?: FamilyDiscoveryRole }) {
@@ -41,6 +46,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [sortMode, setSortMode] = useState<DiscoverySortMode>("featured");
+  const [pace, setPace] = useState<DiscoveryPace>(2);
   const [copiedGroup, setCopiedGroup] = useState(false);
 
   useEffect(() => {
@@ -49,6 +55,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
       const favorites = JSON.parse(window.localStorage.getItem(FAVORITES_KEY) ?? "[]");
       const history = JSON.parse(window.localStorage.getItem(SEARCH_HISTORY_KEY) ?? "[]");
       const state = JSON.parse(window.localStorage.getItem(NAV_STATE_KEY) ?? "{}");
+      const storedPace = JSON.parse(window.localStorage.getItem(PACE_KEY) ?? "2");
       const sharedGroup = new URLSearchParams(window.location.search).get("cardGroup");
       if (Array.isArray(recent)) setRecentIds(recent.filter((id): id is string => typeof id === "string"));
       if (Array.isArray(favorites)) setFavoriteIds(favorites.filter((id): id is string => typeof id === "string"));
@@ -56,6 +63,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
       if (typeof state.group === "string") setActiveGroup(state.group);
       if (typeof state.expanded === "boolean") setIsExpanded(state.expanded);
       setSortMode(normalizeDiscoverySortMode(state.sortMode));
+      setPace(normalizeDiscoveryPace(storedPace));
       if (sharedGroup && getDiscoveryGroups().includes(sharedGroup)) {
         setActiveGroup(sharedGroup);
         setIsExpanded(true);
@@ -96,6 +104,8 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
   const comparisonCards = useMemo(() => !query && activeGroup !== "すべて" ? compareCardsByGroup(FAMILY_CARD_DISCOVERY_ITEMS, activeGroup) : [], [activeGroup, query]);
   const recommendedCards = useMemo(() => getRoleCardRecommendations(role), [role]);
   const resumeCards = useMemo(() => getResumeCards(recentIds, favoriteIds), [recentIds, favoriteIds]);
+  const unvisitedCards = useMemo(() => getUnvisitedCardSuggestions(recentIds, undefined, pace), [recentIds, pace]);
+  const reassurance = useMemo(() => getDiscoveryReassurance(FAMILY_CARD_DISCOVERY_ITEMS, recentIds), [recentIds]);
   const safeSearchSuggestions = useMemo(() => query.trim() && results.length === 0 ? getSafeSearchSuggestions(query) : [], [query, results.length]);
   const purposeShortcuts = useMemo(() => getDiscoveryPurposeShortcuts(), []);
   const newCardIds = getNewCardIds();
@@ -121,6 +131,7 @@ export function FamilyCardNavigator({ onOpen, role = "guardian" }: { onOpen: (ca
         </div>
       </section>
       {resumeCards.length > 0 && <section aria-label="前回のつづき" className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs font-semibold text-violet-100">前回のつづき</p><div className="mt-2 flex flex-wrap gap-2">{resumeCards.map((card) => <button key={card.id} type="button" onClick={() => open(card.id)} className="rounded-full bg-white/10 px-3 py-1.5 text-xs transition hover:bg-white/20">{card.title}</button>)}</div></section>}
+      {unvisitedCards.length > 0 && <section aria-label="まだ見ていないカード" className="rounded-xl border border-emerald-200/20 bg-emerald-100/10 p-3"><p className="text-xs font-semibold text-emerald-50">まだ見ていないカード</p><p className="mt-1 text-[11px] leading-relaxed text-emerald-100">{reassurance}</p><div className="mt-2 flex flex-wrap gap-2">{unvisitedCards.map((card) => <button key={card.id} type="button" onClick={() => open(card.id)} className="rounded-full bg-white/15 px-3 py-1.5 text-xs transition hover:bg-white/25">{card.title}</button>)}</div><div className="mt-3 flex flex-wrap items-center gap-1.5"><span className="mr-1 text-[11px] text-emerald-100">一度に表示</span>{([1, 2, 3] as const).map((count) => <button key={count} type="button" onClick={() => { setPace(count); try { window.localStorage.setItem(PACE_KEY, JSON.stringify(count)); } catch { /* storage is optional */ } }} className={`rounded-full px-2 py-1 text-[11px] transition ${pace === count ? "bg-emerald-200 text-emerald-950" : "bg-white/10 text-white hover:bg-white/20"}`}>{count}件</button>)}</div></section>}
       <div className="flex gap-2">
         <Input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") rememberSearch(query); }} className="border-white/20 bg-white/10 text-white placeholder:text-indigo-200" placeholder="例：予定、持ち物、ありがとう" aria-label="家族カードを検索"/>
         <button type="button" onClick={() => { const next = !isExpanded; setIsExpanded(next); saveNavigatorState(activeGroup, next, sortMode); }} className="shrink-0 rounded-lg border border-white/20 bg-white/10 px-3 text-xs font-medium transition hover:bg-white/20" aria-expanded={isExpanded}>{isExpanded ? <ChevronUp className="h-4 w-4"/> : <ChevronDown className="h-4 w-4"/>}</button>
