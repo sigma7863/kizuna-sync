@@ -87,3 +87,6 @@ export function getDiscoveryOperationGuide() { return ["言葉を入力すると
 export type DiscoveryDescriptionSize = "standard" | "large";
 export function normalizeDiscoveryDescriptionSize(value: unknown): DiscoveryDescriptionSize { return value === "large" ? "large" : "standard"; }
 export function normalizeDiscoveryGuideVisibility(value: unknown) { return value !== false; }
+export type DiscoveryRecoveryView = { query: string; group: string; sortMode: DiscoverySortMode; favoritesOnly: boolean };
+export function getDiscoveryRecoveryLabel(view: DiscoveryRecoveryView) { const parts = [view.query && `「${view.query}」`, view.group !== "すべて" && view.group, view.favoritesOnly && "お気に入り", view.sortMode !== "featured" && (view.sortMode === "recent" ? "最近順" : "名前順")].filter(Boolean); return parts.length ? parts.join("・") : "すべてのカード"; }
+export function normalizeDiscoveryRecoveryVisibility(value: unknown) { return value !== false; }
