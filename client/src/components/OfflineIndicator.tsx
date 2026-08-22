@@ -1,66 +1,66 @@
-import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, CheckCircle2, Loader2, RefreshCw, WifiOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useI18n } from "@/contexts/I18nContext";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { getOfflineRecoveryState, shouldShowOfflineRecovery } from "@shared/offlineRecovery";
 
 /**
  * オフライン状態インジケーター
  * ネットワーク状態を表示し、同期状況を通知
  */
 export function OfflineIndicator() {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
-  const [showIndicator, setShowIndicator] = useState(false);
+  const { t } = useI18n();
+  const { isOnline, pendingActivities, isSyncing, triggerSync, conflictActivityIds } = useOfflineSync();
+  const [recentlyReconnected, setRecentlyReconnected] = useState(false);
+  const wasOnline = useRef(isOnline);
+  const state = getOfflineRecoveryState({ isOnline, isSyncing, pendingCount: pendingActivities.length, conflictCount: conflictActivityIds.length });
+  const visible = shouldShowOfflineRecovery({ state, recentlyReconnected });
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      setShowIndicator(true);
-      // 3秒後に非表示
-      const timer = setTimeout(() => setShowIndicator(false), 3000);
-      return () => clearTimeout(timer);
-    };
+    if (!wasOnline.current && isOnline) {
+      setRecentlyReconnected(true);
+      const timer = window.setTimeout(() => setRecentlyReconnected(false), 5_000);
+      wasOnline.current = isOnline;
+      return () => window.clearTimeout(timer);
+    }
+    wasOnline.current = isOnline;
+  }, [isOnline]);
 
-    const handleOffline = () => {
-      setIsOnline(false);
-      setShowIndicator(true);
-    };
+  if (!visible) return null;
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
-
-  if (!showIndicator) return null;
+  const appearance = {
+    offline: "border-rose-300 bg-rose-50 text-rose-950",
+    conflict: "border-orange-300 bg-orange-50 text-orange-950",
+    syncing: "border-sky-300 bg-sky-50 text-sky-950",
+    pending: "border-amber-300 bg-amber-50 text-amber-950",
+    synced: "border-emerald-300 bg-emerald-50 text-emerald-950",
+  }[state];
+  const title = {
+    offline: t("family.offlineRecoveryOfflineTitle"),
+    conflict: t("family.offlineRecoveryConflictTitle"),
+    syncing: t("family.offlineRecoverySyncingTitle"),
+    pending: t("family.offlineRecoveryPendingTitle"),
+    synced: t("family.offlineRecoveryRestoredTitle"),
+  }[state];
+  const description = state === "offline"
+    ? t("family.offlineRecoveryOfflineDescription")
+    : state === "conflict"
+      ? t("family.offlineRecoveryConflictDescription").replace("{count}", String(conflictActivityIds.length))
+    : state === "syncing"
+      ? t("family.offlineRecoverySyncingDescription")
+      : state === "pending"
+        ? t("family.offlineRecoveryPendingDescription").replace("{count}", String(pendingActivities.length))
+        : t("family.offlineRecoveryRestoredDescription");
 
   return (
-    <div
-      className={`fixed bottom-4 left-4 right-4 max-w-sm mx-auto rounded-lg shadow-lg p-4 flex items-center gap-3 transition-all duration-300 ${
-        isOnline
-          ? "bg-green-50 border border-green-200"
-          : "bg-red-50 border border-red-200"
-      }`}
-    >
-      {isOnline ? (
-        <>
-          <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-green-900">接続しました</p>
-            <p className="text-xs text-green-700">データを同期中...</p>
-          </div>
-        </>
-      ) : (
-        <>
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 animate-pulse" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-red-900">オフライン中</p>
-            <p className="text-xs text-red-700">接続を確認してください</p>
-          </div>
-        </>
-      )}
+    <div role="status" aria-live="polite" className={`fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-2xl border-2 p-4 shadow-lg ${appearance}`}>
+      <div className="flex items-start gap-3">
+        {state === "offline" ? <WifiOff className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" /> : state === "syncing" ? <Loader2 className="mt-0.5 h-6 w-6 shrink-0 animate-spin" aria-hidden="true" /> : state === "pending" || state === "conflict" ? <AlertCircle className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" /> : <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" />}
+        <div className="min-w-0 flex-1"><p className="text-base font-bold">{title}</p><p className="mt-1 text-sm leading-relaxed">{description}</p>{state === "offline" && <p className="mt-2 text-xs leading-relaxed">{t("family.offlineRecoverySafetyHint")}</p>}</div>
+      </div>
+      {state === "pending" && <Button type="button" variant="outline" onClick={() => void triggerSync()} disabled={isSyncing} className="mt-3 min-h-11 w-full border-current bg-white/80 text-current hover:bg-white"><RefreshCw className="mr-1.5 h-4 w-4" />{t("family.offlineRecoveryRetry")}</Button>}
+      {state === "conflict" && <Button type="button" variant="outline" onClick={() => window.location.reload()} className="mt-3 min-h-11 w-full border-current bg-white/80 text-current hover:bg-white"><RefreshCw className="mr-1.5 h-4 w-4" />{t("family.offlineRecoveryConflictReview")}</Button>}
     </div>
   );
 }
