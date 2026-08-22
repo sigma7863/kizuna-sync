@@ -332,7 +332,7 @@ import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension }
 import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
 import { familyCheckInStatuses } from "../shared/familyCheckIn";
 import { canCreateCareMessage } from "../shared/familyCareMessages";
-import { isFamilyMember } from "../shared/familyMembership";
+import { getFamilyMemberRole, isFamilyMember } from "../shared/familyMembership";
 import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
 import { formatGratitudeContent } from "../shared/gratitude";
 import { buildWeeklyPulse } from "../shared/weeklyPulse";
@@ -370,14 +370,18 @@ export const appRouter = router({
 
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.id);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
         return await getFamilyGroupById(input.id);
       }),
 
     getMembers: protectedProcedure
       .input(z.object({ familyGroupId: z.number() }))
-      .query(async ({ input }) => {
-        return await getFamilyMembers(input.familyGroupId);
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+        return members;
       }),
 
     createInvitation: protectedProcedure
@@ -388,7 +392,9 @@ export const appRouter = router({
           invitedEmail: z.string().email().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (getFamilyMemberRole(members, ctx.user.id) !== "guardian") throw new TRPCError({ code: "FORBIDDEN", message: "Guardian role is required to create invitations" });
         const invitationCode = nanoid(32);
         await createInvitation(
           input.familyGroupId,
@@ -451,6 +457,8 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
         return await createTimelineEntry(
           input.familyGroupId,
           ctx.user.id,
@@ -465,11 +473,19 @@ export const appRouter = router({
   album: router({
     list: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), favoritesOnly: z.boolean().optional() }))
-      .query(({ input }) => getFamilyAlbumPhotos(input.familyGroupId, input.favoritesOnly ?? false)),
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+        return getFamilyAlbumPhotos(input.familyGroupId, input.favoritesOnly ?? false);
+      }),
 
     search: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), keyword: z.string().max(100) }))
-      .query(({ input }) => searchFamilyAlbumPhotos(input.familyGroupId, input.keyword)),
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+        return searchFamilyAlbumPhotos(input.familyGroupId, input.keyword);
+      }),
 
     upload: protectedProcedure
       .input(z.object({
@@ -479,6 +495,8 @@ export const appRouter = router({
         mimeType: z.enum(SUPPORTED_ALBUM_MIME_TYPES),
       }))
       .mutation(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
         const match = input.dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/);
         if (!match) throw new TRPCError({ code: "BAD_REQUEST", message: "Unsupported image data" });
         const imageBuffer = Buffer.from(match[2], "base64");
@@ -505,7 +523,11 @@ export const appRouter = router({
 
     setFavorite: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), photoId: z.number(), isFavorite: z.boolean() }))
-      .mutation(({ input }) => setFamilyAlbumPhotoFavorite(input)),
+      .mutation(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+        return setFamilyAlbumPhotoFavorite(input);
+      }),
   }),
 
   checkIn: router({
