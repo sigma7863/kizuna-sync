@@ -161,6 +161,28 @@ type TranslationKey =
   | "family.shareRecommendations"
   | "family.safetyLauncher"
   | "family.safetyLauncherDescription"
+  | "family.emergencyTitle"
+  | "family.emergencyDescription"
+  | "family.emergencyContacts"
+  | "family.emergencyCall"
+  | "family.emergencyView"
+  | "family.emergencyEvacuationSelected"
+  | "family.emergencyNoContacts"
+  | "family.emergencyOfflineTitle"
+  | "family.emergencyOfflineDescription"
+  | "family.emergencyOfflineReady"
+  | "family.emergencyOfflineMissing"
+  | "family.emergencySave"
+  | "family.emergencyRemove"
+  | "family.emergencySaved"
+  | "family.emergencyRemoved"
+  | "family.emergencySavedBadge"
+  | "family.emergencySaveConfirmTitle"
+  | "family.emergencySaveConfirmDescription"
+  | "family.emergencySaveConfirm"
+  | "family.emergencyCallConfirmTitle"
+  | "family.emergencyCallConfirmDescription"
+  | "family.emergencyCallConfirm"
   | "family.dailyRhythm"
   | "family.dailyRhythmMorning"
   | "family.dailyRhythmDaytime"
@@ -487,6 +509,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "おすすめを家族に共有",
     "family.safetyLauncher": "安心のためのクイックアクセス",
     "family.safetyLauncherDescription": "見守り、健康、家族への相談をすぐに開けます",
+    "family.emergencyTitle": "緊急・安心アシスト",
+    "family.emergencyDescription": "連絡先や避難情報を確認できます。発信は確認後にだけ始まります。",
+    "family.emergencyContacts": "今すぐ使う連絡先・避難情報",
+    "family.emergencyCall": "確認して電話",
+    "family.emergencyView": "確認する",
+    "family.emergencyEvacuationSelected": "を確認するために選びました。住所などの詳細は家族の連絡先カードで確認できます。",
+    "family.emergencyNoContacts": "使える緊急連絡先・避難情報がまだありません。保護者に連絡先カードの追加を頼んでください。",
+    "family.emergencyOfflineTitle": "通信が不安なときのために",
+    "family.emergencyOfflineDescription": "この端末に、今表示されている情報だけを保存できます。共有端末では保存しないでください。保存はいつでも消去できます。",
+    "family.emergencyOfflineReady": "オフラインです。端末に保存した緊急情報を表示しています。",
+    "family.emergencyOfflineMissing": "オフラインです。端末に保存した緊急情報はありません。通信が戻ったら保存できます。",
+    "family.emergencySave": "この端末に保存",
+    "family.emergencyRemove": "端末から消去",
+    "family.emergencySaved": "緊急情報をこの端末に保存しました。",
+    "family.emergencyRemoved": "端末に保存した緊急情報を消去しました。",
+    "family.emergencySavedBadge": "端末への保存済み",
+    "family.emergencySaveConfirmTitle": "この端末に緊急情報を保存しますか？",
+    "family.emergencySaveConfirmDescription": "保存するのは、今の役割で表示を許可された連絡先と避難情報だけです。端末を共有している場合は保存しないでください。",
+    "family.emergencySaveConfirm": "保存する",
+    "family.emergencyCallConfirmTitle": "電話を始める前に確認",
+    "family.emergencyCallConfirmDescription": "{name} へ電話を発信します。緊急でない場合は、いったん戻って状況を確認してください。",
+    "family.emergencyCallConfirm": "電話を始める",
     "family.dailyRhythm": "今の時間におすすめの機能",
     "family.dailyRhythmMorning": "朝の準備と見守りを整えましょう",
     "family.dailyRhythmDaytime": "日中の安心と体調をやさしく確認しましょう",
@@ -785,6 +829,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "Share recommendations with family",
     "family.safetyLauncher": "Quick access for peace of mind",
     "family.safetyLauncherDescription": "Open safety, health, or family support right away",
+    "family.emergencyTitle": "Emergency & safety assist",
+    "family.emergencyDescription": "Review contacts and evacuation information. A call starts only after confirmation.",
+    "family.emergencyContacts": "Contacts and evacuation information",
+    "family.emergencyCall": "Confirm to call",
+    "family.emergencyView": "Review",
+    "family.emergencyEvacuationSelected": " was selected for review. Check the family contact card for details such as the address.",
+    "family.emergencyNoContacts": "No emergency contact or evacuation information is available yet. Ask a guardian to add a contact card.",
+    "family.emergencyOfflineTitle": "For unstable connections",
+    "family.emergencyOfflineDescription": "You can save only the information shown here on this device. Do not save it on a shared device. You can remove it at any time.",
+    "family.emergencyOfflineReady": "You are offline. Showing emergency information saved on this device.",
+    "family.emergencyOfflineMissing": "You are offline and no emergency information is saved on this device. You can save it when the connection returns.",
+    "family.emergencySave": "Save on this device",
+    "family.emergencyRemove": "Remove from device",
+    "family.emergencySaved": "Emergency information was saved on this device.",
+    "family.emergencyRemoved": "Emergency information saved on this device was removed.",
+    "family.emergencySavedBadge": "Saved on this device",
+    "family.emergencySaveConfirmTitle": "Save emergency information on this device?",
+    "family.emergencySaveConfirmDescription": "Only contacts and evacuation information permitted for your current role will be saved. Do not save this information on a shared device.",
+    "family.emergencySaveConfirm": "Save",
+    "family.emergencyCallConfirmTitle": "Confirm before calling",
+    "family.emergencyCallConfirmDescription": "You are about to call {name}. If this is not urgent, go back and check the situation first.",
+    "family.emergencyCallConfirm": "Start call",
     "family.dailyRhythm": "Helpful for this time of day",
     "family.dailyRhythmMorning": "Prepare for the morning and stay connected",
     "family.dailyRhythmDaytime": "Gently check daytime safety and wellbeing",
@@ -1083,6 +1149,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "与家人分享推荐",
     "family.safetyLauncher": "安心快捷访问",
     "family.safetyLauncherDescription": "立即打开安全、健康或家庭支持功能",
+    "family.emergencyTitle": "紧急与安心协助",
+    "family.emergencyDescription": "可查看联系人和避难信息。只有确认后才会开始拨号。",
+    "family.emergencyContacts": "立即可用的联系人与避难信息",
+    "family.emergencyCall": "确认后拨打",
+    "family.emergencyView": "查看",
+    "family.emergencyEvacuationSelected": "已被选中查看。请在家庭联系人卡中查看地址等详细信息。",
+    "family.emergencyNoContacts": "目前没有可用的紧急联系人或避难信息。请请监护人添加联系人卡。",
+    "family.emergencyOfflineTitle": "网络不稳定时",
+    "family.emergencyOfflineDescription": "您可以只将这里显示的信息保存在此设备上。请勿保存在共享设备上，且可随时删除。",
+    "family.emergencyOfflineReady": "当前离线。正在显示保存在此设备上的紧急信息。",
+    "family.emergencyOfflineMissing": "当前离线，且此设备未保存紧急信息。恢复网络后可以保存。",
+    "family.emergencySave": "保存到此设备",
+    "family.emergencyRemove": "从设备删除",
+    "family.emergencySaved": "紧急信息已保存到此设备。",
+    "family.emergencyRemoved": "已删除保存在此设备上的紧急信息。",
+    "family.emergencySavedBadge": "已保存到此设备",
+    "family.emergencySaveConfirmTitle": "要将紧急信息保存到此设备吗？",
+    "family.emergencySaveConfirmDescription": "只会保存当前角色允许显示的联系人和避难信息。请勿保存在共享设备上。",
+    "family.emergencySaveConfirm": "保存",
+    "family.emergencyCallConfirmTitle": "拨号前确认",
+    "family.emergencyCallConfirmDescription": "即将拨打 {name}。如果情况并不紧急，请返回后先确认情况。",
+    "family.emergencyCallConfirm": "开始拨号",
     "family.dailyRhythm": "适合当前时段的功能",
     "family.dailyRhythmMorning": "准备早晨，并与家人保持联系",
     "family.dailyRhythmDaytime": "温和地确认日间安全与健康状况",
@@ -1381,6 +1469,28 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.shareRecommendations": "가족과 추천 공유",
     "family.safetyLauncher": "안심을 위한 빠른 접근",
     "family.safetyLauncherDescription": "안전, 건강 또는 가족 지원을 바로 열 수 있습니다",
+    "family.emergencyTitle": "긴급·안심 지원",
+    "family.emergencyDescription": "연락처와 대피 정보를 확인할 수 있습니다. 전화는 확인한 뒤에만 시작됩니다.",
+    "family.emergencyContacts": "바로 사용할 연락처·대피 정보",
+    "family.emergencyCall": "확인 후 전화",
+    "family.emergencyView": "확인하기",
+    "family.emergencyEvacuationSelected": "을(를) 확인하도록 선택했습니다. 주소 등의 자세한 정보는 가족 연락처 카드에서 확인할 수 있습니다.",
+    "family.emergencyNoContacts": "사용할 수 있는 긴급 연락처나 대피 정보가 아직 없습니다. 보호자에게 연락처 카드 추가를 요청해 주세요.",
+    "family.emergencyOfflineTitle": "통신이 불안정할 때를 위해",
+    "family.emergencyOfflineDescription": "여기에 표시된 정보만 이 기기에 저장할 수 있습니다. 공유 기기에는 저장하지 마세요. 언제든지 삭제할 수 있습니다.",
+    "family.emergencyOfflineReady": "오프라인 상태입니다. 이 기기에 저장된 긴급 정보를 표시합니다.",
+    "family.emergencyOfflineMissing": "오프라인 상태이며 이 기기에 저장된 긴급 정보가 없습니다. 연결이 복구되면 저장할 수 있습니다.",
+    "family.emergencySave": "이 기기에 저장",
+    "family.emergencyRemove": "기기에서 삭제",
+    "family.emergencySaved": "긴급 정보를 이 기기에 저장했습니다.",
+    "family.emergencyRemoved": "이 기기에 저장된 긴급 정보를 삭제했습니다.",
+    "family.emergencySavedBadge": "이 기기에 저장됨",
+    "family.emergencySaveConfirmTitle": "이 기기에 긴급 정보를 저장할까요?",
+    "family.emergencySaveConfirmDescription": "현재 역할에서 표시가 허용된 연락처와 대피 정보만 저장됩니다. 공유 기기에는 저장하지 마세요.",
+    "family.emergencySaveConfirm": "저장",
+    "family.emergencyCallConfirmTitle": "전화 시작 전 확인",
+    "family.emergencyCallConfirmDescription": "{name}에게 전화를 걸려고 합니다. 긴급하지 않다면 돌아가서 상황을 먼저 확인하세요.",
+    "family.emergencyCallConfirm": "전화 시작",
     "family.dailyRhythm": "지금 시간에 도움이 되는 기능",
     "family.dailyRhythmMorning": "아침 준비와 가족 연결을 챙겨보세요",
     "family.dailyRhythmDaytime": "낮 동안의 안전과 컨디션을 살펴보세요",

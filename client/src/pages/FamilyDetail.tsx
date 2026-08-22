@@ -30,6 +30,7 @@ import { FamilyEventVote } from "@/components/FamilyEventVote";
 import { FamilyConditionBoard } from "@/components/FamilyConditionBoard";
 import { FamilyMemoryBookmark } from "@/components/FamilyMemoryBookmark";
 import { FamilySafetyChecklist } from "@/components/FamilySafetyChecklist";
+import { FamilyEmergencyAssist } from "@/components/FamilyEmergencyAssist";
 import { FamilyCelebrationCalendar } from "@/components/FamilyCelebrationCalendar";
 import { FamilyWordBaton } from "@/components/FamilyWordBaton";
 import { FamilyContactsPanel } from "@/components/FamilyContactsPanel";
@@ -1104,10 +1105,13 @@ export default function FamilyDetail() {
 
         {/* Safety Guardian Section */}
         {activeTab === "safety" && (
-          <SafetyGuardian
-            familyGroupId={familyGroupId}
-            memberLocations={[]}
-          />
+          <div className="space-y-6">
+            <FamilyEmergencyAssist familyGroupId={familyGroupId} currentUserRole={currentMemberRole} />
+            <SafetyGuardian
+              familyGroupId={familyGroupId}
+              memberLocations={[]}
+            />
+          </div>
         )}
 
         {activeTab !== "timeline" && activeTab !== "safety" && (
