@@ -1,0 +1,1 @@
+export function countUnresolved(items: Array<{ isResolved?: boolean; isConfirmed?: boolean; isTaken?: boolean }>) { return items.filter((item) => !item.isResolved && !item.isConfirmed && !item.isTaken).length; }

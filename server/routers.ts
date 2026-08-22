@@ -280,6 +280,15 @@ import {
   createFamilyNoticeBoard,
   getFamilyNoticeBoards,
   updateFamilyNoticeBoard,
+  createFamilyPriorityMemo,
+  getFamilyPriorityMemos,
+  updateFamilyPriorityMemo,
+  createFamilyPlanCheckin,
+  getFamilyPlanCheckins,
+  updateFamilyPlanCheckin,
+  createFamilyNextStepCard,
+  getFamilyNextStepCards,
+  updateFamilyNextStepCard,
 } from "./db";
 import { generatePhotoJournalStory, generateFamilyProposal, summarizeFamilyDay } from "./ai";
 import { analyzePhotoWithAI } from "./familyAlbum";
@@ -1091,6 +1100,21 @@ export const appRouter = router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyNoticeBoards(input.familyGroupId)),
     create: protectedProcedure.input(z.object({ familyGroupId: z.number(), notice: z.string().trim().min(1).max(220), detail: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyNoticeBoard({ ...input, detail: input.detail || undefined, userId: ctx.user.id })),
     update: protectedProcedure.input(z.object({ familyGroupId: z.number(), noticeId: z.number(), isAcknowledged: z.boolean() })).mutation(({ input }) => updateFamilyNoticeBoard(input)),
+  }),
+  priorityMemos: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyPriorityMemos(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), priority: z.string().trim().min(1).max(180), note: z.string().trim().max(240).optional() })).mutation(({ ctx, input }) => createFamilyPriorityMemo({ ...input, note: input.note || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), memoId: z.number(), isResolved: z.boolean() })).mutation(({ input }) => updateFamilyPriorityMemo(input)),
+  }),
+  planCheckins: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyPlanCheckins(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), plan: z.string().trim().min(1).max(180), supportNote: z.string().trim().max(180).optional() })).mutation(({ ctx, input }) => createFamilyPlanCheckin({ ...input, supportNote: input.supportNote || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), checkinId: z.number(), isConfirmed: z.boolean() })).mutation(({ input }) => updateFamilyPlanCheckin(input)),
+  }),
+  nextStepCards: router({
+    list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyNextStepCards(input.familyGroupId)),
+    create: protectedProcedure.input(z.object({ familyGroupId: z.number(), step: z.string().trim().min(1).max(180), reason: z.string().trim().max(220).optional() })).mutation(({ ctx, input }) => createFamilyNextStepCard({ ...input, reason: input.reason || undefined, userId: ctx.user.id })),
+    update: protectedProcedure.input(z.object({ familyGroupId: z.number(), cardId: z.number(), isTaken: z.boolean() })).mutation(({ input }) => updateFamilyNextStepCard(input)),
   }),
 
   activity: router({
