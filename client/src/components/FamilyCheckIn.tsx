@@ -1,4 +1,4 @@
-import { CheckCircle2, HeartHandshake, Loader2, Send } from "lucide-react";
+import { CheckCircle2, Eye, HeartHandshake, Loader2, Send, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -34,9 +34,12 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
     },
   });
   const status = checkIn.isPending ? t("family.checkInSubmitting") : statusMessage;
+  const checkInStatusLabel = t(checkInStatusLabelKeys[checkInStatus]);
+  const preview = composeFamilyCheckInNote(checkInStatus, checkInStatusLabel, note) ?? t("family.checkInStatusOkay");
   const sendCheckIn = () => checkIn.mutate({
     familyGroupId,
-    note: composeFamilyCheckInNote(checkInStatus, t(checkInStatusLabelKeys[checkInStatus]), note),
+    status: checkInStatus,
+    note: composeFamilyCheckInNote(checkInStatus, checkInStatusLabel, note),
   });
 
   return (
@@ -51,9 +54,14 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
             <button key={option} type="button" role="radio" aria-checked={checkInStatus === option} onClick={() => setCheckInStatus(option)} className={`rounded-lg px-2 py-2 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${checkInStatus === option ? "bg-emerald-100 text-emerald-900 ring-1 ring-emerald-400" : "bg-white text-slate-700 shadow-sm"}`}>{t(checkInStatusLabelKeys[option])}</button>
           ))}
         </div>
-        <Input value={note} maxLength={120} onChange={(event) => setNote(event.target.value)} placeholder={t("family.checkInNote")} aria-label={t("family.checkInNote")} aria-describedby="family-checkin-selected family-checkin-status" className="bg-white" />
-        <p id="family-checkin-selected" className="text-xs text-emerald-800" aria-live="polite">{t(checkInStatusLabelKeys[checkInStatus])}</p>
-        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-600" disabled={checkIn.isPending || familyGroupId <= 0} aria-describedby="family-checkin-selected family-checkin-status" onClick={sendCheckIn}>
+        <Input value={note} maxLength={120} onChange={(event) => setNote(event.target.value)} placeholder={t("family.checkInNote")} aria-label={t("family.checkInNote")} aria-describedby="family-checkin-selected family-checkin-preview family-checkin-status" className="bg-white" />
+        <p id="family-checkin-selected" className="text-xs text-emerald-800" aria-live="polite">{checkInStatusLabel}</p>
+        <section id="family-checkin-preview" aria-live="polite" aria-atomic="true" className="rounded-xl border border-emerald-100 bg-white/85 px-3 py-2.5 text-sm text-slate-700 shadow-sm">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800"><Eye className="h-3.5 w-3.5" aria-hidden="true" />{t("family.checkInPreviewTitle")}</p>
+          <p className="mt-1 break-words font-medium">{preview}</p>
+          <p className="mt-1.5 flex items-start gap-1.5 text-xs leading-relaxed text-slate-500"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />{t("family.checkInPrivacy")}</p>
+        </section>
+        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-600" disabled={checkIn.isPending || familyGroupId <= 0} aria-describedby="family-checkin-selected family-checkin-preview family-checkin-status" onClick={sendCheckIn}>
           {checkIn.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="mr-2 h-4 w-4" aria-hidden="true" />}
           {checkIn.isPending ? t("family.checkInSubmitting") : t("family.checkInSubmit")}
         </Button>

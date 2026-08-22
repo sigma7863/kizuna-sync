@@ -330,6 +330,7 @@ import { broadcastFamilyLocationUpdate, broadcastRippleNotification } from "./we
 import { buildCelebrationMetadata, CelebrationOccasion } from "./celebration";
 import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension } from "../shared/album";
 import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
+import { familyCheckInStatuses } from "../shared/familyCheckIn";
 import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
 import { formatGratitudeContent } from "../shared/gratitude";
 import { buildWeeklyPulse } from "../shared/weeklyPulse";
@@ -501,11 +502,11 @@ export const appRouter = router({
 
   checkIn: router({
     send: protectedProcedure
-      .input(z.object({ familyGroupId: z.number(), note: z.string().max(120).optional() }))
+      .input(z.object({ familyGroupId: z.number(), note: z.string().max(120).optional(), status: z.enum(familyCheckInStatuses) }))
       .mutation(async ({ ctx, input }) => {
         const displayName = ctx.user.name ?? "家族";
         const content = buildCheckInContent(input.note);
-        await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", content, undefined, buildCheckInMetadata());
+        await createTimelineEntry(input.familyGroupId, ctx.user.id, "message", content, undefined, buildCheckInMetadata(input.status));
         const members = await getFamilyMembers(input.familyGroupId);
         const guardianIds = members
           .filter((member) => member.family_members.memberRole === "guardian")
@@ -515,7 +516,7 @@ export const appRouter = router({
           type: "safety",
           title: "安心チェックイン",
           message: `${displayName}さんが「大丈夫」と知らせました。`,
-          payload: { status: "okay", note: content, sourceUserId: ctx.user.id },
+          payload: { status: input.status, note: content, sourceUserId: ctx.user.id },
           quiet: true,
           excludeUserId: ctx.user.id,
           recipientUserIds: guardianIds,
