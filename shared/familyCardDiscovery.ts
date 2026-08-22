@@ -23,3 +23,6 @@ export function createCardSharePath(cardId: string) { return `#${cardId}`; }
 export function getSearchSuggestions(cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 4) { return Array.from(new Set(cards.flatMap((card) => [card.group, card.title]))).slice(0, limit); }
 export function getShortcutCards(shortcutIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return shortcutIds.map((id) => cards.find((card) => card.id === id)).filter((card): card is FamilyCardDiscoveryItem => Boolean(card)).slice(0, limit); }
 export function getCardPreview(cardId: string, cards = FAMILY_CARD_DISCOVERY_ITEMS) { const card = cards.find((item) => item.id === cardId); return card ? `${card.title}：${card.description}` : ""; }
+export function getCardHint(card: FamilyCardDiscoveryItem) { return `${card.group}の「${card.title}」を開いて、${card.description}。`; }
+export function getNewCardIds(cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return cards.slice(-limit).map((card) => card.id); }
+export function sortDiscoveryCards(cards: FamilyCardDiscoveryItem[], mode: "featured" | "recent" | "title", recentIds: string[] = []) { if (mode === "recent") return orderCardsByRecent(cards, recentIds); if (mode === "title") return [...cards].sort((a, b) => a.title.localeCompare(b.title, "ja")); return [...cards].sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured))); }
