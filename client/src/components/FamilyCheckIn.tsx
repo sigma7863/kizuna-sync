@@ -6,10 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/contexts/I18nContext";
 import { trpc } from "@/lib/trpc";
+import { composeFamilyCheckInNote, familyCheckInStatuses, type FamilyCheckInStatus } from "@shared/familyCheckIn";
+
+const checkInStatusLabelKeys: Record<FamilyCheckInStatus, "family.checkInStatusOkay" | "family.checkInStatusRest" | "family.checkInStatusAvailable"> = {
+  okay: "family.checkInStatusOkay",
+  rest: "family.checkInStatusRest",
+  available: "family.checkInStatusAvailable",
+};
 
 export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
   const { t, language } = useI18n();
   const [note, setNote] = useState("");
+  const [checkInStatus, setCheckInStatus] = useState<FamilyCheckInStatus>("okay");
   const [completedAt, setCompletedAt] = useState<Date | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const checkIn = trpc.checkIn.send.useMutation({
@@ -26,6 +34,10 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
     },
   });
   const status = checkIn.isPending ? t("family.checkInSubmitting") : statusMessage;
+  const sendCheckIn = () => checkIn.mutate({
+    familyGroupId,
+    note: composeFamilyCheckInNote(checkInStatus, t(checkInStatusLabelKeys[checkInStatus]), note),
+  });
 
   return (
     <Card className="border-0 bg-gradient-to-br from-emerald-50 via-white to-sky-50 shadow-md">
@@ -34,8 +46,14 @@ export function FamilyCheckIn({ familyGroupId }: { familyGroupId: number }) {
         <p className="text-xs text-slate-500">{t("family.checkInDescription")}</p>
       </CardHeader>
       <CardContent className="space-y-3">
-        <Input value={note} maxLength={120} onChange={(event) => setNote(event.target.value)} placeholder={t("family.checkInNote")} aria-label={t("family.checkInNote")} className="bg-white" />
-        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-600" disabled={checkIn.isPending || familyGroupId <= 0} aria-describedby="family-checkin-status" onClick={() => checkIn.mutate({ familyGroupId, note: note || undefined })}>
+        <div role="radiogroup" aria-label={t("family.checkInStatusHelp")} className="grid grid-cols-3 gap-1.5">
+          {familyCheckInStatuses.map((option) => (
+            <button key={option} type="button" role="radio" aria-checked={checkInStatus === option} onClick={() => setCheckInStatus(option)} className={`rounded-lg px-2 py-2 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${checkInStatus === option ? "bg-emerald-100 text-emerald-900 ring-1 ring-emerald-400" : "bg-white text-slate-700 shadow-sm"}`}>{t(checkInStatusLabelKeys[option])}</button>
+          ))}
+        </div>
+        <Input value={note} maxLength={120} onChange={(event) => setNote(event.target.value)} placeholder={t("family.checkInNote")} aria-label={t("family.checkInNote")} aria-describedby="family-checkin-selected family-checkin-status" className="bg-white" />
+        <p id="family-checkin-selected" className="text-xs text-emerald-800" aria-live="polite">{t(checkInStatusLabelKeys[checkInStatus])}</p>
+        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-600" disabled={checkIn.isPending || familyGroupId <= 0} aria-describedby="family-checkin-selected family-checkin-status" onClick={sendCheckIn}>
           {checkIn.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="mr-2 h-4 w-4" aria-hidden="true" />}
           {checkIn.isPending ? t("family.checkInSubmitting") : t("family.checkInSubmit")}
         </Button>
