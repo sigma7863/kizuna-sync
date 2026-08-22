@@ -419,7 +419,7 @@ export default function FamilyDetail() {
           <FamilyDisplaySettings />
           <FamilyImportantShortcuts onSafety={() => setActiveTab("safety")} onMood={() => scrollToElement("share-feeling")} onDaily={() => scrollToElement("family-daily-cards")}/>
         </div>
-        <FamilyCardNavigator onOpen={scrollToElement}/>
+        <FamilyCardNavigator onOpen={scrollToElement} role={currentMemberRole}/>
 
         <div className="mb-6 grid gap-4 md:grid-cols-2">
           <FamilyCheckIn familyGroupId={familyGroupId} />

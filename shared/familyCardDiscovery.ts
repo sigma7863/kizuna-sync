@@ -32,3 +32,11 @@ export function groupDiscoveryCards(cards: FamilyCardDiscoveryItem[]) { return c
 export function getDiscoveryOnboardingSteps() { return ["気になる言葉を入力してカードを探す", "カテゴリで目的を絞り込む", "お気に入りや今日の整理からもう一度開く"]; }
 export function compareCardsByGroup(cards: FamilyCardDiscoveryItem[], group: string) { return cards.filter((card) => card.group === group).map((card) => ({ id: card.id, title: card.title, description: card.description })); }
 export function getSafeSearchSuggestions(query: string, cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return searchFamilyCards(query, cards).length > 0 ? [] : getSearchSuggestions(cards, limit); }
+export type FamilyDiscoveryRole = "guardian" | "child" | "elderly";
+const roleCardIds: Record<FamilyDiscoveryRole, string[]> = {
+  guardian: ["card-priority-flow", "card-plan-checkins", "card-role-handoff"],
+  child: ["card-together-picks", "card-place-ideas", "card-next-steps"],
+  elderly: ["card-priority-flow", "card-packing-checks", "card-family-notices"],
+};
+export function getRoleCardRecommendations(role: FamilyDiscoveryRole, cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return getShortcutCards(roleCardIds[role], cards, limit); }
+export function getResumeCards(recentIds: string[], favoriteIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return getShortcutCards([...recentIds, ...favoriteIds.filter((id) => !recentIds.includes(id))], cards, limit); }
