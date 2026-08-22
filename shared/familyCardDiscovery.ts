@@ -83,3 +83,7 @@ export const REASSURANCE_ACTION_SHORTCUTS = [
 export function getReassuranceActionShortcuts(cards = FAMILY_CARD_DISCOVERY_ITEMS) { const groups = new Set(cards.map((card) => card.group)); return REASSURANCE_ACTION_SHORTCUTS.filter((shortcut) => groups.has(shortcut.group)); }
 export function getReassuranceUsageSummary(recentIds: string[], cards = FAMILY_CARD_DISCOVERY_ITEMS) { const actions = getReassuranceActionShortcuts(cards); const counts = actions.map((action) => ({ ...action, count: cards.filter((card) => card.group === action.group && recentIds.includes(card.id)).length })); const next = [...counts].sort((a, b) => a.count - b.count)[0]; return { counts, message: next ? `次は「${next.label}」から、家族の小さな一歩を選べます。` : "気になる行動から、ゆっくり始めましょう。" }; }
 export function normalizeReassuranceSuggestionVisibility(value: unknown) { return value !== false; }
+export function getDiscoveryOperationGuide() { return ["言葉を入力すると近いカードが候補に出ます", "目的や生活シーンを選ぶとカードを絞り込めます", "共有ボタンで今の探し方を家族へ渡せます"]; }
+export type DiscoveryDescriptionSize = "standard" | "large";
+export function normalizeDiscoveryDescriptionSize(value: unknown): DiscoveryDescriptionSize { return value === "large" ? "large" : "standard"; }
+export function normalizeDiscoveryGuideVisibility(value: unknown) { return value !== false; }
