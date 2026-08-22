@@ -332,6 +332,7 @@ import { MAX_ALBUM_PHOTO_BYTES, SUPPORTED_ALBUM_MIME_TYPES, albumFileExtension }
 import { buildCheckInContent, buildCheckInMetadata } from "../shared/checkin";
 import { familyCheckInStatuses } from "../shared/familyCheckIn";
 import { canCreateCareMessage } from "../shared/familyCareMessages";
+import { isFamilyMember } from "../shared/familyMembership";
 import { buildTodayKizunaHighlights } from "../shared/familyHighlights";
 import { formatGratitudeContent } from "../shared/gratitude";
 import { buildWeeklyPulse } from "../shared/weeklyPulse";
@@ -417,19 +418,25 @@ export const appRouter = router({
   timeline: router({
     getFamilyTimeline: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), limit: z.number().default(50) }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
         return await getFamilyTimeline(input.familyGroupId, input.limit);
       }),
 
     getDigestAlbum: protectedProcedure
       .input(z.object({ familyGroupId: z.number(), yearMonth: z.string() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
         return await getFamilyDigestAlbumEntries(input.familyGroupId, input.yearMonth);
       }),
 
     getDigestMonths: protectedProcedure
       .input(z.object({ familyGroupId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
         return await getFamilyDigestAvailableMonths(input.familyGroupId);
       }),
 
@@ -537,7 +544,9 @@ export const appRouter = router({
   highlights: router({
     today: protectedProcedure
       .input(z.object({ familyGroupId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        const members = await getFamilyMembers(input.familyGroupId);
+        if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
         const [timeline, locations, health] = await Promise.all([
           getFamilyTimeline(input.familyGroupId, 100),
           getFamilyLatestLocations(input.familyGroupId),
