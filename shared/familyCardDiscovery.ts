@@ -29,3 +29,6 @@ export function sortDiscoveryCards(cards: FamilyCardDiscoveryItem[], mode: "feat
 export function getUsageSummary(cards: FamilyCardDiscoveryItem[], recentIds: string[]) { const used = cards.filter((card) => recentIds.includes(card.id)); return { usedCount: used.length, unvisitedCount: cards.length - used.length }; }
 export function recordSearchHistory(history: string[], query: string, limit = 5) { const normalized = query.trim(); return normalized ? [normalized, ...history.filter((item) => item !== normalized)].slice(0, limit) : history; }
 export function groupDiscoveryCards(cards: FamilyCardDiscoveryItem[]) { return cards.reduce<Record<string, FamilyCardDiscoveryItem[]>>((groups, card) => ({ ...groups, [card.group]: [...(groups[card.group] ?? []), card] }), {}); }
+export function getDiscoveryOnboardingSteps() { return ["気になる言葉を入力してカードを探す", "カテゴリで目的を絞り込む", "お気に入りや今日の整理からもう一度開く"]; }
+export function compareCardsByGroup(cards: FamilyCardDiscoveryItem[], group: string) { return cards.filter((card) => card.group === group).map((card) => ({ id: card.id, title: card.title, description: card.description })); }
+export function getSafeSearchSuggestions(query: string, cards = FAMILY_CARD_DISCOVERY_ITEMS, limit = 3) { return searchFamilyCards(query, cards).length > 0 ? [] : getSearchSuggestions(cards, limit); }
