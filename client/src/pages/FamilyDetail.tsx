@@ -16,6 +16,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { FamilyCheckIn } from "@/components/FamilyCheckIn";
+import { FamilyCheckInFollowUp } from "@/components/FamilyCheckInFollowUp";
 import { TodayKizunaHighlights } from "@/components/TodayKizunaHighlights";
 import { FamilyHelpBoard } from "@/components/FamilyHelpBoard";
 import { FamilyGratitudeRelay } from "@/components/FamilyGratitudeRelay";
@@ -636,8 +637,9 @@ export default function FamilyDetail() {
         </div>
         <FamilyCardNavigator onOpen={scrollToElement} role={currentMemberRole}/>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-2">
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
           <FamilyCheckIn familyGroupId={familyGroupId} />
+          <FamilyCheckInFollowUp familyGroupId={familyGroupId} currentUserId={user?.id} currentUserRole={currentMemberRole} />
           <TodayKizunaHighlights familyGroupId={familyGroupId} />
         </div>
 
