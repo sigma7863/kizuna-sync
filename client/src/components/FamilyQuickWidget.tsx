@@ -23,13 +23,15 @@ export function FamilyQuickWidget({ familyGroupId, onOpenSafety, onOpenAssistant
     { familyGroupId },
     { enabled: familyGroupId > 0, refetchInterval: 60_000 },
   );
-  useFamilyRealtime(familyGroupId, undefined, undefined, setLatestRipple);
+  const { connectionState } = useFamilyRealtime(familyGroupId, undefined, undefined, setLatestRipple);
 
   const latestLocation = locations[0];
   const latestHealth = health ?? null;
   const locationLabel = latestLocation?.locationName || latestLocation?.userName || t("family.widgetLocationEmpty");
   const healthLabel = latestHealth ? `${latestHealth.steps?.toLocaleString?.() ?? 0}${t("family.widgetSteps")}` : t("family.widgetHealthEmpty");
   const rippleLabel = latestRipple ? t("family.widgetRippleShared").replace("{name}", latestRipple.userName) : t("family.widgetRippleEmpty");
+  const realtimeLabel = connectionState === "connected" ? t("family.widgetRealtime") : connectionState === "connecting" ? t("family.widgetConnecting") : connectionState === "reconnecting" ? t("family.widgetReconnecting") : t("family.widgetOffline");
+  const realtimeClassName = connectionState === "connected" ? "bg-emerald-50 text-emerald-700" : connectionState === "offline" ? "bg-slate-100 text-slate-600" : "bg-amber-50 text-amber-700";
 
   return (
     <section className="sticky top-2 z-10 rounded-3xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur md:static" aria-label={t("family.widgetTitle")}>
@@ -38,7 +40,7 @@ export function FamilyQuickWidget({ familyGroupId, onOpenSafety, onOpenAssistant
           <Sparkles className="h-4 w-4 text-pink-500" aria-hidden="true" />
           {t("family.widgetTitle")}
         </div>
-        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">{t("family.widgetRealtime")}</span>
+        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${realtimeClassName}`} role="status" aria-live="polite">{realtimeLabel}</span>
       </div>
       <div className="grid grid-cols-3 gap-2" aria-live="polite">
         <button type="button" onClick={onOpenSafety} aria-label={t("family.widgetOpenSafety")} className="rounded-2xl bg-sky-50 p-2.5 text-left transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500">
