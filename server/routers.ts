@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { parseFamilyVoiceMemoDataUrl } from "@shared/familyVoiceMemo";
 import { parse as parseCookie } from "cookie";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -892,11 +893,11 @@ export const appRouter = router({
   voiceMemos: router({
     list: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(({ input }) => getFamilyVoiceMemos(input.familyGroupId)),
     upload: protectedProcedure.input(z.object({ familyGroupId: z.number(), dataUrl: z.string().min(1), mimeType: z.enum(["audio/webm", "audio/ogg", "audio/mp4"]), durationSeconds: z.number().int().min(0).max(600), note: z.string().trim().max(180).optional() })).mutation(async ({ ctx, input }) => {
-      const match = input.dataUrl.match(/^data:(audio\/(?:webm|ogg|mp4));base64,([A-Za-z0-9+/=]+)$/);
-      if (!match || match[1] !== input.mimeType) throw new TRPCError({ code: "BAD_REQUEST", message: "Unsupported audio data" });
-      const audioBuffer = Buffer.from(match[2], "base64");
+      const parsedAudio = parseFamilyVoiceMemoDataUrl(input.dataUrl, input.mimeType);
+      if (!parsedAudio) throw new TRPCError({ code: "BAD_REQUEST", message: "Unsupported audio data" });
+      const audioBuffer = Buffer.from(parsedAudio.base64, "base64");
       if (audioBuffer.byteLength > 8 * 1024 * 1024) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Audio must be 8MB or smaller" });
-      const extension = input.mimeType === "audio/ogg" ? "ogg" : input.mimeType === "audio/mp4" ? "m4a" : "webm";
+      const extension = parsedAudio.extension;
       const uploaded = await storagePut(`family-voice-memos/${input.familyGroupId}/${ctx.user.id}/${nanoid()}.${extension}`, audioBuffer, input.mimeType);
       return createFamilyVoiceMemo({ familyGroupId: input.familyGroupId, userId: ctx.user.id, fileKey: uploaded.key, audioUrl: uploaded.url, mimeType: input.mimeType, durationSeconds: input.durationSeconds, note: input.note || undefined });
     }),

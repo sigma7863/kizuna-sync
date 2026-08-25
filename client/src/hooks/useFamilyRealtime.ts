@@ -1,6 +1,12 @@
 import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
 import { useAuth } from "@/_core/hooks/useAuth";
+import {
+  canMarkFamilyNotificationRead,
+  FAMILY_REALTIME_SOCKET_OPTIONS,
+  isFamilyScopedEvent,
+  isUserNotification,
+} from "@shared/familyRealtime";
 
 export interface RealtimeRippleUpdate {
   userId: number;
@@ -51,32 +57,50 @@ export function useFamilyRealtime(
 
   useEffect(() => {
     if (!user?.id || !familyGroupId) return;
-    const socket = io(window.location.origin, { transports: ["websocket", "polling"] });
+
+    const activeUserId = user.id;
+    const activeFamilyGroupId = familyGroupId;
+    const socket = io(window.location.origin, FAMILY_REALTIME_SOCKET_OPTIONS);
     socketRef.current = socket;
-    socket.on("connect", () => {
-      socket.emit("user:join", { userId: user.id, familyGroupIds: [familyGroupId] });
-    });
-    socket.on("ripple:receive", (update: RealtimeRippleUpdate) => {
-      if (update.familyGroupId === familyGroupId) rippleCallbackRef.current?.(update);
-    });
-    socket.on("location:updated", (update: RealtimeLocationUpdate) => {
-      if (update.familyGroupId === familyGroupId) locationCallbackRef.current?.(update);
-    });
-    socket.on("notification:receive", (notification: RealtimeNotification) => {
-      if (notification.userId === user.id && notification.familyGroupId === familyGroupId) {
+
+    const handleConnect = () => {
+      socket.emit("user:join", { userId: activeUserId, familyGroupIds: [activeFamilyGroupId] });
+    };
+    const handleRipple = (update: RealtimeRippleUpdate) => {
+      if (isFamilyScopedEvent(update.familyGroupId, activeFamilyGroupId)) {
+        rippleCallbackRef.current?.(update);
+      }
+    };
+    const handleLocation = (update: RealtimeLocationUpdate) => {
+      if (isFamilyScopedEvent(update.familyGroupId, activeFamilyGroupId)) {
+        locationCallbackRef.current?.(update);
+      }
+    };
+    const handleNotification = (notification: RealtimeNotification) => {
+      if (isUserNotification(notification.userId, notification.familyGroupId, activeUserId, activeFamilyGroupId)) {
         callbackRef.current?.(notification);
       }
-    });
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("ripple:receive", handleRipple);
+    socket.on("location:updated", handleLocation);
+    socket.on("notification:receive", handleNotification);
 
     return () => {
+      socket.off("connect", handleConnect);
+      socket.off("ripple:receive", handleRipple);
+      socket.off("location:updated", handleLocation);
+      socket.off("notification:receive", handleNotification);
       socket.disconnect();
-      socketRef.current = null;
+      if (socketRef.current === socket) socketRef.current = null;
     };
   }, [familyGroupId, user?.id]);
 
   return {
     markRead: (notificationId: number) => {
-      socketRef.current?.emit("notification:read", { familyGroupId, notificationId });
+      if (!socketRef.current?.connected || !canMarkFamilyNotificationRead(familyGroupId, notificationId)) return;
+      socketRef.current.emit("notification:read", { familyGroupId, notificationId });
     },
   };
 }
