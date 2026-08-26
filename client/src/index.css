@@ -113,6 +113,31 @@
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
+.dark .bg-white,
+.dark .bg-white\/80,
+.dark .bg-white\/90 {
+  background-color: var(--card) !important;
+}
+
+.dark .bg-gray-50,
+.dark .bg-slate-50 {
+  background-color: var(--muted) !important;
+}
+
+.dark .text-gray-800,
+.dark .text-slate-800 {
+  color: var(--foreground) !important;
+}
+
+.dark .text-gray-700,
+.dark .text-slate-700,
+.dark .text-gray-600,
+.dark .text-slate-600,
+.dark .text-gray-500,
+.dark .text-slate-500 {
+  color: var(--muted-foreground) !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
