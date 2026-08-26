@@ -3,7 +3,7 @@
  * オフライン対応とバックグラウンド同期を実装
  */
 
-const CACHE_NAME = "kizuna-sync-v1";
+const CACHE_NAME = "kizuna-sync-v2";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -42,6 +42,19 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // アプリシェルとViteのモジュールは常に最新のネットワーク版を優先する。
+  // 開発時のHMR・本番直後のデプロイで古いJavaScriptを返さないための保護。
+  if (
+    request.mode === "navigate" ||
+    url.pathname === "/sw.js" ||
+    url.pathname.startsWith("/@") ||
+    url.pathname.startsWith("/src/") ||
+    url.searchParams.has("t")
+  ) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   // API リクエストの場合
   if (url.pathname.startsWith("/api/")) {

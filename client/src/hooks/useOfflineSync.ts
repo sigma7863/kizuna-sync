@@ -8,23 +8,26 @@ export interface PendingActivity {
   synced: boolean;
 }
 
-/**
- * オフライン同期フック
- * Service Workerとの連携でオフライン中のデータをキューイングし、
- * オンライン復帰時に自動同期
- */
-export function useOfflineSync() {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
-  const [pendingActivities, setPendingActivities] = useState<PendingActivity[]>([]);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [conflictActivityIds, setConflictActivityIds] = useState<string[]>([]);
-  const syncingRef = useRef(false);
-
-  // Service Worker の登録
+/** アプリ起動時にService Workerのライフサイクルを一元管理する。 */
+export function useServiceWorkerLifecycle() {
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+      return;
+    }
+
+    if (import.meta.env.DEV) {
+      void navigator.serviceWorker.getRegistrations().then((registrations) =>
+        Promise.all(registrations.map((registration) => registration.unregister()))
+      );
+      if ("caches" in window) {
+        void caches.keys().then((cacheNames) =>
+          Promise.all(
+            cacheNames
+              .filter((cacheName) => cacheName.startsWith("kizuna-sync-"))
+              .map((cacheName) => caches.delete(cacheName))
+          )
+        );
+      }
       return;
     }
 
@@ -37,6 +40,22 @@ export function useOfflineSync() {
         console.error("[ServiceWorker] Registration failed:", error);
       });
   }, []);
+}
+
+/**
+ * オフライン同期フック
+ * Service Workerとの連携でオフライン中のデータをキューイングし、
+ * オンライン復帰時に自動同期
+ */
+export function useOfflineSync() {
+  useServiceWorkerLifecycle();
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator !== "undefined" ? navigator.onLine : true
+  );
+  const [pendingActivities, setPendingActivities] = useState<PendingActivity[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [conflictActivityIds, setConflictActivityIds] = useState<string[]>([]);
+  const syncingRef = useRef(false);
 
   // オンライン/オフライン状態の監視
   useEffect(() => {

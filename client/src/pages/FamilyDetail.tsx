@@ -14,7 +14,7 @@ import { SafetyGuardian } from "@/components/SafetyGuardian";
 import { FamilyNotificationCenter } from "@/components/FamilyNotificationCenter";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeModeSwitcher } from "@/components/ThemeModeSwitcher";
-import { useI18n } from "@/contexts/I18nContext";
+import { I18nProvider, useI18n } from "@/contexts/I18nContext";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { FamilyCheckIn } from "@/components/FamilyCheckIn";
 import { FamilyCheckInHistory } from "@/components/FamilyCheckInHistory";
@@ -52,7 +52,7 @@ const FamilyHomecomingNote = lazy(() => import("@/components/FamilyHomecomingNot
 const FamilyAdditionalDailyTools = lazy(() => import("@/components/FamilyAdditionalDailyTools").then((module) => ({ default: module.FamilyAdditionalDailyTools })));
 const FamilyDailyLifeTools = lazy(() => import("@/components/FamilyDailyLifeTools").then((module) => ({ default: module.FamilyDailyLifeTools })));
 
-export default function FamilyDetail() {
+function FamilyDetailContent() {
   const params = useParams<{ id: string }>();
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
@@ -998,5 +998,13 @@ export default function FamilyDetail() {
         }}
       />
     </div>
+  );
+}
+
+export default function FamilyDetail() {
+  return (
+    <I18nProvider>
+      <FamilyDetailContent />
+    </I18nProvider>
   );
 }
