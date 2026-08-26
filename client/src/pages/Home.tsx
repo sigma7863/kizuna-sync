@@ -11,6 +11,7 @@ import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeModeSwitcher } from "@/components/ThemeModeSwitcher";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { useI18n } from "@/contexts/I18nContext";
 
@@ -61,7 +62,10 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 px-4">
+      <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 px-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="absolute right-4 top-4">
+          <ThemeModeSwitcher />
+        </div>
         <div className="text-center max-w-md">
           <div className="mb-8">
             <Heart className="w-16 h-16 text-pink-500 mx-auto mb-4 animate-pulse" />
@@ -106,25 +110,27 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
+      <header className="bg-white shadow-sm border-b border-gray-100 dark:bg-slate-900 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Heart className="w-8 h-8 text-pink-500" />
             <h1 className="text-2xl font-bold text-gray-800">KizunaSync</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
+            <ThemeModeSwitcher />
             <LanguageSwitcher />
-            <span className="text-sm text-gray-600">{user?.name}</span>
+            <span className="hidden text-sm text-gray-600 sm:inline">{user?.name}</span>
             <Button
               variant="outline"
               size="sm"
               onClick={handleLogout}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-2 sm:px-3"
             >
               <LogOut className="w-4 h-4" />
-              {t("common.logout")}
+              <span className="hidden sm:inline">{t("common.logout")}</span>
+              <span className="sr-only sm:hidden">{t("common.logout")}</span>
             </Button>
           </div>
         </div>

@@ -13,6 +13,7 @@ import { KizunaRipple } from "@/components/KizunaRipple";
 import { SafetyGuardian } from "@/components/SafetyGuardian";
 import { FamilyNotificationCenter } from "@/components/FamilyNotificationCenter";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeModeSwitcher } from "@/components/ThemeModeSwitcher";
 import { useI18n } from "@/contexts/I18nContext";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { FamilyCheckIn } from "@/components/FamilyCheckIn";
@@ -432,15 +433,17 @@ export default function FamilyDetail() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <FamilyKoshienDemoGuide familyGroupId={familyGroupId} onNavigate={setLocation} />
+              <ThemeModeSwitcher />
               <LanguageSwitcher />
               <Button
               onClick={() => setLocation(`/family/${familyGroupId}/invite`)}
-              className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-2"
+              className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-2 px-2 sm:px-4"
             >
                 <Plus className="w-4 h-4" />
-                {t("family.invite")}
+                <span className="hidden sm:inline">{t("family.invite")}</span>
+                <span className="sr-only sm:hidden">{t("family.invite")}</span>
               </Button>
             </div>
           </div>
