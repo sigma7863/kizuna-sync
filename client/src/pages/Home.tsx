@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, Users, Plus, LogOut, Home as HomeIcon, Share2, Trash2, Zap } from "lucide-react";
+import { Heart, Users, Plus, Loader2, LogOut, Home as HomeIcon, Share2, Trash2, Zap } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -21,6 +21,7 @@ export default function Home() {
   const { t } = useI18n();
   const [familyName, setFamilyName] = useState("");
   const [selectedRole, setSelectedRole] = useState<"guardian" | "child" | "elderly">("guardian");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [groupPendingDeletion, setGroupPendingDeletion] = useState<{ id: number; name: string } | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
@@ -31,10 +32,10 @@ export default function Home() {
 
   // Mutations
   const createFamilyMutation = trpc.family.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async () => {
       setFamilyName("");
-      // Invalidate and refetch
-      void refetchFamilyGroups();
+      setIsCreateDialogOpen(false);
+      await refetchFamilyGroups();
     },
   });
   const deleteFamilyMutation = trpc.family.delete.useMutation({
@@ -164,7 +165,7 @@ export default function Home() {
         )}
         {/* Create Family Section */}
         <div className="mb-8">
-          <Dialog>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2">
                 <Plus className="w-5 h-5" />
@@ -174,6 +175,7 @@ export default function Home() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{t("home.createFamily")}</DialogTitle>
+                <DialogDescription>家族名を入力すると、新しい家族グループを作成します。</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
@@ -251,7 +253,7 @@ export default function Home() {
             <p className="text-gray-600 mb-6">
               {t("home.noFamiliesHint")}
             </p>
-            <Dialog>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
                   <Plus className="w-4 h-4 mr-2" />
@@ -261,6 +263,7 @@ export default function Home() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>{t("home.createFamily")}</DialogTitle>
+                  <DialogDescription>家族名を入力すると、新しい家族グループを作成します。</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
@@ -289,13 +292,20 @@ export default function Home() {
         <Dialog
           open={groupPendingDeletion !== null}
           onOpenChange={(open) => {
-            if (!open) {
+            if (!open && !deleteFamilyMutation.isPending) {
               setGroupPendingDeletion(null);
               setDeleteConfirmation("");
             }
           }}
         >
-          <DialogContent>
+          <DialogContent
+            onEscapeKeyDown={(event) => {
+              if (deleteFamilyMutation.isPending) event.preventDefault();
+            }}
+            onPointerDownOutside={(event) => {
+              if (deleteFamilyMutation.isPending) event.preventDefault();
+            }}
+          >
             <DialogHeader>
               <DialogTitle>家族グループを削除しますか？</DialogTitle>
               <DialogDescription>
@@ -303,6 +313,12 @@ export default function Home() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
+              {deleteFamilyMutation.isPending && (
+                <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-800 dark:border-rose-400/40 dark:bg-rose-950/40 dark:text-rose-100" role="status" aria-live="polite">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  家族データを削除しています…このままお待ちください。
+                </div>
+              )}
               <p className="text-sm leading-6 text-muted-foreground">
                 この操作は取り消せません。家族のタイムライン、予定、共有カード、通知など、この家族に紐づくデータも削除されます。
               </p>
@@ -319,13 +335,13 @@ export default function Home() {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setGroupPendingDeletion(null)}>キャンセル</Button>
+                <Button variant="outline" onClick={() => setGroupPendingDeletion(null)} disabled={deleteFamilyMutation.isPending}>キャンセル</Button>
                 <Button
                   variant="destructive"
                   onClick={handleDeleteFamily}
                   disabled={deleteConfirmation !== groupPendingDeletion?.name || deleteFamilyMutation.isPending}
                 >
-                  {deleteFamilyMutation.isPending ? "削除中…" : "この家族を削除"}
+                  {deleteFamilyMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />削除しています…</> : "この家族を削除"}
                 </Button>
               </div>
             </div>
