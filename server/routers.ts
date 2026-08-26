@@ -324,6 +324,7 @@ import {
   ScheduleAction,
 } from "./family-assistant";
 import { getFamilySharingPreference, listFamilySharingPreferences, saveFamilySharingPreference } from "./family-sharing-preferences";
+import { getFamilyThemePreference, saveFamilyThemePreference } from "./family-theme-preferences";
 import { createFamilyCheckInRecord, getOwnFamilyCheckInRecords, getSharedFamilyCheckInRecords } from "./family-checkin-history";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut, storageGetSignedUrl } from "./storage";
@@ -628,6 +629,19 @@ export const appRouter = router({
       const preferences = await listFamilySharingPreferences(input.familyGroupId);
       const byUserId = new Map(preferences.map((preference) => [preference.userId, preference]));
       return members.map((member) => ({ userId: member.users.id, name: member.users.name ?? "家族", role: member.family_members.memberRole, preferences: byUserId.get(member.users.id) }));
+    }),
+  }),
+
+  familyThemePreferences: router({
+    getMine: protectedProcedure.input(z.object({ familyGroupId: z.number().int().positive() })).query(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return (await getFamilyThemePreference(input.familyGroupId, ctx.user.id)) ?? null;
+    }),
+    updateMine: protectedProcedure.input(z.object({ familyGroupId: z.number().int().positive(), themeMode: z.enum(["light", "dark", "system"]) })).mutation(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return saveFamilyThemePreference({ ...input, userId: ctx.user.id });
     }),
   }),
 

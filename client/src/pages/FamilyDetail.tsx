@@ -14,7 +14,9 @@ import { SafetyGuardian } from "@/components/SafetyGuardian";
 import { FamilyNotificationCenter } from "@/components/FamilyNotificationCenter";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeModeSwitcher } from "@/components/ThemeModeSwitcher";
+import { useTheme, type ThemeMode } from "@/contexts/ThemeContext";
 import { I18nProvider, useI18n } from "@/contexts/I18nContext";
+import { toast } from "sonner";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { FamilyCheckIn } from "@/components/FamilyCheckIn";
 import { FamilyCheckInHistory } from "@/components/FamilyCheckInHistory";
@@ -57,6 +59,7 @@ function FamilyDetailContent() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const { t, language } = useI18n();
+  const { setMode: setAppThemeMode } = useTheme();
   const familyGroupId = parseInt(params?.id || "0");
 
   const [moodText, setMoodText] = useState("");
@@ -139,6 +142,23 @@ function FamilyDetailContent() {
     { familyGroupId },
     { enabled: !!familyGroupId }
   );
+
+  const { data: familyThemePreference, refetch: refetchFamilyThemePreference } = trpc.familyThemePreferences.getMine.useQuery(
+    { familyGroupId },
+    { enabled: !!familyGroupId }
+  );
+  const familyThemeMutation = trpc.familyThemePreferences.updateMine.useMutation({
+    onSuccess: async (preference) => {
+      setAppThemeMode(preference.themeMode);
+      await refetchFamilyThemePreference();
+      toast.success("この家族の表示テーマを保存しました");
+    },
+    onError: (error) => toast.error("表示テーマを保存できませんでした", { description: error.message || "通信を確認して、もう一度お試しください。" }),
+  });
+
+  useEffect(() => {
+    if (familyThemePreference?.themeMode) setAppThemeMode(familyThemePreference.themeMode);
+  }, [familyGroupId, familyThemePreference?.themeMode, setAppThemeMode]);
 
   const { data: timeline, isLoading: timelineLoading, refetch: refetchTimeline } = trpc.timeline.getFamilyTimeline.useQuery(
     { familyGroupId, limit: 50 },
@@ -435,7 +455,13 @@ function FamilyDetailContent() {
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <FamilyKoshienDemoGuide familyGroupId={familyGroupId} onNavigate={setLocation} />
-              <ThemeModeSwitcher />
+              <ThemeModeSwitcher
+                mode={familyThemePreference?.themeMode ?? "system"}
+                onModeChange={(themeMode: ThemeMode) => {
+                  setAppThemeMode(themeMode);
+                  familyThemeMutation.mutate({ familyGroupId, themeMode });
+                }}
+              />
               <LanguageSwitcher />
               <Button
               onClick={() => setLocation(`/family/${familyGroupId}/invite`)}

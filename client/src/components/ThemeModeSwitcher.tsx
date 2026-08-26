@@ -7,8 +7,15 @@ const themeOptions: Array<{ value: ThemeMode; label: string; Icon: typeof Sun }>
   { value: "system", label: "システム", Icon: Laptop },
 ];
 
-export function ThemeModeSwitcher() {
-  const { mode, setMode } = useTheme();
+interface ThemeModeSwitcherProps {
+  mode?: ThemeMode;
+  onModeChange?: (mode: ThemeMode) => void;
+}
+
+export function ThemeModeSwitcher({ mode: controlledMode, onModeChange }: ThemeModeSwitcherProps) {
+  const { mode: contextMode, setMode: setContextMode } = useTheme();
+  const mode = controlledMode ?? contextMode;
+  const setMode = onModeChange ?? setContextMode;
   const selected = themeOptions.find((option) => option.value === mode) ?? themeOptions[2];
   const Icon = selected.Icon;
   return (

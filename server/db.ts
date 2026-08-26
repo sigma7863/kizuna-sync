@@ -124,6 +124,7 @@ import { summarizeFamilyPoll } from "../shared/familyPolls";
 
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let familyScopedTableNamesCache: string[] | null = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
@@ -255,25 +256,28 @@ export async function deleteFamilyGroup(familyGroupId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const metadata = await db.execute(sql`
-    SELECT DISTINCT table_name AS tableName
-    FROM information_schema.columns
-    WHERE table_schema = DATABASE()
-      AND column_name = 'family_group_id'
-      AND table_name <> 'family_groups'
-    ORDER BY table_name
-  `);
-  const metadataRows = Array.isArray(metadata) ? metadata[0] : metadata;
-  const scopedTables = Array.isArray(metadataRows)
-    ? metadataRows
-        .map((row) => String((row as { tableName?: unknown }).tableName ?? ""))
-        .filter((tableName) => /^[a-z0-9_]+$/i.test(tableName))
-    : [];
+  if (!familyScopedTableNamesCache) {
+    const metadata = await db.execute(sql`
+      SELECT DISTINCT table_name AS tableName
+      FROM information_schema.columns
+      WHERE table_schema = DATABASE()
+        AND column_name = 'family_group_id'
+        AND table_name <> 'family_groups'
+      ORDER BY table_name
+    `);
+    const metadataRows = Array.isArray(metadata) ? metadata[0] : metadata;
+    familyScopedTableNamesCache = Array.isArray(metadataRows)
+      ? metadataRows
+          .map((row) => String((row as { tableName?: unknown }).tableName ?? ""))
+          .filter((tableName) => /^[a-z0-9_]+$/i.test(tableName))
+      : [];
+  }
+  const scopedTables = familyScopedTableNamesCache;
 
   await db.transaction(async (tx) => {
-    for (const tableName of scopedTables) {
-      await tx.execute(sql`DELETE FROM ${sql.identifier(tableName)} WHERE ${sql.identifier("family_group_id")} = ${familyGroupId}`);
-    }
+    await Promise.all(scopedTables.map((tableName) =>
+      tx.execute(sql`DELETE FROM ${sql.identifier(tableName)} WHERE ${sql.identifier("family_group_id")} = ${familyGroupId}`)
+    ));
     await tx.delete(familyGroups).where(eq(familyGroups.id, familyGroupId));
   });
 
