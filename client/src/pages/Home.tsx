@@ -19,12 +19,11 @@ export default function Home() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [, setLocation] = useLocation();
   const { t } = useI18n();
-  const utils = trpc.useUtils();
   const [familyName, setFamilyName] = useState("");
   const [selectedRole, setSelectedRole] = useState<"guardian" | "child" | "elderly">("guardian");
 
   // Queries
-  const { data: familyGroups } = trpc.family.getUserGroups.useQuery(undefined, {
+  const { data: familyGroups, refetch: refetchFamilyGroups } = trpc.family.getUserGroups.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
@@ -33,7 +32,7 @@ export default function Home() {
     onSuccess: (data) => {
       setFamilyName("");
       // Invalidate and refetch
-      void utils.family.getUserGroups.invalidate();
+      void refetchFamilyGroups();
     },
   });
 
