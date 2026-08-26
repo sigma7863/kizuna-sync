@@ -1915,6 +1915,12 @@ interface I18nContextValue {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
+const fallbackI18nContext: I18nContextValue = {
+  language: "ja",
+  setLanguage: () => undefined,
+  t: (key) => messages.ja[key] ?? key,
+};
+
 function getInitialLanguage(): Language {
   if (typeof window !== "undefined") {
     const saved = window.localStorage.getItem("kizuna-language");
@@ -1943,6 +1949,5 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
 export function useI18n() {
   const value = useContext(I18nContext);
-  if (!value) throw new Error("useI18n must be used within I18nProvider");
-  return value;
+  return value ?? fallbackI18nContext;
 }
