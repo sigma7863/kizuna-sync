@@ -7,11 +7,11 @@ function countUtilsHookCalls(filePath: string) {
 }
 
 describe("phase 132 hook-safety regression guard", () => {
-  it("uses the tRPC utility hook once in Home's component body", () => {
-    expect(countUtilsHookCalls("client/src/pages/Home.tsx")).toBe(1);
+  it("does not use the tRPC utility hook in Home's create-family path", () => {
+    expect(countUtilsHookCalls("client/src/pages/Home.tsx")).toBe(0);
   });
 
-  it("uses the tRPC utility hook once in FamilyDetail's component body", () => {
-    expect(countUtilsHookCalls("client/src/pages/FamilyDetail.tsx")).toBe(1);
+  it("does not use the tRPC utility hook in FamilyDetail's mutation paths", () => {
+    expect(countUtilsHookCalls("client/src/pages/FamilyDetail.tsx")).toBe(0);
   });
 });
