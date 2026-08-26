@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
@@ -40,8 +40,6 @@ export interface RealtimeNotification {
   createdAt: string | Date;
 }
 
-export type FamilyRealtimeConnectionState = "connecting" | "connected" | "reconnecting" | "offline";
-
 export function useFamilyRealtime(
   familyGroupId: number,
   onNotification?: (notification: RealtimeNotification) => void,
@@ -50,7 +48,6 @@ export function useFamilyRealtime(
 ) {
   const { user } = useAuth();
   const socketRef = useRef<Socket | null>(null);
-  const [connectionState, setConnectionState] = useState<FamilyRealtimeConnectionState>("offline");
   const callbackRef = useRef(onNotification);
   callbackRef.current = onNotification;
   const locationCallbackRef = useRef(onLocationUpdate);
@@ -59,23 +56,16 @@ export function useFamilyRealtime(
   rippleCallbackRef.current = onRippleUpdate;
 
   useEffect(() => {
-    if (!user?.id || !familyGroupId) {
-      setConnectionState("offline");
-      return;
-    }
+    if (!user?.id || !familyGroupId) return;
 
     const activeUserId = user.id;
     const activeFamilyGroupId = familyGroupId;
-    setConnectionState("connecting");
     const socket = io(window.location.origin, FAMILY_REALTIME_SOCKET_OPTIONS);
     socketRef.current = socket;
 
     const handleConnect = () => {
-      setConnectionState("connected");
       socket.emit("user:join", { userId: activeUserId, familyGroupIds: [activeFamilyGroupId] });
     };
-    const handleDisconnect = () => setConnectionState(socket.active ? "reconnecting" : "offline");
-    const handleConnectError = () => setConnectionState("reconnecting");
     const handleRipple = (update: RealtimeRippleUpdate) => {
       if (isFamilyScopedEvent(update.familyGroupId, activeFamilyGroupId)) {
         rippleCallbackRef.current?.(update);
@@ -93,16 +83,12 @@ export function useFamilyRealtime(
     };
 
     socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("connect_error", handleConnectError);
     socket.on("ripple:receive", handleRipple);
     socket.on("location:updated", handleLocation);
     socket.on("notification:receive", handleNotification);
 
     return () => {
       socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
-      socket.off("connect_error", handleConnectError);
       socket.off("ripple:receive", handleRipple);
       socket.off("location:updated", handleLocation);
       socket.off("notification:receive", handleNotification);
@@ -112,7 +98,6 @@ export function useFamilyRealtime(
   }, [familyGroupId, user?.id]);
 
   return {
-    connectionState,
     markRead: (notificationId: number) => {
       if (!socketRef.current?.connected || !canMarkFamilyNotificationRead(familyGroupId, notificationId)) return;
       socketRef.current.emit("notification:read", { familyGroupId, notificationId });

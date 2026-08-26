@@ -251,9 +251,6 @@ type TranslationKey =
   | "family.energyPrivacy"
   | "family.widgetTitle"
   | "family.widgetRealtime"
-  | "family.widgetConnecting"
-  | "family.widgetReconnecting"
-  | "family.widgetOffline"
   | "family.widgetLocation"
   | "family.widgetHealth"
   | "family.widgetRipple"
@@ -654,9 +651,6 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyPrivacy": "医療情報ではなく、その日の余力を本人が選んで伝えるためのメーターです。",
     "family.widgetTitle": "いまの家族",
     "family.widgetRealtime": "リアルタイム",
-    "family.widgetConnecting": "接続中",
-    "family.widgetReconnecting": "再接続中",
-    "family.widgetOffline": "更新待ち",
     "family.widgetLocation": "見守り",
     "family.widgetHealth": "ヘルス",
     "family.widgetRipple": "波紋・会話",
@@ -1029,9 +1023,6 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyPrivacy": "This is not medical information; it is a self-chosen way to share today's capacity.",
     "family.widgetTitle": "Family now",
     "family.widgetRealtime": "Live",
-    "family.widgetConnecting": "Connecting",
-    "family.widgetReconnecting": "Reconnecting",
-    "family.widgetOffline": "Waiting for updates",
     "family.widgetLocation": "Safety",
     "family.widgetHealth": "Health",
     "family.widgetRipple": "Ripple & chat",
@@ -1404,9 +1395,6 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyPrivacy": "这不是医疗信息，而是本人选择分享当天精力状态的方式。",
     "family.widgetTitle": "家人现在的状态",
     "family.widgetRealtime": "实时",
-    "family.widgetConnecting": "正在连接",
-    "family.widgetReconnecting": "正在重新连接",
-    "family.widgetOffline": "等待更新",
     "family.widgetLocation": "守护",
     "family.widgetHealth": "健康",
     "family.widgetRipple": "涟漪与对话",
@@ -1779,9 +1767,6 @@ export const messages: Record<Language, Record<TranslationKey, string>> = {
     "family.energyPrivacy": "의료 정보가 아니라, 오늘의 여유를 직접 선택해 전하는 미터입니다.",
     "family.widgetTitle": "지금의 가족",
     "family.widgetRealtime": "실시간",
-    "family.widgetConnecting": "연결 중",
-    "family.widgetReconnecting": "다시 연결 중",
-    "family.widgetOffline": "업데이트 대기",
     "family.widgetLocation": "안전 돌봄",
     "family.widgetHealth": "건강",
     "family.widgetRipple": "물결과 대화",
