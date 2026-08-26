@@ -366,7 +366,7 @@ export const appRouter = router({
       .input(z.object({ name: z.string().min(1).max(255) }))
       .mutation(async ({ ctx, input }) => {
         const result = await createFamilyGroup(input.name, ctx.user.id);
-        return { success: true, familyGroupId: (result as any).insertId };
+        return { success: true, familyGroupId: result.familyGroupId };
       }),
 
     getUserGroups: protectedProcedure.query(async ({ ctx }) => {

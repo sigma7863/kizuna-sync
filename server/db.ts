@@ -214,7 +214,18 @@ export async function createFamilyGroup(name: string, createdBy: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(familyGroups).values({ name, createdBy });
-  return result;
+  const familyGroupId = Number((result as { insertId?: number | string }).insertId);
+  if (!Number.isSafeInteger(familyGroupId) || familyGroupId <= 0) {
+    throw new Error("Family group creation did not return a valid identifier");
+  }
+
+  await db.insert(familyMembers).values({
+    familyGroupId,
+    userId: createdBy,
+    memberRole: "guardian",
+  });
+
+  return { familyGroupId };
 }
 
 export async function getFamilyGroupById(id: number) {
