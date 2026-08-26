@@ -963,7 +963,7 @@
 - [x] 1. `notification_settings`、`notifications`、健康・予定・チェックイン・共有・依頼・買い物関連テーブルの実DB差分を監査する
 - [x] 2. 既存データを損なわない`CREATE TABLE IF NOT EXISTS`マイグレーションを適用し、家族詳細の読取クエリを復旧する
 - [x] 3. 通知・見守り・共有・予定のクエリをSQLとVitestで検証し、Vite HMR・ブラウザ拡張機能エラーをアプリ本体から切り分ける
-- [ ] フェーズ136の型検査・Vitest・画面導線を実行し、Co-authored-by付きPRでmainへマージする
+- [x] フェーズ136の型検査・Vitest・画面導線を実行し、Co-authored-by付きPR #158でmainへマージする
 
 ## フェーズ136の追加障害修正（I18nProvider境界）
 - [x] `FamilyDetail`が常に`I18nProvider`配下で描画されるよう、ルートプロバイダー構成を修正し、アシスタント画面のuseI18n例外を解消する
