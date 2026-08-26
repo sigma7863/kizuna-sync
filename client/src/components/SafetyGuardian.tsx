@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapPin, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { FamilyLocationMap } from "@/components/FamilyLocationMap";
 import { Card } from "@/components/ui/card";
@@ -47,7 +47,6 @@ export function SafetyGuardian({
   const [newLocationLat, setNewLocationLat] = useState("");
   const [newLocationLng, setNewLocationLng] = useState("");
   const [newLocationRadius, setNewLocationRadius] = useState("500");
-  const [geoWatchId, setGeoWatchId] = useState<number | null>(null);
   const [latestAlert, setLatestAlert] = useState<{ geofenceName: string; state: "inside" | "outside"; distanceMeters: number; severity: "info" | "urgent" } | null>(null);
   const [liveLocations, setLiveLocations] = useState<MemberLocation[]>([]);
 
@@ -92,6 +91,16 @@ export function SafetyGuardian({
     },
   });
 
+  const geofencesRef = useRef(geofences);
+  const onLocationUpdateRef = useRef(onLocationUpdate);
+  const saveLocationRef = useRef(saveLocationMutation.mutate);
+
+  useEffect(() => {
+    geofencesRef.current = geofences;
+    onLocationUpdateRef.current = onLocationUpdate;
+    saveLocationRef.current = saveLocationMutation.mutate;
+  }, [geofences, onLocationUpdate, saveLocationMutation.mutate]);
+
   // GPS位置情報の取得と監視
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -101,15 +110,15 @@ export function SafetyGuardian({
         const { latitude, longitude, accuracy } = position.coords;
 
         // 位置情報をサーバーに保存
-        saveLocationMutation.mutate({
+        saveLocationRef.current({
           familyGroupId,
           latitude,
           longitude,
           accuracy: Math.round(accuracy),
         });
 
-        if (geofences) {
-          geofences.forEach((geofence) => {
+        if (geofencesRef.current) {
+          geofencesRef.current.forEach((geofence) => {
             const distance = calculateDistance(
               latitude,
               longitude,
@@ -117,7 +126,7 @@ export function SafetyGuardian({
               Number(geofence.longitude)
             );
             if (distance <= geofence.radiusMeters) {
-              onLocationUpdate?.({
+              onLocationUpdateRef.current?.({
                 userId: 0,
                 userName: "You",
                 latitude,
@@ -140,14 +149,12 @@ export function SafetyGuardian({
       }
     );
 
-    setGeoWatchId(watchId);
-
     return () => {
       if (watchId) {
         navigator.geolocation.clearWatch(watchId);
       }
     };
-  }, [familyGroupId, geofences, saveLocationMutation, onLocationUpdate]);
+  }, [familyGroupId]);
 
   const handleCreateGeofence = async () => {
     if (!newLocationName || !newLocationLat || !newLocationLng) return;
