@@ -57,7 +57,6 @@ export default function FamilyDetail() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const { t, language } = useI18n();
-  const utils = trpc.useUtils();
   const familyGroupId = parseInt(params?.id || "0");
 
   const [moodText, setMoodText] = useState("");
@@ -141,7 +140,7 @@ export default function FamilyDetail() {
     { enabled: !!familyGroupId }
   );
 
-  const { data: timeline, isLoading: timelineLoading } = trpc.timeline.getFamilyTimeline.useQuery(
+  const { data: timeline, isLoading: timelineLoading, refetch: refetchTimeline } = trpc.timeline.getFamilyTimeline.useQuery(
     { familyGroupId, limit: 50 },
     { enabled: !!familyGroupId, refetchInterval: 5000 }
   );
@@ -150,13 +149,13 @@ export default function FamilyDetail() {
   const createTimelineEntryMutation = trpc.timeline.createEntry.useMutation({
     onSuccess: () => {
       setMoodText("");
-      void utils.timeline.getFamilyTimeline.invalidate({ familyGroupId });
+      void refetchTimeline();
     },
   });
 
   const logActivityMutation = trpc.activity.logActivity.useMutation({
     onSuccess: () => {
-      void utils.timeline.getFamilyTimeline.invalidate({ familyGroupId });
+      void refetchTimeline();
     },
   });
 
