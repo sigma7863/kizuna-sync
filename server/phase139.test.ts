@@ -14,7 +14,7 @@ describe("phase 139 operation feedback", () => {
 
   it("blocks dismissal and clearly reports progress while a family is being deleted", () => {
     expect(homeSource).toContain("deleteFamilyMutation.isPending && (");
-    expect(homeSource).toContain("家族データを削除しています…このままお待ちください。");
+    expect(homeSource).toContain("家族データを削除しています…完了まであと少しです。");
     expect(homeSource).toContain("onEscapeKeyDown");
     expect(homeSource).toContain("onPointerDownOutside");
     expect(homeSource).toContain("animate-spin");
