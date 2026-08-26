@@ -24,10 +24,10 @@ describe("phase 138 usability improvements", () => {
     expect(homeSource).toContain("trpc.family.delete.useMutation");
   });
 
-  it("uses a real button to cycle theme modes and improves dark contrast tokens", () => {
-    expect(themeSwitcherSource).toContain("<button");
-    expect(themeSwitcherSource).toContain("onClick={() => setMode(nextMode)}");
-    expect(themeSwitcherSource).not.toContain("<select");
+  it("uses the explicit theme selector and improves dark contrast tokens", () => {
+    expect(themeSwitcherSource).toContain("<select");
+    expect(themeSwitcherSource).toContain("onChange={(event) => setMode(event.target.value as ThemeMode)}");
+    expect(themeSwitcherSource).not.toContain("nextMode");
     expect(stylesheet).toContain("--foreground: oklch(0.96 0.008 80)");
     expect(stylesheet).toContain("--muted-foreground: oklch(0.8 0.012 80)");
   });
