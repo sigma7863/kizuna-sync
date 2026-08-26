@@ -14,6 +14,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeModeSwitcher } from "@/components/ThemeModeSwitcher";
 import { FamilyQuickWidget } from "@/components/FamilyQuickWidget";
 import { useI18n } from "@/contexts/I18nContext";
+import { toast } from "sonner";
 
 export default function Home() {
   const { user, loading, isAuthenticated, logout } = useAuth();
@@ -36,14 +37,18 @@ export default function Home() {
       setFamilyName("");
       setIsCreateDialogOpen(false);
       await refetchFamilyGroups();
+      toast.success("家族グループを作成しました");
     },
+    onError: (error) => toast.error("家族グループを作成できませんでした", { description: error.message || "通信を確認して、もう一度お試しください。" }),
   });
   const deleteFamilyMutation = trpc.family.delete.useMutation({
     onSuccess: async () => {
       setGroupPendingDeletion(null);
       setDeleteConfirmation("");
       await refetchFamilyGroups();
+      toast.success("家族グループを削除しました");
     },
+    onError: (error) => toast.error("家族グループを削除できませんでした", { description: error.message || "通信を確認して、もう一度お試しください。" }),
   });
 
   const handleCreateFamily = async () => {
@@ -316,7 +321,7 @@ export default function Home() {
               {deleteFamilyMutation.isPending && (
                 <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-800 dark:border-rose-400/40 dark:bg-rose-950/40 dark:text-rose-100" role="status" aria-live="polite">
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                  家族データを削除しています…このままお待ちください。
+                  家族データを削除しています…完了まであと少しです。
                 </div>
               )}
               <p className="text-sm leading-6 text-muted-foreground">

@@ -1555,6 +1555,17 @@ export const familySharingPreferences = mysqlTable("family_sharing_preferences",
 export type FamilySharingPreference = typeof familySharingPreferences.$inferSelect;
 export type InsertFamilySharingPreference = typeof familySharingPreferences.$inferInsert;
 
+/** A member's display mode preference, scoped to one family group. */
+export const familyThemePreferences = mysqlTable("family_theme_preferences", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  userId: int("user_id").notNull(),
+  themeMode: mysqlEnum("theme_mode", ["light", "dark", "system"]).default("system").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_theme_preferences_group_user_idx").on(table.familyGroupId, table.userId)]);
+export type FamilyThemePreference = typeof familyThemePreferences.$inferSelect;
+export type InsertFamilyThemePreference = typeof familyThemePreferences.$inferInsert;
+
 /** A short, note-free record of a reassurance check-in, scoped to its family and sender. */
 export const familyCheckInRecords = mysqlTable("family_check_in_records", {
   id: int("id").autoincrement().primaryKey(),
