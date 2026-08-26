@@ -44,7 +44,7 @@ function App() {
     <ErrorBoundary>
       <I18nProvider>
         <ThemeProvider
-          defaultTheme="light"
+          defaultTheme="system"
           switchable
         >
           <TooltipProvider>
