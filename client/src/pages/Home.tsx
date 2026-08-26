@@ -1,11 +1,11 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, Users, Plus, LogOut, Home as HomeIcon, Share2, Zap } from "lucide-react";
+import { Heart, Users, Plus, LogOut, Home as HomeIcon, Share2, Trash2, Zap } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -21,6 +21,8 @@ export default function Home() {
   const { t } = useI18n();
   const [familyName, setFamilyName] = useState("");
   const [selectedRole, setSelectedRole] = useState<"guardian" | "child" | "elderly">("guardian");
+  const [groupPendingDeletion, setGroupPendingDeletion] = useState<{ id: number; name: string } | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   // Queries
   const { data: familyGroups, refetch: refetchFamilyGroups } = trpc.family.getUserGroups.useQuery(undefined, {
@@ -35,6 +37,13 @@ export default function Home() {
       void refetchFamilyGroups();
     },
   });
+  const deleteFamilyMutation = trpc.family.delete.useMutation({
+    onSuccess: async () => {
+      setGroupPendingDeletion(null);
+      setDeleteConfirmation("");
+      await refetchFamilyGroups();
+    },
+  });
 
   const handleCreateFamily = async () => {
     if (familyName.trim()) {
@@ -45,6 +54,11 @@ export default function Home() {
   const handleLogout = async () => {
     await logout();
     setLocation("/");
+  };
+
+  const handleDeleteFamily = async () => {
+    if (!groupPendingDeletion || deleteConfirmation !== groupPendingDeletion.name) return;
+    await deleteFamilyMutation.mutateAsync({ familyGroupId: groupPendingDeletion.id });
   };
 
   if (loading) {
@@ -213,6 +227,18 @@ export default function Home() {
                   <HomeIcon className="w-4 h-4 mr-2" />
                   {t("common.open")}
                 </Button>
+                <Button
+                  variant="outline"
+                  className="mt-2 w-full border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800 dark:border-rose-400/50 dark:text-rose-200 dark:hover:bg-rose-950/50 dark:hover:text-rose-100"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setDeleteConfirmation("");
+                    setGroupPendingDeletion({ id: group.id, name: group.name });
+                  }}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  家族を削除
+                </Button>
               </Card>
             ))}
           </div>
@@ -259,6 +285,52 @@ export default function Home() {
             </Dialog>
           </Card>
         )}
+
+        <Dialog
+          open={groupPendingDeletion !== null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setGroupPendingDeletion(null);
+              setDeleteConfirmation("");
+            }
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>家族グループを削除しますか？</DialogTitle>
+              <DialogDescription>
+                この操作は取り消せません。家族に紐づくデータも削除されます。
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm leading-6 text-muted-foreground">
+                この操作は取り消せません。家族のタイムライン、予定、共有カード、通知など、この家族に紐づくデータも削除されます。
+              </p>
+              <div>
+                <Label htmlFor="delete-family-confirmation">
+                  確認のため「{groupPendingDeletion?.name}」と入力してください
+                </Label>
+                <Input
+                  id="delete-family-confirmation"
+                  value={deleteConfirmation}
+                  onChange={(event) => setDeleteConfirmation(event.target.value)}
+                  className="mt-2"
+                  autoComplete="off"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setGroupPendingDeletion(null)}>キャンセル</Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteFamily}
+                  disabled={deleteConfirmation !== groupPendingDeletion?.name || deleteFamilyMutation.isPending}
+                >
+                  {deleteFamilyMutation.isPending ? "削除中…" : "この家族を削除"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

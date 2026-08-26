@@ -9,6 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import {
   createFamilyGroup,
+  deleteFamilyGroup,
   getFamilyGroupById,
   getUserFamilyGroups,
   addFamilyMember,
@@ -372,6 +373,17 @@ export const appRouter = router({
     getUserGroups: protectedProcedure.query(async ({ ctx }) => {
       return await getUserFamilyGroups(ctx.user.id);
     }),
+
+    delete: protectedProcedure
+      .input(z.object({ familyGroupId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const familyGroup = await getFamilyGroupById(input.familyGroupId);
+        if (!familyGroup) throw new TRPCError({ code: "NOT_FOUND", message: "Family group was not found" });
+        if (familyGroup.createdBy !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Only the family creator can delete this group" });
+        }
+        return await deleteFamilyGroup(input.familyGroupId);
+      }),
 
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))

@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray, isNull, lte, ne, or } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -245,6 +245,39 @@ export async function getFamilyGroupById(id: number) {
   if (!db) return undefined;
   const result = await db.select().from(familyGroups).where(eq(familyGroups.id, id)).limit(1);
   return result[0];
+}
+
+/**
+ * Remove a family and every row directly scoped to it. The table list comes from
+ * the database metadata so newly added family features cannot leave orphan rows.
+ */
+export async function deleteFamilyGroup(familyGroupId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const metadata = await db.execute(sql`
+    SELECT DISTINCT table_name AS tableName
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND column_name = 'family_group_id'
+      AND table_name <> 'family_groups'
+    ORDER BY table_name
+  `);
+  const metadataRows = Array.isArray(metadata) ? metadata[0] : metadata;
+  const scopedTables = Array.isArray(metadataRows)
+    ? metadataRows
+        .map((row) => String((row as { tableName?: unknown }).tableName ?? ""))
+        .filter((tableName) => /^[a-z0-9_]+$/i.test(tableName))
+    : [];
+
+  await db.transaction(async (tx) => {
+    for (const tableName of scopedTables) {
+      await tx.execute(sql`DELETE FROM ${sql.identifier(tableName)} WHERE ${sql.identifier("family_group_id")} = ${familyGroupId}`);
+    }
+    await tx.delete(familyGroups).where(eq(familyGroups.id, familyGroupId));
+  });
+
+  return { familyGroupId, deletedScopedTableCount: scopedTables.length };
 }
 
 export async function getUserFamilyGroups(userId: number) {
