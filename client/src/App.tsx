@@ -5,10 +5,10 @@ import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { I18nProvider } from "./contexts/I18nContext";
-import { useI18n } from "./contexts/I18nContext";
+import { I18nProvider, useI18n } from "@/contexts/I18nContext";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { AccessibilityNavigation } from "./components/AccessibilityNavigation";
+import { useServiceWorkerLifecycle } from "./hooks/useOfflineSync";
 import Home from "./pages/Home";
 import InviteMembers from "./pages/InviteMembers";
 import JoinFamily from "./pages/JoinFamily";
@@ -34,6 +34,11 @@ function Router() {
   );
 }
 
+function ServiceWorkerLifecycle() {
+  useServiceWorkerLifecycle();
+  return null;
+}
+
 // NOTE: About Theme
 // - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
 //   to keep consistent foreground/background color across components
@@ -48,6 +53,7 @@ function App() {
           switchable
         >
           <TooltipProvider>
+            <ServiceWorkerLifecycle />
             <AccessibilityNavigation />
             <Toaster />
             <OfflineIndicator />

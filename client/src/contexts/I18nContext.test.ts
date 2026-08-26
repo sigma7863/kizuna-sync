@@ -1,9 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { messages, supportedLanguages } from "./I18nContext";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const contextSource = readFileSync(resolve(process.cwd(), "client/src/contexts/I18nContext.tsx"), "utf8");
 
 describe("KizunaSync localization", () => {
   it("supports Japanese, English, Simplified Chinese, and Korean", () => {
     expect(supportedLanguages).toEqual(["ja", "en", "zh", "ko"]);
+  });
+
+  it("uses a safe Japanese fallback when a transient provider boundary is unavailable", () => {
+    expect(contextSource).toContain("const fallbackI18nContext");
+    expect(contextSource).toContain("return value ?? fallbackI18nContext");
   });
 
   it("keeps the same translation keys in every supported language", () => {

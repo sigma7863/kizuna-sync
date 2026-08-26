@@ -603,7 +603,7 @@ export const appRouter = router({
     getMine: protectedProcedure.input(z.object({ familyGroupId: z.number() })).query(async ({ ctx, input }) => {
       const members = await getFamilyMembers(input.familyGroupId);
       if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
-      return getFamilySharingPreference(input.familyGroupId, ctx.user.id);
+      return (await getFamilySharingPreference(input.familyGroupId, ctx.user.id)) ?? null;
     }),
     updateMine: protectedProcedure.input(z.object({ familyGroupId: z.number(), shareLocation: z.boolean(), shareHealth: z.boolean(), shareCheckIn: z.boolean() })).mutation(async ({ ctx, input }) => {
       const members = await getFamilyMembers(input.familyGroupId);
@@ -1412,7 +1412,7 @@ export const appRouter = router({
       .input(z.object({ familyGroupId: z.number() }))
       .query(async ({ ctx, input }) => {
         const { getLatestWearableHealthSnapshot } = await import("./db");
-        return getLatestWearableHealthSnapshot(input.familyGroupId, ctx.user.id);
+        return (await getLatestWearableHealthSnapshot(input.familyGroupId, ctx.user.id)) ?? null;
       }),
   }),
 
