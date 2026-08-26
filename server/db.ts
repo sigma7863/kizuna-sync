@@ -214,7 +214,19 @@ export async function createFamilyGroup(name: string, createdBy: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(familyGroups).values({ name, createdBy });
-  const familyGroupId = Number((result as { insertId?: number | string }).insertId);
+  const insertResult = Array.isArray(result) ? result[0] : result;
+  let familyGroupId = Number((insertResult as { insertId?: number | string }).insertId);
+
+  if (!Number.isSafeInteger(familyGroupId) || familyGroupId <= 0) {
+    const createdGroups = await db
+      .select({ id: familyGroups.id })
+      .from(familyGroups)
+      .where(and(eq(familyGroups.name, name), eq(familyGroups.createdBy, createdBy)))
+      .orderBy(desc(familyGroups.id))
+      .limit(1);
+    familyGroupId = createdGroups[0]?.id ?? 0;
+  }
+
   if (!Number.isSafeInteger(familyGroupId) || familyGroupId <= 0) {
     throw new Error("Family group creation did not return a valid identifier");
   }
@@ -238,6 +250,26 @@ export async function getFamilyGroupById(id: number) {
 export async function getUserFamilyGroups(userId: number) {
   const db = await getDb();
   if (!db) return [];
+
+  const missingCreatorMemberships = await db
+    .select({ familyGroupId: familyGroups.id })
+    .from(familyGroups)
+    .leftJoin(
+      familyMembers,
+      and(eq(familyMembers.familyGroupId, familyGroups.id), eq(familyMembers.userId, userId))
+    )
+    .where(and(eq(familyGroups.createdBy, userId), isNull(familyMembers.id)));
+
+  if (missingCreatorMemberships.length > 0) {
+    await db.insert(familyMembers).values(
+      missingCreatorMemberships.map(({ familyGroupId }) => ({
+        familyGroupId,
+        userId,
+        memberRole: "guardian" as const,
+      }))
+    );
+  }
+
   const result = await db
     .select()
     .from(familyGroups)
