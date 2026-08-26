@@ -19,6 +19,7 @@ export default function Home() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [, setLocation] = useLocation();
   const { t } = useI18n();
+  const utils = trpc.useUtils();
   const [familyName, setFamilyName] = useState("");
   const [selectedRole, setSelectedRole] = useState<"guardian" | "child" | "elderly">("guardian");
 
@@ -32,7 +33,7 @@ export default function Home() {
     onSuccess: (data) => {
       setFamilyName("");
       // Invalidate and refetch
-      trpc.useUtils().family.getUserGroups.invalidate();
+      void utils.family.getUserGroups.invalidate();
     },
   });
 
