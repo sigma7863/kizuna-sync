@@ -30,6 +30,7 @@ import { FamilyDisplaySettings } from "@/components/FamilyDisplaySettings";
 import { FamilySharingControls } from "@/components/FamilySharingControls";
 import { FamilyImportantShortcuts } from "@/components/FamilyImportantShortcuts";
 import { FamilyCardNavigator } from "@/components/FamilyCardNavigator";
+import { FamilyFeatureOrganizer } from "@/components/FamilyFeatureOrganizer";
 import { useFamilyRealtime } from "@/hooks/useFamilyRealtime";
 import type { FamilyMemberRole, QuickHubAction } from "@shared/familyAccessibility";
 import { createFamilyDetailRecommendationSharePath, createFamilyDetailTabPath, filterFamilyDetailTabs, getFamilyDetailDailyRhythmTabs, getFamilyDetailDayPeriod, getFamilyDetailRecommendationStorageKey, getFamilyDetailSafetyTabs, getFamilyDetailTabPinsStorageKey, getFamilyDetailTabPosition, getFamilyDetailTabRecentsStorageKey, getFamilyDetailTabStorageKey, getFamilyNavigationScrollBehavior, getInitialFamilyDetailTab, getMovedFamilyDetailTab, getRecommendedFamilyDetailTabs, normalizeFamilyDetailTab, normalizePinnedFamilyDetailTabs, normalizeRecentFamilyDetailTabs, normalizeRecommendedFamilyDetailTabs, recordRecentFamilyDetailTab, togglePinnedFamilyDetailTab, toggleRecommendedFamilyDetailTab, type FamilyDetailDayPeriod, type FamilyDetailTab } from "@shared/familyDetailTabs";
@@ -38,6 +39,7 @@ import { shouldLoadAdditionalFamilyTools } from "@shared/familyAdditionalDailyTo
 import { shouldLoadFamilyDailyLifeTools } from "@shared/familyPerformance";
 import { formatFamilyDateTime } from "@shared/familyLocale";
 import { normalizeFamilyText } from "@shared/familyDataQuality";
+import { defaultFamilyFeatureLayout, getVisibleFamilyDetailTabs, moveFamilyFeature, normalizeFamilyFeatureLayout, type FamilyFeatureLayout } from "@shared/familyFeatureLayout";
 
 const AIFeatures = lazy(() => import("@/components/AIFeatures").then((module) => ({ default: module.AIFeatures })));
 const FamilyStatsDashboard = lazy(() => import("@/components/FamilyStatsDashboard").then((module) => ({ default: module.FamilyStatsDashboard })));
@@ -159,6 +161,21 @@ function FamilyDetailContent() {
   useEffect(() => {
     if (familyThemePreference?.themeMode) setAppThemeMode(familyThemePreference.themeMode);
   }, [familyGroupId, familyThemePreference?.themeMode, setAppThemeMode]);
+
+  const { data: savedFeatureLayout, refetch: refetchFeatureLayout } = trpc.familyFeatureLayout.get.useQuery(
+    { familyGroupId },
+    { enabled: !!familyGroupId }
+  );
+  const effectiveFeatureLayout = normalizeFamilyFeatureLayout(savedFeatureLayout ?? defaultFamilyFeatureLayout);
+  const visibleFeatureTabs = getVisibleFamilyDetailTabs(effectiveFeatureLayout);
+  const visibleFeatureTabsKey = visibleFeatureTabs.join("|");
+  const featureLayoutMutation = trpc.familyFeatureLayout.update.useMutation({
+    onSuccess: async () => {
+      await refetchFeatureLayout();
+      toast.success("家族全員の機能表示を更新しました");
+    },
+    onError: (error) => toast.error("機能の整理を保存できませんでした", { description: error.message || "通信を確認して、もう一度お試しください。" }),
+  });
 
   const { data: timeline, isLoading: timelineLoading, refetch: refetchTimeline } = trpc.timeline.getFamilyTimeline.useQuery(
     { familyGroupId, limit: 50 },
@@ -285,6 +302,7 @@ function FamilyDetailContent() {
     return () => window.removeEventListener("hashchange", recoverSharedCard);
   }, [location]);
   const changeActiveTab = (tab: FamilyDetailTab) => {
+    if (!visibleFeatureTabs.includes(tab)) return;
     setActiveTab(tab);
     setTabShareStatus("idle");
     setCurrentTabCentered(false);
@@ -296,6 +314,11 @@ function FamilyDetailContent() {
     });
     setLocation(createFamilyDetailTabPath(familyGroupId, tab));
   };
+  useEffect(() => {
+    if (!visibleFeatureTabs.includes(activeTab)) {
+      changeActiveTab(visibleFeatureTabs[0] ?? "timeline");
+    }
+  }, [activeTab, visibleFeatureTabsKey]);
   const toggleActiveTabPin = () => setPinnedTabs((previous) => {
     const next = togglePinnedFamilyDetailTab(previous, activeTab);
     window.localStorage.setItem(pinnedTabsStorageKey, JSON.stringify(next));
@@ -322,15 +345,23 @@ function FamilyDetailContent() {
     if (!sourceTab || !move) return;
 
     event.preventDefault();
-    const nextTab = getMovedFamilyDetailTab(sourceTab, move);
+    const sourceIndex = visibleFeatureTabs.indexOf(sourceTab);
+    if (sourceIndex < 0) return;
+    const nextTab = move === "first"
+      ? visibleFeatureTabs[0]
+      : move === "last"
+        ? visibleFeatureTabs[visibleFeatureTabs.length - 1]
+        : move === "next"
+          ? visibleFeatureTabs[(sourceIndex + 1) % visibleFeatureTabs.length]
+          : visibleFeatureTabs[(sourceIndex - 1 + visibleFeatureTabs.length) % visibleFeatureTabs.length];
     changeActiveTab(nextTab);
     requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(`[data-family-tab="${nextTab}"]`)?.focus());
   };
   const handleQuickHubAction = (action: QuickHubAction) => {
-    if (action === "safety") changeActiveTab("safety");
-    if (action === "assistant") changeActiveTab("assistant");
-    if (action === "album") changeActiveTab("album");
-    if (action === "stats") changeActiveTab("stats");
+    if (action === "safety" && visibleFeatureTabs.includes("safety")) changeActiveTab("safety");
+    if (action === "assistant" && visibleFeatureTabs.includes("assistant")) changeActiveTab("assistant");
+    if (action === "album" && visibleFeatureTabs.includes("album")) changeActiveTab("album");
+    if (action === "stats" && visibleFeatureTabs.includes("stats")) changeActiveTab("stats");
     if (action === "shareMood") scrollToElement("share-feeling");
   };
 
@@ -347,12 +378,14 @@ function FamilyDetailContent() {
     health: t("family.healthExperience"),
     stats: t("family.stats"),
   };
-  const activeTabPosition = getFamilyDetailTabPosition(activeTab);
-  const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel);
-  const recommendedTabs = customRecommendedTabs ?? getRecommendedFamilyDetailTabs(currentMemberRole);
-  const safetyTabs = getFamilyDetailSafetyTabs();
+  const activeTabPosition = { current: Math.max(0, visibleFeatureTabs.indexOf(activeTab)) + 1, total: visibleFeatureTabs.length };
+  const matchingTabs = filterFamilyDetailTabs(tabSearchQuery, activeTabLabel).filter((tab) => visibleFeatureTabs.includes(tab));
+  const recommendedTabs = (customRecommendedTabs ?? getRecommendedFamilyDetailTabs(currentMemberRole)).filter((tab) => visibleFeatureTabs.includes(tab));
+  const safetyTabs = getFamilyDetailSafetyTabs().filter((tab) => visibleFeatureTabs.includes(tab));
   const dayPeriod = getFamilyDetailDayPeriod(new Date().getHours());
-  const dailyRhythmTabs = getFamilyDetailDailyRhythmTabs(dayPeriod);
+  const dailyRhythmTabs = getFamilyDetailDailyRhythmTabs(dayPeriod).filter((tab) => visibleFeatureTabs.includes(tab));
+  const getFeatureTabProps = (tab: FamilyDetailTab) => ({ hidden: !visibleFeatureTabs.includes(tab), style: { order: effectiveFeatureLayout.order.indexOf(tab) } });
+  const saveFeatureLayout = (nextLayout: FamilyFeatureLayout) => featureLayoutMutation.mutate({ familyGroupId, ...normalizeFamilyFeatureLayout(nextLayout) });
   const dailyRhythmDescriptionKey: Record<FamilyDetailDayPeriod, "family.dailyRhythmMorning" | "family.dailyRhythmDaytime" | "family.dailyRhythmEvening"> = {
     morning: "family.dailyRhythmMorning",
     daytime: "family.dailyRhythmDaytime",
@@ -584,6 +617,22 @@ function FamilyDetailContent() {
         <div className="mb-6"><FamilySharingControls familyGroupId={familyGroupId} currentUserRole={currentMemberRole} /></div>
         <FamilyCardNavigator onOpen={scrollToElement} role={currentMemberRole}/>
 
+        {currentMemberRole === "guardian" && (
+          <FamilyFeatureOrganizer
+            layout={effectiveFeatureLayout}
+            labels={activeTabLabel}
+            isSaving={featureLayoutMutation.isPending}
+            onMove={(tab, direction) => saveFeatureLayout(moveFamilyFeature(effectiveFeatureLayout, tab, direction))}
+            onToggleVisibility={(tab) => saveFeatureLayout({
+              ...effectiveFeatureLayout,
+              hidden: effectiveFeatureLayout.hidden.includes(tab)
+                ? effectiveFeatureLayout.hidden.filter((candidate) => candidate !== tab)
+                : [...effectiveFeatureLayout.hidden, tab],
+            })}
+            onReset={() => saveFeatureLayout(defaultFamilyFeatureLayout)}
+          />
+        )}
+
         <div className="mb-6 grid gap-4 md:grid-cols-3">
           <FamilyCheckIn familyGroupId={familyGroupId} />
           <FamilyCheckInFollowUp familyGroupId={familyGroupId} currentUserId={user?.id} currentUserRole={currentMemberRole} />
@@ -630,27 +679,27 @@ function FamilyDetailContent() {
               aria-label={t("family.chooseFeature")}
               className="h-9 max-w-44 rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-700 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
             >
-              {Object.entries(activeTabLabel).map(([tab, label]) => <option key={tab} value={tab}>{label}</option>)}
+              {visibleFeatureTabs.map((tab) => <option key={tab} value={tab}>{activeTabLabel[tab]}</option>)}
             </select>
             <Button type="button" size="sm" variant={pinnedTabs.includes(activeTab) ? "secondary" : "outline"} onClick={toggleActiveTabPin} aria-pressed={pinnedTabs.includes(activeTab)}>
               <Star className="mr-1.5 h-4 w-4" fill={pinnedTabs.includes(activeTab) ? "currentColor" : "none"} />
               {pinnedTabs.includes(activeTab) ? t("family.unpinFeature") : t("family.pinFeature")}
             </Button>
-            {pinnedTabs.filter((tab) => tab !== activeTab).map((tab) => (
+            {pinnedTabs.filter((tab) => tab !== activeTab && visibleFeatureTabs.includes(tab)).map((tab) => (
               <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} aria-label={`${t("family.pinnedFeatures")}: ${activeTabLabel[tab]}`}>
                 <Star className="mr-1.5 h-4 w-4" fill="currentColor" />
                 {activeTabLabel[tab]}
               </Button>
             ))}
-            {recentTabs.filter((tab) => tab !== activeTab).map((tab) => (
+            {recentTabs.filter((tab) => tab !== activeTab && visibleFeatureTabs.includes(tab)).map((tab) => (
               <Button key={tab} type="button" size="sm" variant="secondary" onClick={() => changeActiveTab(tab)} aria-label={`${t("family.recentFeatures")}: ${activeTabLabel[tab]}`}>
                 {activeTabLabel[tab]}
               </Button>
             ))}
-            <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab("timeline")}>
+            <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab(visibleFeatureTabs[0])}>
               {t("family.jumpFirstFeature")}
             </Button>
-            <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab("health")}>
+            <Button type="button" size="sm" variant="outline" onClick={() => changeActiveTab(visibleFeatureTabs[visibleFeatureTabs.length - 1])}>
               {t("family.jumpLastFeature")}
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={toggleTabHelp} aria-expanded={showTabHelp}>
@@ -732,6 +781,7 @@ function FamilyDetailContent() {
         </div>
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto" role="tablist" aria-orientation="horizontal" aria-label={t("family.switchFeatures")} aria-describedby="family-tab-keyboard-help" aria-keyshortcuts="Alt+T ArrowLeft ArrowRight Home End Escape" onKeyDown={handleFamilyTabKeyDown}>
           <button
+            {...getFeatureTabProps("timeline")}
             onClick={() => changeActiveTab("timeline")}
             role="tab"
             aria-pressed={activeTab === "timeline"}
@@ -749,6 +799,7 @@ function FamilyDetailContent() {
             {t("family.timeline")}
           </button>
           <button
+            {...getFeatureTabProps("safety")}
             onClick={() => changeActiveTab("safety")}
             role="tab"
             aria-pressed={activeTab === "safety"}
@@ -766,6 +817,7 @@ function FamilyDetailContent() {
             {t("family.safety")}
           </button>
           <button
+            {...getFeatureTabProps("trail")}
             onClick={() => changeActiveTab("trail")}
             role="tab"
             aria-pressed={activeTab === "trail"}
@@ -783,6 +835,7 @@ function FamilyDetailContent() {
             {t("family.trailHeatmap")}
           </button>
           <button
+            {...getFeatureTabProps("ai")}
             onClick={() => changeActiveTab("ai")}
             role="tab"
             aria-pressed={activeTab === "ai"}
@@ -800,6 +853,7 @@ function FamilyDetailContent() {
             {t("family.aiProposal")}
           </button>
           <button
+            {...getFeatureTabProps("assistant")}
             onClick={() => changeActiveTab("assistant")}
             role="tab"
             aria-pressed={activeTab === "assistant"}
@@ -817,6 +871,7 @@ function FamilyDetailContent() {
             {t("family.assistant")}
           </button>
           <button
+            {...getFeatureTabProps("celebration")}
             onClick={() => changeActiveTab("celebration")}
             role="tab"
             aria-pressed={activeTab === "celebration"}
@@ -834,6 +889,7 @@ function FamilyDetailContent() {
             {t("family.celebration")}
           </button>
           <button
+            {...getFeatureTabProps("digest")}
             onClick={() => changeActiveTab("digest")}
             role="tab"
             aria-pressed={activeTab === "digest"}
@@ -851,6 +907,7 @@ function FamilyDetailContent() {
             {t("family.digestAlbum")}
           </button>
           <button
+            {...getFeatureTabProps("album")}
             onClick={() => changeActiveTab("album")}
             role="tab"
             aria-pressed={activeTab === "album"}
@@ -868,6 +925,7 @@ function FamilyDetailContent() {
             {t("family.album")}
           </button>
           <button
+            {...getFeatureTabProps("automation")}
             onClick={() => changeActiveTab("automation")}
             role="tab"
             aria-pressed={activeTab === "automation"}
@@ -885,6 +943,7 @@ function FamilyDetailContent() {
             {t("family.weeklyAi")}
           </button>
           <button
+            {...getFeatureTabProps("health")}
             onClick={() => changeActiveTab("health")}
             role="tab"
             aria-pressed={activeTab === "health"}
@@ -902,6 +961,7 @@ function FamilyDetailContent() {
             {t("family.healthExperience")}
           </button>
           <button
+            {...getFeatureTabProps("stats")}
             onClick={() => changeActiveTab("stats")}
             role="tab"
             aria-pressed={activeTab === "stats"}
