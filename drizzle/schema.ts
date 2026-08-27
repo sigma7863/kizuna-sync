@@ -1566,6 +1566,18 @@ export const familyThemePreferences = mysqlTable("family_theme_preferences", {
 export type FamilyThemePreference = typeof familyThemePreferences.$inferSelect;
 export type InsertFamilyThemePreference = typeof familyThemePreferences.$inferInsert;
 
+/** Guardian-managed layout shared by every member of a family group. */
+export const familyFeatureLayouts = mysqlTable("family_feature_layouts", {
+  id: int("id").autoincrement().primaryKey(),
+  familyGroupId: int("family_group_id").notNull(),
+  featureOrder: json("feature_order").notNull(),
+  hiddenFeatures: json("hidden_features").notNull(),
+  updatedBy: int("updated_by").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("family_feature_layouts_group_idx").on(table.familyGroupId)]);
+export type FamilyFeatureLayoutRow = typeof familyFeatureLayouts.$inferSelect;
+export type InsertFamilyFeatureLayoutRow = typeof familyFeatureLayouts.$inferInsert;
+
 /** A short, note-free record of a reassurance check-in, scoped to its family and sender. */
 export const familyCheckInRecords = mysqlTable("family_check_in_records", {
   id: int("id").autoincrement().primaryKey(),

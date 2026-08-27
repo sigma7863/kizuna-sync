@@ -325,6 +325,7 @@ import {
 } from "./family-assistant";
 import { getFamilySharingPreference, listFamilySharingPreferences, saveFamilySharingPreference } from "./family-sharing-preferences";
 import { getFamilyThemePreference, saveFamilyThemePreference } from "./family-theme-preferences";
+import { getFamilyFeatureLayout, saveFamilyFeatureLayout } from "./family-feature-layout";
 import { createFamilyCheckInRecord, getOwnFamilyCheckInRecords, getSharedFamilyCheckInRecords } from "./family-checkin-history";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut, storageGetSignedUrl } from "./storage";
@@ -642,6 +643,23 @@ export const appRouter = router({
       const members = await getFamilyMembers(input.familyGroupId);
       if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
       return saveFamilyThemePreference({ ...input, userId: ctx.user.id });
+    }),
+  }),
+
+  familyFeatureLayout: router({
+    get: protectedProcedure.input(z.object({ familyGroupId: z.number().int().positive() })).query(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (!isFamilyMember(members, ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN", message: "Family membership is required" });
+      return (await getFamilyFeatureLayout(input.familyGroupId)) ?? null;
+    }),
+    update: protectedProcedure.input(z.object({
+      familyGroupId: z.number().int().positive(),
+      order: z.array(z.enum(["timeline", "safety", "trail", "ai", "assistant", "celebration", "digest", "album", "stats", "automation", "health"])).max(11),
+      hidden: z.array(z.enum(["timeline", "safety", "trail", "ai", "assistant", "celebration", "digest", "album", "stats", "automation", "health"])).max(10),
+    })).mutation(async ({ ctx, input }) => {
+      const members = await getFamilyMembers(input.familyGroupId);
+      if (getFamilyMemberRole(members, ctx.user.id) !== "guardian") throw new TRPCError({ code: "FORBIDDEN", message: "Guardian role is required" });
+      return saveFamilyFeatureLayout({ ...input, updatedBy: ctx.user.id });
     }),
   }),
 
