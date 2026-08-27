@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { Component, type ReactNode, useState, useMemo, useRef, useEffect } from "react";
 import { CalendarDays, Clock, Flame, MapPinned, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { MapView } from "@/components/Map";
@@ -11,6 +11,28 @@ interface FamilyTrailHeatmapProps {
 
 const RANGE_OPTIONS = [7, 14, 30] as const;
 type TimeSlot = "all" | "morning" | "daytime" | "night";
+const MAX_TRAIL_CIRCLES = 600;
+
+class TrailMapBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-indigo-50 via-white to-pink-50 px-6 text-center">
+          <MapPinned className="h-8 w-8 text-indigo-500" aria-hidden="true" />
+          <p className="font-medium text-slate-800">移動履歴の地図を表示できませんでした</p>
+          <p className="text-sm text-slate-500">履歴データは安全に保存されています。時間をおいて再度お試しください。</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
   const { t } = useI18n();
@@ -18,7 +40,7 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>();
   const [timeSlot, setTimeSlot] = useState<TimeSlot>("all");
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const heatmap = useRef<google.maps.visualization.HeatmapLayer | null>(null);
+  const trailCircles = useRef<google.maps.Circle[]>([]);
 
   const { from, to } = useMemo(() => {
     const to = new Date();
@@ -60,31 +82,38 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
     return { lat: totals.lat / filteredPoints.length, lng: totals.lng / filteredPoints.length };
   }, [filteredPoints]);
 
+  const visiblePoints = useMemo(() => {
+    if (filteredPoints.length <= MAX_TRAIL_CIRCLES) return filteredPoints;
+    const step = Math.ceil(filteredPoints.length / MAX_TRAIL_CIRCLES);
+    return filteredPoints.filter((_, index) => index % step === 0);
+  }, [filteredPoints]);
+
   useEffect(() => {
-    if (!map || !window.google?.maps?.visualization) return;
-    heatmap.current?.setMap(null);
-    const data = filteredPoints.map((point) => ({
-      location: new window.google.maps.LatLng(point.latitude, point.longitude),
-      weight: point.accuracy ? Math.max(0.5, Math.min(2.5, 40 / Math.max(point.accuracy, 1))) : 1,
-    }));
-    heatmap.current = new window.google.maps.visualization.HeatmapLayer({
-      data,
-      map,
-      radius: 34,
-      opacity: 0.72,
-      gradient: [
-        "rgba(49, 46, 129, 0)",
-        "rgba(79, 70, 229, 0.45)",
-        "rgba(168, 85, 247, 0.62)",
-        "rgba(236, 72, 153, 0.78)",
-        "rgba(251, 146, 60, 0.9)",
-      ],
+    if (!map) return;
+    trailCircles.current.forEach((circle) => circle.setMap(null));
+    map.panTo(center);
+    trailCircles.current = visiblePoints.map((point, index) => {
+      const progress = visiblePoints.length > 1 ? index / (visiblePoints.length - 1) : 1;
+      const color = progress > 0.72 ? "#f97316" : progress > 0.4 ? "#ec4899" : "#6366f1";
+      const radius = Math.max(18, Math.min(100, (point.accuracy ?? 35) * 1.4));
+      return new window.google.maps.Circle({
+        center: { lat: point.latitude, lng: point.longitude },
+        radius,
+        map,
+        clickable: false,
+        fillColor: color,
+        fillOpacity: 0.22,
+        strokeColor: color,
+        strokeOpacity: 0.36,
+        strokeWeight: 1,
+        zIndex: 1,
+      });
     });
     return () => {
-      heatmap.current?.setMap(null);
-      heatmap.current = null;
+      trailCircles.current.forEach((circle) => circle.setMap(null));
+      trailCircles.current = [];
     };
-  }, [map, filteredPoints]);
+  }, [center, map, visiblePoints]);
 
   return (
     <Card className="overflow-hidden border-0 bg-white shadow-md">
@@ -138,7 +167,9 @@ export function FamilyTrailHeatmap({ familyGroupId }: FamilyTrailHeatmapProps) {
         </div>
       </div>
       <div className="relative h-[420px]">
-        <MapView className="h-full" initialCenter={center} initialZoom={13} onMapReady={setMap} />
+        <TrailMapBoundary>
+          <MapView className="h-full" initialCenter={center} initialZoom={13} onMapReady={setMap} />
+        </TrailMapBoundary>
         <div className="absolute bottom-4 left-4 rounded-xl bg-white/90 px-3 py-2 text-xs text-gray-700 shadow-sm backdrop-blur">
           <div className="flex items-center gap-2"><MapPinned className="h-3.5 w-3.5 text-pink-500" />{isLoading ? t("common.loading") : t("family.trailPointCount").replace("{count}", String(filteredPoints.length))}</div>
           <div className="mt-1 text-[11px] text-gray-500">{t("family.trailPrivacy")}</div>
